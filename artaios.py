@@ -18,6 +18,9 @@ def countiorb(orbs,nb):
 if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		fn = sys.argv[1]
+	else:
+		"I need an input file!"
+		sys.exit()
 	if not os.path.isfile(fn):
 		print("I can't read %s" % fn)
 		sys.exit()
