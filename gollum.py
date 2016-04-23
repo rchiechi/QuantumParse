@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys,os
-from parse import *
+from parse.orca import *
 
 
 
