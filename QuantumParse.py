@@ -23,9 +23,20 @@ parser.add_argument('-i','--informat', default='guess',
 parser.add_argument('-o','--outformat', required=True,
     choices=('artaios','orca','xyz','gaussian'),
     help="Output file format.")
+parser.add_argument('--overwrite', action='store_true', default=False,
+    help="Overwrite output files without asking.")
+parser.add_argument('-s','--sortaxis', default=None,
+    choices=('x','y','z'),
+    help="Sort output zmatrix by given axis.")
 parser.add_argument('-l','--loglevel', default='info', 
     choices=('info','warn','error','debug'),
     help="Set the logging level.")
+parser.add_argument('-T', '--transport', action='store_true', default=False,
+    help="Format orca/gaussian output for transport calculations.")
+parser.add_argument('-c', '--ncpus', type=int, default=24,
+    help="Number of parallel cpus in output.")
+parser.add_argument('--jobname', type=str, default='',
+    help="Specify a jobname (and output file name) instead of taking it from the input file name.")
 
 
 opts=parser.parse_args()
@@ -45,9 +56,9 @@ if not len(opts.infiles):
 if opts.informat == 'guess':
     logger.debug('Guessing input file format')
     ext = opts.infiles[0].split('.')[-1].lower()
-    if ext in ('com'):
+    if ext in ('com','log'):
         opts.informat = 'gaussian'
-    elif ext in ('inp'):
+    elif ext in ('inp','out'):
         opts.informat = 'orca'
     elif ext in ('xyz'):
         opts.informat = 'xyz'
@@ -56,10 +67,18 @@ if opts.informat == 'guess':
         sys.exit()
 
 logger.debug("Input format: %s, Output format: %s" % (opts.informat,opts.outformat))
+if opts.informat == opts.outformat and not opts.jobname:
+    logger.error("You need to set a jobname if input and output formats are the same.")
+    sys.exit()
+
 parsers = []
 for fn in opts.infiles:
-    parsers.append(importlib.import_module('parse.%s' % opts.informat).Parser(fn))
+    parsers.append(importlib.import_module('parse.%s' % opts.informat).Parser(opts,fn))
 
 if opts.outformat in ('xyz','orca','gaussian'):
     for p in parsers:
-        p.GetZmatrix()
+        p.parseZmatrix()
+        
+for p in parsers:
+    output = (importlib.import_module('output.%s' % opts.outformat).Writer(p))
+    output.write()
