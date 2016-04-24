@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 from argparse import Namespace
+from util.elements import symbols
 
 class Parser:
     
@@ -20,6 +21,11 @@ class Parser:
                 for _l in l.replace('\t',' ').split(' '):
                     if _l.strip():
                         row.append(_l.strip())
+                if not row:
+                    continue
+                elif row[0] not in symbols:
+                    continue
+
                 if len(row) == 5:
                     # Drop -1 colum if it exists
                     del(row[1])
