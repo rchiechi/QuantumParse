@@ -2,6 +2,12 @@
 
 import sys,os
 from parse.orca import *
+from output import xyz
+
+class Writer(xyz.Writer):
+    def write(self):
+        self.logger.warn('You have to write the transport.in file yourself.')
+        return
 
 def wrblock(fh,l):
 	l[-1] = l[-1]+"\n"

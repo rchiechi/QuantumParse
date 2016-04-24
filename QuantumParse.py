@@ -74,6 +74,16 @@ if opts.informat not in ('gaussian','orca') and opts.outformat == 'artaios':
     logger.error("Only gaussian and orca inputs can generate artaios outputs.")
     sys.exit()
 
+#elif opts.informat == 'gaussian' and opts.outformat == 'artaios':
+#    import subprocess
+#    if subprocess.run(['which', 'g09_2unform']).returncode != 0:
+#        logger.error("g09_2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
+#        sys.exit()
+#    completed = []
+#    for log in opts.infiles:
+#        completed.append(subprocess.run(['g09_2unform',log,'1']))
+#    sys.exit()
+
 parsers = []
 for fn in opts.infiles:
     parsers.append(importlib.import_module('parse.%s' % opts.informat).Parser(opts,fn))
@@ -81,7 +91,13 @@ for fn in opts.infiles:
 if opts.outformat in ('xyz','orca','gaussian'):
     for p in parsers:
         p.parseZmatrix()
-        
+elif opts.outformat in ('artaios'):
+    from output import g09_2unform
+    if opts.informat == 'gaussian':
+        if len(opts.infiles) > 1:
+            logger.warn('You can only parse one gaussian file (%s) to artaios at a time.' % opts.infiles[0])
+        g09_2unform(opts.infiles[0])
+
 for p in parsers:
     output = (importlib.import_module('output.%s' % opts.outformat).Writer(p))
     output.write()
