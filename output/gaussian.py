@@ -10,7 +10,7 @@ class Writer(xyz.Writer):
         fh.write('%%mem=%sGB\n' % self.opts.ncpus)
         fh.write('# b3lyp/lanl2dz GFPrint\n\n')
         fh.write('%s\n\n' % self.jobname)
-        fh.write(' 0 %s\n' % str(len(self.parser.zmat) % 2 + 1) )
+        fh.write(' 0 %s\n' % xyz.Writer.getMultiplicity(self.parser.zmat) )
 
     def __writetail(self,fh):
         fh.write('\n')
@@ -23,6 +23,6 @@ class Writer(xyz.Writer):
             fh.write('# iop(5/33=3)\n')
             fh.write('# iop(3/33=1)\n\n')
             fh.write('%s\n\n' % self.jobname)
-            fh.write(' 0 %s\n' % str(len(self.parser.zmat) % 2 + 1) )
+            fh.write(' 0 %s\n' % xyz.Writer.getMultiplicity(self.parser.zmat) )
             self.__writezmat(fh)
             fh.write('\n')

@@ -38,3 +38,14 @@ class Writer:
 
     def __writetail(self,fh):
         return
+
+    @classmethod
+    def getMultiplicity(cls,zmat):
+        n = 0
+        vc = zmat.atoms.value_counts()
+        for atom in vc.index:
+            if atom.upper() == 'H':
+                n += vc[atom]
+            else:
+                n += vc[atom]*2
+        return n%2 + 1
