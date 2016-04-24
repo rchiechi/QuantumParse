@@ -1,3 +1,1 @@
-from parse import xyz
-
-Parser = xyz.Parser
+from parse import Parser
