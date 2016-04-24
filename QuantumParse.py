@@ -70,6 +70,9 @@ logger.debug("Input format: %s, Output format: %s" % (opts.informat,opts.outform
 if opts.informat == opts.outformat and not opts.jobname:
     logger.error("You need to set a jobname if input and output formats are the same.")
     sys.exit()
+if opts.informat not in ('gaussian','orca') and opts.outformat == 'artaios':
+    logger.error("Only gaussian and orca inputs can generate artaios outputs.")
+    sys.exit()
 
 parsers = []
 for fn in opts.infiles:
