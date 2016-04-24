@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 from argparse import Namespace
-from util.elements import symbols
+from util import elements
 
 class Parser:
     
@@ -23,7 +23,7 @@ class Parser:
                         row.append(_l.strip())
                 if not row:
                     continue
-                elif row[0] not in symbols:
+                elif row[0] not in elements:
                     continue
 
                 if len(row) == 5:

@@ -1,8 +1,6 @@
 import logging
 import pandas as pd
-from parse import xyz
-
-Parser = xyz.Parser
+from parse import Parser
 
 import sys,os,re
 import numpy as np
