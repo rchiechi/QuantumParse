@@ -24,16 +24,12 @@ class Parser:
                     continue
                 elif row[0] not in elements:
                     continue
-
-                if len(row) == 5:
-                    # Drop -1 colum if it exists
-                    del(row[1])
                 if len(row) >= 4:
                     try:
-                        zmat['atoms'].append(str(row[0]))
                         zmat['x'].append(float(row[1]))
                         zmat['y'].append(float(row[2]))
                         zmat['z'].append(float(row[3]))
+                        zmat['atoms'].append(str(row[0]))
                     except ValueError:
                         self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
         if self.opts.sortaxis:

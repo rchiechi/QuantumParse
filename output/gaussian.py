@@ -27,10 +27,3 @@ class Writer(xyz.Writer):
             self.__writezmat(fh)
             fh.write('\n')
 
-def g09_2unform(log):
-    import subprocess
-    if subprocess.run(['which', 'g09_2unform']).returncode != 0:
-        logger.error("g09_2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
-        return (None)
-    return subprocess.run(['g09_2unform',log,'1'])
-

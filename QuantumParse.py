@@ -88,16 +88,9 @@ parsers = []
 for fn in opts.infiles:
     parsers.append(importlib.import_module('parse.%s' % opts.informat).Parser(opts,fn))
 
-if opts.outformat in ('xyz','orca','gaussian'):
-    for p in parsers:
-        p.parseZmatrix()
-elif opts.outformat in ('artaios'):
-    from output import g09_2unform
-    if opts.informat == 'gaussian':
-        if len(opts.infiles) > 1:
-            logger.warn('You can only parse one gaussian file (%s) to artaios at a time.' % opts.infiles[0])
-        g09_2unform(opts.infiles[0])
-
+#if opts.outformat in ('xyz','orca','gaussian'):
+for p in parsers:
+    p.parseZmatrix()
 for p in parsers:
     output = (importlib.import_module('output.%s' % opts.outformat).Writer(p))
     output.write()
