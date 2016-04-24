@@ -3,7 +3,7 @@ import pandas as pd
 from util import elements
 
 class Parser:
-    
+  
     zmat = pd.DataFrame()
     iorbs = pd.DataFrame()
     logger = logging.getLogger('default')
@@ -18,12 +18,9 @@ class Parser:
             for l in fh.readlines():
                 row = []
                 for _l in l.replace('\t',' ').split(' '):
-                    if _l.strip():
-                        row.append(_l.strip())
-                if not row:
-                    continue
-                elif row[0] not in elements:
-                    continue
+                    if _l.strip(): row.append(_l.strip())
+                if not row: continue
+                elif row[0] not in elements: continue
                 if len(row) >= 4:
                     try:
                         zmat['x'].append(float(row[1]))
@@ -44,5 +41,4 @@ class Parser:
 
     def parseZmatrix(self):
         self.__parsezmat()
-        #self.logger.debug(str(self.zmat))
 
