@@ -16,6 +16,9 @@ class Parser(xyz.Parser):
                         row.append(_l.strip())
                 if not row:
                     continue
+                elif row[0] == 'NAtoms=':
+                    self.logger.debug('Z-matrix should end up with %s atoms.' % row[1])
+                    break
                 elif row[0] not in elements:
                     continue
                 if len(row) == 5:
@@ -31,13 +34,5 @@ class Parser(xyz.Parser):
                         if '.log' not in self.fn:
                             self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
                             print(row)
-        if self.opts.sortaxis:
-            self.logger.debug('Sorting Z-matrix by column %s' % self.opts.sortaxis)
-            self.zmat = self.zmat = pd.DataFrame(zmat).sort_values(self.opts.sortaxis)
-        else:
-            self.zmat = pd.DataFrame(zmat)
-        if not len(self.zmat):
-            self.logger.error('Empty Z-matrix parsed from %s' % self.fn)
-            import sys
-            sys.exit()
-
+        self.__zmattodf(zmat)
+       

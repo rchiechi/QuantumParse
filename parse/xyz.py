@@ -29,16 +29,20 @@ class Parser:
                         zmat['atoms'].append(str(row[0]))
                     except ValueError:
                         self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
+        self.__zmattodft(zmat)
+
+    def __zmattodf(self,zmat):
         if self.opts.sortaxis:
             self.logger.debug('Sorting Z-matrix by column %s' % self.opts.sortaxis)
-            self.zmat = self.zmat = pd.DataFrame(zmat).sort_values(self.opts.sortaxis)
+            self.zmat = pd.DataFrame(zmat).sort_values(self.opts.sortaxis)
         else:
             self.zmat = pd.DataFrame(zmat)
         if not len(self.zmat):
             self.logger.error('Empty Z-matrix parsed from %s' % self.fn)
             import sys
             sys.exit()
-
+        self.logger.info('Parsed a Z-matrix with %s atoms.' % len(self.zmat))
     def parseZmatrix(self):
         self.__parsezmat()
 
+    
