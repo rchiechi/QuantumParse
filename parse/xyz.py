@@ -29,7 +29,7 @@ class Parser:
                         zmat['atoms'].append(str(row[0]))
                     except ValueError:
                         self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
-        self.__zmattodft(zmat)
+        self.__zmattodf(zmat)
 
     def __zmattodf(self,zmat):
         if self.opts.sortaxis:
