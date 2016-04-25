@@ -38,9 +38,16 @@ class Writer(xyz.Writer):
                 continue
             else:
                 self.logger.info('Guessing %s electrodes.' % atom)
-            e1 = self.parser.zmat.atoms[self.parser.zmat.atoms == atom][self.parser.zmat.z < 0].index
-            e2 = self.parser.zmat.atoms[self.parser.zmat.atoms == atom][self.parser.zmat.z > 0].index
-            mol = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
+            
+            molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
+            eg1 = self.parser.zmat.atoms[:molg[0]].index
+            eg2 = self.parser.zmat.atoms[molg[-1]+1:].index
+            #eg1 = self.parser.zmat.atoms[self.parser.zmat.atoms == atom][self.parser.zmat.z < 0].index
+            #eg2 = self.parser.zmat.atoms[self.parser.zmat.atoms == atom][self.parser.zmat.z > 0].index
+            #molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
+            if len(eg1)>1 and len(eg2)>1 and len(molg)>1 :
+                e1,mol,e2 = eg1,molg,eg2
+                break
         return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1)
 
     def __writetransport(self):
