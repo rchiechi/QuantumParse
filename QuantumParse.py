@@ -73,6 +73,8 @@ if opts.informat == opts.outformat and not opts.jobname:
 if opts.informat not in ('gaussian','orca') and opts.outformat == 'artaios':
     logger.error("Only gaussian and orca inputs can generate artaios outputs.")
     sys.exit()
+if opts.outformat in ('artaios') and opts.sortaxis:
+    logger.warn('Sorting the z-matrix and outputting to artaios is a bad idea.')
 
 #elif opts.informat == 'gaussian' and opts.outformat == 'artaios':
 #    import subprocess
