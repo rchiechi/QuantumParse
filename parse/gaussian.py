@@ -19,8 +19,6 @@ class Parser(xyz.Parser):
                 elif row[0].lower() == 'natoms=':
                     self.logger.debug('Z-matrix should end up with %s atoms.' % row[1])
                     break
-                elif row[0].lower() == 'stoichiometry':
-                    break
                 elif row[0] not in elements:
                     continue
                 if len(row) == 5:

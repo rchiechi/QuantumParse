@@ -30,7 +30,7 @@ class Writer(xyz.Writer):
     def __guesseletrodes(self):
         '''Try to guess electrodes for transport.in.
            only works if molecule crosses 0 along Z.'''
-        e1,mol,e2 = (0,0),(0,0),(0,0)
+        e1,mol,e2,atom = (0,0),(0,0),(0,0),None
         self.logger.warn('Assuming atoms are sorted along Z.')
         for atom in ('Au','Ag','S'):
             if atom not in self.parser.zmat.atoms.get_values():
@@ -38,23 +38,20 @@ class Writer(xyz.Writer):
                 continue
             else:
                 self.logger.info('Guessing %s electrodes.' % atom)
-            
             molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
             eg1 = self.parser.zmat.atoms[:molg[0]].index
             eg2 = self.parser.zmat.atoms[molg[-1]+1:].index
-            #eg1 = self.parser.zmat.atoms[self.parser.zmat.atoms == atom][self.parser.zmat.z < 0].index
-            #eg2 = self.parser.zmat.atoms[self.parser.zmat.atoms == atom][self.parser.zmat.z > 0].index
-            #molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
-            if len(eg1)>1 and len(eg2)>1 and len(molg)>1 :
+            if len(eg1) and len(eg2) and len(molg):
                 e1,mol,e2 = eg1,molg,eg2
                 break
-        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1)
+        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
 
     def __writetransport(self):
         self.logger.info('Writing transport.in')
-        e1,mol,e2 = self.__guesseletrodes()
+        e1,mol,e2,atom = self.__guesseletrodes()
         with open(os.path.join(os.path.split(self.parser.fn)[0],'transport.in'), 'w') as fh:
             fh.write('# Total atoms: %i\n' % len(self.parser.zmat))
+            fh.write('# Guessed electrodes as %s\n' % atom)
             fh.write('# Check partitioning for accuracy!\n')
             fh.write('$partitioning\n')
             fh.write('  leftatoms %i-%i\n' % e1) 
