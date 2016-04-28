@@ -114,3 +114,6 @@ elements = (
 'Uuq',
 'Uuh')
 
+atomicNumber = {}
+for i in range(0,len(elements)):
+        atomicNumber[elements[i]] = i
