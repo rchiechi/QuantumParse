@@ -49,7 +49,13 @@ class Writer(xyz.Writer):
     def __writetransport(self):
         self.logger.info('Writing transport.in')
         e1,mol,e2,atom = self.__guesseletrodes()
-        with open(os.path.join(os.path.split(self.parser.fn)[0],'transport.in'), 'w') as fh:
+        fp = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
+        if os.path.exists(fp) and not self.opts.overwrite:
+            self.logger.error('Not overwriting %s' %fp)
+            return
+            
+        #with open(os.path.join(os.path.split(self.parser.fn)[0],'transport.in'), 'w') as fh:
+        with open(fp, 'w') as fh:
             fh.write('# Total atoms: %i\n' % len(self.parser.zmat))
             fh.write('# Guessed electrodes as %s\n' % atom)
             fh.write('# Check partitioning for accuracy!\n')
