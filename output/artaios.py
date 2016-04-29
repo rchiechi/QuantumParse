@@ -3,8 +3,7 @@
 import sys,os
 from parse.orca import *
 from output import xyz
-from subprocess import Popen, PIPE
-#import subprocess
+import subprocess
 
 
 class Writer(xyz.Writer):
@@ -14,16 +13,17 @@ class Writer(xyz.Writer):
             self.__writetransport()
         
     def __g09_2unform(self):
-        #if subprocess.run(['which', 'g09_2unform'],stdout=subprocess.PIPE).returncode != 0:
-        p = Popen(['which', 'g09_2unform'],stdout=PIPE)
-        if p.wait() != 0:
+        if subprocess.run(['which', 'g09_2unform'],stdout=subprocess.PIPE).returncode != 0:
+        #p = Popen(['which', 'g09_2unform'],stdout=PIPE)
+        #if p.wait() != 0:
             self.logger.error("g09_2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
             return None 
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
-        #p = subprocess.run(['g09_2unform',self.parser.fn,'1',os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE).stdout
-        p = Popen(['g09_2unform',self.parser.fn,'1',os.path.split(self.parser.fn)[0]],stdout=PIPE)
-        p.wait()
-        for l in str(p.communicate()[0],encoding='utf-8').split('\n'):
+        p = subprocess.run(['g09_2unform',self.parser.fn,'1',os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
+        #p = Popen(['g09_2unform',self.parser.fn,'1',os.path.split(self.parser.fn)[0]],stdout=PIPE)
+        #p.wait()
+        #for l in str(p.communicate()[0],encoding='utf-8').split('\n'):
+        for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
 

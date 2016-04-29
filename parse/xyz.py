@@ -15,7 +15,7 @@ class Parser:
     def __parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
-            for l in fh.readlines():
+            for l in fh:
                 row = []
                 for _l in l.replace('\t',' ').split(' '):
                     if _l.strip(): row.append(_l.strip())
