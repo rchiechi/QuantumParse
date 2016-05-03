@@ -23,20 +23,20 @@ class Writer:
         else:
             self.logger.info('Writing to: %s' % self.fn)
             with open(self.fn, 'w') as fh:
-                self.__writehead(fh)
-                self.__writezmat(fh)
-                self.__writetail(fh)
+                self._writehead(fh)
+                self._writezmat(fh)
+                self._writetail(fh)
 
-    def __writehead(self,fh):
+    def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))
         fh.write('%s\n' % self.jobname)
 
-    def __writezmat(self,fh):
+    def _writezmat(self,fh):
         self.parser.zmat.to_csv(fh, sep='\t', 
                 header=False, index=False,
                 float_format='%.8f')
 
-    def __writetail(self,fh):
+    def _writetail(self,fh):
         return
 
     @classmethod

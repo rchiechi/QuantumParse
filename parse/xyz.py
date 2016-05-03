@@ -12,7 +12,7 @@ class Parser:
         self.fn = fn
         self.opts = opts
 
-    def __parsezmat(self):
+    def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
             for l in fh:
@@ -29,9 +29,9 @@ class Parser:
                         zmat['atoms'].append(str(row[0]))
                     except ValueError:
                         self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
-        self.__zmattodf(zmat)
+        self._zmattodf(zmat)
 
-    def __zmattodf(self,zmat):
+    def _zmattodf(self,zmat):
         if self.opts.sortaxis:
             self.logger.debug('Sorting Z-matrix by column %s' % self.opts.sortaxis)
             self.zmat = pd.DataFrame(zmat).sort_values(self.opts.sortaxis)
@@ -43,6 +43,6 @@ class Parser:
             sys.exit()
         self.logger.info('Parsed a Z-matrix with %s atoms.' % len(self.zmat))
     def parseZmatrix(self):
-        self.__parsezmat()
+        self._parsezmat()
 
     

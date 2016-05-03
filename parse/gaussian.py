@@ -6,7 +6,8 @@ from util import elements
 
 class Parser(xyz.Parser):
     #TODO class variable for bailing on keyword
-    def __parsezmat(self):
+
+    def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
             for l in fh:
@@ -38,5 +39,5 @@ class Parser(xyz.Parser):
                         if '.log' not in self.fn:
                             self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
                             print(row)
-        self.__zmattodf(zmat)
+        self._zmattodf(zmat)
        

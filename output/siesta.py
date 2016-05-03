@@ -4,15 +4,15 @@ from util import atomicNumber
 class Writer(xyz.Writer):
     ext = '.fdf'
     
-    def __section(self,s):
+    def _section(self,s):
         h ='# ---------------------------------------------------------------------------'
         return '%s\n# %s\n%s\n' % (h,s,h)
 
-    def __writehead(self,fh):
-        fh.write(self.__section('Name and Label'))
+    def _writehead(self,fh):
+        fh.write(self._section('Name and Label'))
         fh.write("SystemName %s\n" % self.jobname)
         fh.write("SystemLabel %s\n" % self.jobname)
-        fh.write(self.__section('Species and Atoms'))
+        fh.write(self._section('Species and Atoms'))
         fh.write("NumberOfAtoms %s\n" % len(self.parser.zmat))
         fh.write("NumberOfSpecies %s\n" % len(self.parser.zmat.atoms.unique()))
         fh.write("%block ChemicalSpeciesLabel\n")
@@ -31,7 +31,7 @@ class Writer(xyz.Writer):
             else:
                 fh.write("\t%s DZP\n" % atom)
         fh.write("%endblock PAO.BasisSizes\n")
-        fh.write(self.__section('Lattice'))
+        fh.write(self._section('Lattice'))
         fh.write("#LatticeConstant         1.000 Ang\n")
         #fh.write("#%block LatticeVectors\n")
         #fh.write("#\t1.0    0.0     0.0\n")
@@ -39,15 +39,15 @@ class Writer(xyz.Writer):
         #fh.write("#\t0.0    0.0     1.0\n")
         #fh.write("#%endblock LatticeVectors\n")
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
-    def __writezmat(self,fh):
-        fh.write(self.__section('Atomic Coordinates'))
+    def _writezmat(self,fh):
+        fh.write(self._section('Atomic Coordinates'))
         fh.write("AtomicCoordinatesFormat Ang\n")
         fh.write("%block AtomicCoordinatesAndAtomicSpecies\n")
         for row in self.parser.zmat.iterrows():
             fh.write("\t%.8f\t%.8f\t%.8f\t%s\n" % (row[1].x,row[1].y,row[1].z,self.atomnum[row[1].atoms]))
         fh.write("%endblock AtomicCoordinatesAndAtomicSpecies\n")
-    def __writetail(self,fh):
-        fh.write(self.__section('DFT'))
+    def _writetail(self,fh):
+        fh.write(self._section('DFT'))
         fh.write("%block kgrid_Monkhorst_Pack\n\t1    0    0    0.0\n\t0    1    0    0.0\n\t0    0    1    0.0\n%endblock kgrid_Monkhorst_Pack\n")
         fh.write("xc.functional           GGA\n")
         fh.write("xc.authors              revPBE\n")
@@ -71,6 +71,6 @@ class Writer(xyz.Writer):
         fh.write("\t-20.00  20.00  0.200  1000  eV\n")
         fh.write("%endblock ProjectedDensityOfStates\n")
         if self.opts.transport:
-                fh.write(self.__section('Gollum'))
+                fh.write(self._section('Gollum'))
                 fh.write("Gollum                  EMol\n")
     
