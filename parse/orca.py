@@ -1,9 +1,60 @@
-import logging
-import pandas as pd
 from parse import Parser
 
 import sys,os,re
 import numpy as np
+
+from parse import xyz
+import logging
+import pandas as pd
+from util import elements
+
+
+class Parser(xyz.Parser):
+    
+    #TODO Orca parsing is a mexx
+    fm = None
+    orbs = None
+    orbidx = None
+    ol = None
+    
+    def __parsezmat(self):
+        zmat = {'atoms':[],'x':[],'y':[],'z':[]}
+        with open(self.fn) as fh:
+            for l in fh:
+                row = []
+                for _l in l.replace('\t',' ').split(' '):
+                    if _l.strip():
+                        row.append(_l.strip())
+                if not row:
+                    continue
+                elif row[0].lower() == 'cartesian coordinates (a.u.)':
+                    break
+                elif row[0] not in elements:
+                    continue
+                if len(row) == 4:
+                    try:
+                        zmat['x'].append(float(row[1]))
+                        zmat['y'].append(float(row[2]))
+                        zmat['z'].append(float(row[3]))
+                        zmat['atoms'].append(str(row[0]))
+                    except ValueError:
+                        self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
+                        print(row)
+        self.__zmattodf(zmat)
+#    def parseZmatrix(self):
+#        self.__parsezmat()
+    
+
+    def parseMatrix(self):
+        self.logger.debug('Parsing matrix from %s' % self.fn)
+        with open(self.fn) as fh:
+            self.fm = fock(fh)
+            self.orbs,self.orbidx = norbs(fh)
+            self.ol = overlap(fh)
+        if None in (self.fm, self.orbs, self.orbidx, self.ol):
+            self.logger.error("Did not parse Orca matrix correctly.")
+
+
 
 YELLOW="\033[1;33m"
 WHITE="\033[0m"
@@ -200,14 +251,3 @@ def norbs(fh):
         print("%sAtoms: %s%s %sOrbitals: %s%s%s" \
                 % (YELLOW,TEAL,len(orbdict),YELLOW,GREEN,torbs,RS) )
     return orbdict, orbidx
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        fn = sys.argv[1]
-    if not os.path.isfile(fn):
-        print("I can't read %s" % fn)
-        sys.exit()
-    with open(fn, 'rt') as fh:
-        fm = fock(fh)
-        orbs = norbs(fh)
-        ol = overlap(fh)

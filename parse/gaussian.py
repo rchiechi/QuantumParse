@@ -5,7 +5,7 @@ from util import elements
 
 
 class Parser(xyz.Parser):
-
+    #TODO class variable for bailing on keyword
     def __parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
