@@ -11,37 +11,14 @@ from util import elements
 
 class Parser(xyz.Parser):
     
-    #TODO Orca parsing is a mexx
+    #TODO Orca parsing is a mess
     fm = None
     orbs = None
     orbidx = None
     ol = None
+    breaks = ('cartesian coordinates (a.u.)')
     
-    def __parsezmat(self):
-        zmat = {'atoms':[],'x':[],'y':[],'z':[]}
-        with open(self.fn) as fh:
-            for l in fh:
-                row = []
-                for _l in l.replace('\t',' ').split(' '):
-                    if _l.strip():
-                        row.append(_l.strip())
-                if not row:
-                    continue
-                elif row[0].lower() == 'cartesian coordinates (a.u.)':
-                    break
-                elif row[0] not in elements:
-                    continue
-                if len(row) == 4:
-                    try:
-                        zmat['x'].append(float(row[1]))
-                        zmat['y'].append(float(row[2]))
-                        zmat['z'].append(float(row[3]))
-                        zmat['atoms'].append(str(row[0]))
-                    except ValueError:
-                        self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
-                        print(row)
-        self.__zmattodf(zmat)
-#    def parseZmatrix(self):
+   #    def parseZmatrix(self):
 #        self.__parsezmat()
     
 

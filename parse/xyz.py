@@ -7,6 +7,10 @@ class Parser:
     zmat = pd.DataFrame()
     iorbs = pd.DataFrame()
     logger = logging.getLogger('default')
+    #When parsing large files set lowercase strings
+    #that terminate the z-matrix to avoid looping
+    #over the entire file
+    breaks = ()
 
     def __init__(self,opts,fn):
         self.fn = fn
@@ -20,6 +24,7 @@ class Parser:
                 for _l in l.replace('\t',' ').split(' '):
                     if _l.strip(): row.append(_l.strip())
                 if not row: continue
+                elif row[0].lower() in self.breaks: break
                 elif row[0] not in elements: continue
                 if len(row) >= 4:
                     try:
