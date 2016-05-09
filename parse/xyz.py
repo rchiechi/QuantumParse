@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 from util import elements
-
+from time import sleep
 class Parser:
   
     zmat = pd.DataFrame()
@@ -24,8 +24,10 @@ class Parser:
                 for _l in l.replace('\t',' ').split(' '):
                     if _l.strip(): row.append(_l.strip())
                 if not row: continue
-                elif row[0].lower() in self.breaks: break
-                elif row[0] not in elements: continue
+                elif row[0].lower() in self.breaks: 
+                    self.logger.debug("Hit break in Z-matrix (%s)" % l.strip())
+                    break
+                elif row[0] not in elements:continue
                 if len(row) >= 4:
                     try:
                         zmat['x'].append(float(row[1]))
@@ -34,6 +36,7 @@ class Parser:
                         zmat['atoms'].append(str(row[0]))
                     except ValueError:
                         self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
+                        self.logger.debug(' '.join(row))
         self._zmattodf(zmat)
 
     def _zmattodf(self,zmat):

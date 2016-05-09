@@ -14,7 +14,7 @@ class Writer(xyz.Writer):
             self.__writetransport()
         elif self.opts.informat == 'orca':
             self.parser.parseMatrix()
-            self.writeOrcatransport(self.parser)
+            self.writeOrcatransport()
 
     def __g09_2unform(self):
         if subprocess.run(['which', 'g09_2unform'],stdout=subprocess.PIPE).returncode != 0:
@@ -108,7 +108,7 @@ class Writer(xyz.Writer):
             l = 0
             for i in range(0,nb):
                 for n in range(0,nb):
-                    fh.write("%s\t" % [i][n])
+                    fh.write("%s\t" % self.parser.fm[i][n])
                     l += 1
                     if l >= 4:
                         fh.write("\n")
@@ -143,7 +143,7 @@ class Writer(xyz.Writer):
                         guessorbs["M"][0] = i
                 else:
                     guessorbs["M"][1] = ie
-                i += len(orbs[a])
+                i += len(self.parser.orbs[a])
 
             fh.write("##############\n")
             self.__wrblock(fh,["$partitioning","   totnbas  %s" % nb, "   leftbas %s-%s #EDIT THIS!" % tuple(guessorbs["L"]),\

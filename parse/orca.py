@@ -7,7 +7,10 @@ from parse import xyz
 import logging
 import pandas as pd
 from util import elements
+from colorama import init,Fore,Back,Style
 
+# Setup colors
+#init(autoreset=True)
 
 class Parser(xyz.Parser):
     
@@ -16,11 +19,8 @@ class Parser(xyz.Parser):
     orbs = None
     orbidx = None
     ol = None
-    breaks = ('cartesian coordinates (a.u.)')
-    
-   #    def parseZmatrix(self):
-#        self.__parsezmat()
-    
+    breaks = ('internal')
+   
 
     def parseMatrix(self):
         self.logger.debug('Parsing matrix from %s' % self.fn)
@@ -32,19 +32,6 @@ class Parser(xyz.Parser):
             self.logger.error("Did not parse Orca matrix correctly.")
 
 
-
-YELLOW="\033[1;33m"
-WHITE="\033[0m"
-RED="\033[1;31m"
-TEAL="\033[1;36m"
-GREEN="\033[1;32m"
-BLUE="\033[1;34m"
-RS="\033[0m"
-CL="\033[2K"
-UP="\033[1A"
-CS="\033[0J"
-
-SPINNER=('\\','|','/','|')
 def overlap(fh):
     print("Parsing overlap matrix...")
     fh.seek(0)
@@ -79,9 +66,9 @@ def overlap(fh):
                     ovdict[i] = fl[1:]
                 else:
                     ovdict[i] += fl[1:]
-    print("%sOverlap Matrix " % YELLOW, end='')
+    print("%sOverlap Matrix " % Fore.YELLOW, end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" \
-            % (YELLOW,GREEN,len(ovdict),YELLOW,GREEN,len(ovdict[0]),RS) )
+            % (Fore.YELLOW,Fore.GREEN,len(ovdict),Fore.YELLOW,Fore.GREEN,len(ovdict[0]),Style.RESET_ALL) )
     ovmatrix = []
     for i in range(0, len(ovdict)):
         ovmatrix.append(ovdict[i])
@@ -170,9 +157,9 @@ def fock(fh):
         print("Empty Fock Matrix! ",end='')
         print(fm.shape)
         sys.exit()
-    print("%sFock matrix " % YELLOW,end='')
+    print("%sFock matrix " % Fore.YELLOW,end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" \
-            % (YELLOW,GREEN,fm.shape[0],YELLOW,GREEN,fm.shape[1],RS) )
+            % (Fore.YELLOW,Fore.GREEN,fm.shape[0],Fore.YELLOW,Fore.GREEN,fm.shape[1],Style.RESET_ALL) )
     return fm
 
 def norbs(fh):
@@ -222,9 +209,9 @@ def norbs(fh):
     for a in orbdict:
         torbs+=len(orbdict[a])
     if torbs == 0:
-        print("%sNo orbitals found, caclulation probably did not converge!%s" % (RED,RS))
+        print("%sNo orbitals found, caclulation probably did not converge!%s" % (Fore.RED,Style.RESET_ALL))
         sys.exit()
     else:
         print("%sAtoms: %s%s %sOrbitals: %s%s%s" \
-                % (YELLOW,TEAL,len(orbdict),YELLOW,GREEN,torbs,RS) )
+                % (Fore.YELLOW,Fore.CYAN,len(orbdict),Fore.YELLOW,Fore.GREEN,torbs,Style.RESET_ALL) )
     return orbdict, orbidx
