@@ -11,6 +11,7 @@ class Writer(xyz.Writer):
         with open(fn,'wt') as fh:
             fh.write('! DFT B3LYP Def2-TZVP ECP{def2-TZVP}\n') 
             fh.write('#! AHSCF vdwgrid3\n') 
+            fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n'% (mult,xyzfh.name) )
             fh.write('%pal nprocs 48 end\n')
             if not self.opts.transport:
@@ -18,6 +19,7 @@ class Writer(xyz.Writer):
             fh.write('\n$new_job\n')
             fh.write('! DFT B3LYP Def2-TZVP ECP{def2-TZVP} MOREAD\n')
             fh.write('#! AHSCF vdwgrid3\n') 
+            fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name) )
             fh.write('%%MoInp "%s.gbw"\n' % bn)
             fh.write('%%base "%s_T"\n' % bn)
