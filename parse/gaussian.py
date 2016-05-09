@@ -6,5 +6,5 @@ from util import elements
 
 class Parser(xyz.Parser):
 
-    breaks = ('natoms=','stoichiometry')
+    breaks = ('--link1--','natoms=','stoichiometry')
 
