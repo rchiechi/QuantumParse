@@ -30,12 +30,13 @@ class Parser:
                 elif row[0] not in elements:continue
                 if len(row) >= 4:
                     try:
-                        zmat['x'].append(float(row[1]))
-                        zmat['y'].append(float(row[2]))
-                        zmat['z'].append(float(row[3]))
+                        x,y,z = map(float,row[1:4])
+                        zmat['x'].append(x)
+                        zmat['y'].append(y)
+                        zmat['z'].append(z)
                         zmat['atoms'].append(str(row[0]))
                     except ValueError:
-                        self.logger.warn("Error parsing line in Z-matrix in %s" % self.fn)
+                        self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
         self._zmattodf(zmat)
 

@@ -146,9 +146,9 @@ class Writer(xyz.Writer):
                 i += len(self.parser.orbs[a])
 
             fh.write("##############\n")
-            self.__wrblock(fh,["$partitioning","   totnbas  %s" % nb, "   leftbas %s-%s #EDIT THIS!" % tuple(guessorbs["L"]),\
-                    "   centralbas %s-%s #EDIT THIS!" % tuple(guessorbs["M"]), \
-                    "   rightbas %s-%s #EDIT THIS!" % tuple(guessorbs["R"]),"$end"])
+            self.__wrblock(fh,["$partitioning","   totnbas  %s" % nb, "   leftbas %s-%s #CHECK THIS!" % tuple(guessorbs["L"]),\
+                    "   centralbas %s-%s #CHECK THIS!" % tuple(guessorbs["M"]), \
+                    "   rightbas %s-%s #CHECK THIS!" % tuple(guessorbs["R"]),"$end"])
             self.__wrblock(fh,["$energy_range","  units   eV","  start  -8.0","   end     -1.0",\
                     "   fermi_level -5.0","   steps 500", "$end"])
             self.__wrblock(fh,["$system","   nspin  1","$end"])
