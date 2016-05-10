@@ -1,4 +1,5 @@
 elements = (
+'n',
 'H',
 'He',
 'Li',
