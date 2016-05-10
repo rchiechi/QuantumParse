@@ -21,7 +21,7 @@ parser.add_argument('-i','--informat', default='guess',
     choices=('guess','orca','xyz','gaussian'),
     help="Input file format.")
 parser.add_argument('-o','--outformat', required=True,
-    choices=('artaios','orca','xyz','gaussian','siesta'),
+    choices=('artaios','orca','xyz','gaussian','siesta','gollum'),
     help="Output file format.")
 parser.add_argument('--overwrite', action='store_true', default=False,
     help="Overwrite output files without asking.")
