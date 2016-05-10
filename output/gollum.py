@@ -1,8 +1,15 @@
+import os
 from output import xyz
+
 
 class Writer(xyz.Writer):
 
     ext = ''
+
+    def __init__(self,parser):
+        xyz.Writer.__init__(self,parser)
+        self.fn = os.path.join(os.path.split(self.fn)[0],'input')
+
 
     def _writehead(self,fh):
         
@@ -46,6 +53,9 @@ class Writer(xyz.Writer):
             for row in self.parser.zmat[e[a][0]:e[a][1]].iterrows():
                 fh.write('%s %s\n' % (row[0]+1,m[a]))
     
+    def _writetail(self,fh):
+        self.logger.info("Wrote gollum input to '%s'" %fh.name)
+
     def _guesselectrodes(self):
         electrodes = {"L":[-1,-1], "M":[-1,-1], "R":[-1,-1]}
         if 'Au' not in self.parser.zmat.atoms.values and 'Ag' not in self.parser.zmat.atoms.values:
