@@ -17,6 +17,7 @@ class Writer(xyz.Writer):
             fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n'% (mult,xyzfh.name) )
             fh.write('%pal nprocs 48 end\n')
+            fh.write('%maxcore 2048\n')
             if not self.opts.transport:
                return
             fh.write('\n$new_job\n')
