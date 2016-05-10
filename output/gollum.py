@@ -53,20 +53,15 @@ class Writer(xyz.Writer):
             return electrodes
         for row in self.parser.zmat.iterrows():
             if str(row[1].atoms) in ('Au','Ag'):
-                if electrodes["L"] == [-1,-1]:
+                if electrodes["L"][0] == -1:
                     electrodes["L"][0] = row[0]
                 elif electrodes["R"] == [-1,-1] and -1 not in electrodes['L']:
                     electrodes["R"][0] = row[0]
                 elif -1 not in electrodes['M']:
                     electrodes["R"][1] = row[0]
             elif electrodes["M"][0] == -1:
-                    print('M0,L1')
                     electrodes["M"][0] = row[0]
                     electrodes["L"][1] = row[0]-1
             elif electrodes['R'] == [-1,-1]:
-                print('M1')
                 electrodes["M"][1] = row[0]
-            else:
-                print('ELSE')
-        print(electrodes)
         return electrodes
