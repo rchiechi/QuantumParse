@@ -43,8 +43,11 @@ class Writer(xyz.Writer):
         fh.write(self._section('Atomic Coordinates'))
         fh.write("AtomicCoordinatesFormat Ang\n")
         fh.write("%block AtomicCoordinatesAndAtomicSpecies\n")
+        i = 1
         for row in self.parser.zmat.iterrows():
-            fh.write("\t%.8f\t%.8f\t%.8f\t%s\n" % (row[1].x,row[1].y,row[1].z,self.atomnum[row[1].atoms]))
+            fh.write("\t%.8f\t%.8f\t%.8f\t%s\t%s\t%s\n" % 
+                    (row[1].x,row[1].y,row[1].z,self.atomnum[row[1].atoms],row[1].atoms,i))
+            i += 1
         fh.write("%endblock AtomicCoordinatesAndAtomicSpecies\n")
     def _writetail(self,fh):
         fh.write(self._section('DFT'))
