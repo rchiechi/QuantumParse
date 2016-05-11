@@ -26,28 +26,30 @@ class Writer(xyz.Writer):
             if 'reading' in l:
                 self.logger.info(l)
 
-    def __guesseletrodes(self):
-        '''Try to guess electrodes for transport.in.
-           only works if molecule crosses 0 along Z.'''
-        e1,mol,e2,atom = (0,0),(0,0),(0,0),None
-        self.logger.warn('Assuming atoms are sorted along Z.')
-        for atom in ('Au','Ag','S'):
-            if atom not in self.parser.zmat.atoms.get_values():
-                self.logger.debug('No %s electrodes.' % atom)
-                continue
-            else:
-                self.logger.info('Guessing %s electrodes.' % atom)
-            molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
-            eg1 = self.parser.zmat.atoms[:molg[0]].index
-            eg2 = self.parser.zmat.atoms[molg[-1]+1:].index
-            if len(eg1) and len(eg2) and len(molg):
-                e1,mol,e2 = eg1,molg,eg2
-                break
-        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
+#    def __guesseletrodes(self):
+#        '''Try to guess electrodes for transport.in.
+#           only works if molecule crosses 0 along Z.'''
+#        e1,mol,e2,atom = (0,0),(0,0),(0,0),None
+#        self.logger.warn('Assuming atoms are sorted along Z.')
+#        for atom in ('Au','Ag','S'):
+#            if atom not in self.parser.zmat.atoms.get_values():
+#                self.logger.debug('No %s electrodes.' % atom)
+#                continue
+#            else:
+#                self.logger.info('Guessing %s electrodes.' % atom)
+#            molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
+#            eg1 = self.parser.zmat.atoms[:molg[0]].index
+#            eg2 = self.parser.zmat.atoms[molg[-1]+1:].index
+#            if len(eg1) and len(eg2) and len(molg):
+#                e1,mol,e2 = eg1,molg,eg2
+#                break
+#        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
 
     def __writetransport(self):
+        if not self __haveelectrodes():
+            self.logger.error('Did not parse any electrodes.')
+            return
         self.logger.info('Writing transport.in')
-        e1,mol,e2,atom = self.__guesseletrodes()
         fp = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
         if os.path.exists(fp) and not self.opts.overwrite:
             self.logger.error('Not overwriting %s' %fp)
@@ -56,12 +58,12 @@ class Writer(xyz.Writer):
         #with open(os.path.join(os.path.split(self.parser.fn)[0],'transport.in'), 'w') as fh:
         with open(fp, 'w') as fh:
             fh.write('# Total atoms: %i\n' % len(self.parser.zmat))
-            fh.write('# Guessed electrodes as %s\n' % atom)
+            fh.write('# Guessed electrodes as %s\n' % self.electrodes['atom'])
             fh.write('# Check partitioning for accuracy!\n')
             fh.write('$partitioning\n')
-            fh.write('  leftatoms %i-%i\n' % e1) 
-            fh.write('  centralatoms %i-%i\n' % mol) 
-            fh.write('  rightatoms %i-%i\n' % e2) 
+            fh.write('  leftatoms %i-%i\n' % self.electrodes['L']) 
+            fh.write('  centralatoms %i-%i\n' % self.electrodes['M']) 
+            fh.write('  rightatoms %i-%i\n' % self.electrodes['R']) 
             fh.write('$end\n')
             fh.write('$energy_range\n')
             fh.write('  units   eV\n')

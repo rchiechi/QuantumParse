@@ -56,10 +56,6 @@ class Writer(xyz.Writer):
         #fh.write("xc.authors              revPBE\n")
         fh.write("xc.authors              BLYP\n")
         fh.write("MeshCutoff              200. Ry\n")
-        if self.opts.transport:
-            fh.write("SolutionMethod      transiesta\n")
-        else:
-            fh.write("SolutionMethod          diagon\n")
         fh.write("ElectronicTemperature   300 K\n")
         fh.write("MaxSCFIterations        1000\n")
         fh.write("DM.MixingWeight         0.02\n")
@@ -82,48 +78,53 @@ class Writer(xyz.Writer):
         fh.write("%block ProjectedDensityOfStates\n")
         fh.write("\t-20.00  20.00  0.200  1000  eV\n")
         fh.write("%endblock ProjectedDensityOfStates\n")
+        solmeth = 'diagon'
         if self.opts.transport:
-                fh.write(self._section('Gollum'))
-                fh.write("Gollum                  EMol\n")
+            for a in ('Au','Ag'):
+                if len(self.parser.zmat.atoms[self.parser.zmat.atoms == a]) == len(self.parser.zmat.atoms):
+                    self.logger.debug('This looks like an electrode file, not setting up transiesta')
+                elif a in self.parser.zmat.atoms.values:
+                    self.logger.debug('This looks like a scattering matrix, setting up transiesta')
+                    solmeth = 'transiesta'
+        fh.write("SolutionMethod      %s\n" % solmeth)
 
-                '''
-                fh.write(self._section("Transiesta")
-                # Transiesta information
-
-                # GF OPTIONS
-                TS.ComplexContour.Emin    -30.0 eV
-                TS.ComplexContour.NPoles       03
-                TS.ComplexContour.NCircle      30
-                TS.ComplexContour.NLine        10
-                # BIAS OPTIONS
-                TS.biasContour.NumPoints       00
-
-
-                # TS OPTIONS
-                TS.Voltage 0.000000 eV
-
-                # TBT OPTIONS
-                TS.TBT.Emin -1.0 eV
-                TS.TBT.Emax +1.0 eV
-                TS.TBT.NPoints 100
-                TS.TBT.NEigen 3
-                TS.TBT.Eta        0.000001 Ry
-
-                # Write hamiltonian
-                TS.SaveHS   .true.
-
-                # LEFT ELECTRODE
-                TS.HSFileLeft  ./elec.fast.TSHS
-                TS.ReplicateA1Left    1
-                TS.ReplicateA2Left    1
-                TS.NumUsedAtomsLeft   03
-                TS.BufferAtomsLeft    0
-
-                # RIGHT ELECTRODE
-                TS.HSFileRight  ./elec.fast.TSHS
-                TS.ReplicateA1Right   1
-                TS.ReplicateA2Right   1
-                TS.NumUsedAtomsRight  03
-                TS.BufferAtomsRight   0
-                '''
-    
+        if self.opts.transport:
+            fh.write(self._section('Gollum'))
+            fh.write("Gollum                  EMol\n")
+            if solmeth == 'diagon':
+                return
+            le,re,se = 'electrode.TSHS','electrode.TSHS',self.opts.jobname+'TSHS'
+            fh.write(self._section("Transiesta")
+            fh.write('# GF OPTIONS\n')
+            fh.write('TS.ComplexContour.Emin    -30.0 eV\n')
+            fh.write('TS.ComplexContour.NPoles       03\n')
+            fh.write('TS.ComplexContour.NCircle      30\n')
+            fh.write('TS.ComplexContour.NLine        10\n')
+            fh.write('# BIAS OPTIONS\n')
+            fh.write('TS.biasContour.NumPoints       00\n\n')
+            fh.write('# TS OPTIONS\n')
+            fh.write('TS.Voltage 0.000000 eV\n\n')
+            fh.write('# TBT OPTIONS\n')
+            fh.write('TS.TBT.Emin -5.0 eV\n')
+            fh.write('TS.TBT.Emax +5.0 eV\n')
+            fh.write('TS.TBT.NPoints 500\n')
+            fh.write('TS.TBT.NEigen 3\n')
+            fh.write('TS.TBT.Eta        0.000001 Ry\n')
+            fh.write('TS.TBT.ReUseGF    T\n\n')
+            fh.write('# Write hamiltonian\n')
+            fh.write('TS.SaveHS   .true.\n\n')
+            fh.write('# LEFT ELECTRODE\n')
+            fh.write('TS.HSFileLeft  %s\n' % le)
+            fh.write('#TS.ReplicateA1Left    1\n')
+            fh.write('#TS.ReplicateA2Left    1\n')
+            fh.write('#TS.NumUsedAtomsLeft   03\n')
+            fh.write('#TS.BufferAtomsLeft    0\n\n')
+            fh.write('# RIGHT ELECTRODE\n')
+            fh.write('TS.HSFileRight  %s\n' % re)
+            fh.write('#TS.ReplicateA1Right   1\n')
+            fh.write('#TS.ReplicateA2Right   1\n')
+            fh.write('#TS.NumUsedAtomsRight  03\n')
+            fh.write('#TS.BufferAtomsRight   0\n\n')
+            fh.write('# SCATTERING REGION\n')
+            rh.write('#TS.TBT.HSFile    %s\n' % se)
+            fh.write('TS.TBT.AtomPDOS       T\n')
