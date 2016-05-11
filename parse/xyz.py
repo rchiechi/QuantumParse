@@ -27,20 +27,24 @@ class Parser:
         return True
 
 
-    def _guesseletrodes(self):
+    def _guesselectrodes(self):
         '''Try to guess electrodes for transport.in.
-           only works if molecule crosses 0 along Z.'''
+           only works if molecule is sorted along Z.'''
         e1,mol,e2,atom = (-1,-1),(-1,-1),(-1,-1),None
-        self.logger.warn('Assuming atoms are sorted along Z.')
+        if not self.opts.sortaxis == 'z':
+            self.logger.warn('Guessing electrodes along Z-axis but sort axis is %s!' % self.opts.sortaxis)
         for atom in ('Au','Ag','S'):
-            if atom not in self.parser.zmat.atoms.get_values():
+            if len(self.zmat[self.zmat.atoms == atom]) == len(self.zmat.atoms):
+                self.logger.debug('This looks like an electrode, not guess electrode')
+                return
+            if atom not in self.zmat.atoms.get_values():
                 self.logger.debug('No %s electrodes.' % atom)
                 continue
             else:
                 self.logger.info('Guessing %s electrodes.' % atom)
-            molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
-            eg1 = self.parser.zmat.atoms[:molg[0]].index
-            eg2 = self.parser.zmat.atoms[molg[-1]+1:].index
+            molg = self.zmat.atoms[self.zmat.atoms != atom].index
+            eg1 = self.zmat.atoms[:molg[0]].index
+            eg2 = self.zmat.atoms[molg[-1]+1:].index
             if len(eg1) and len(eg2) and len(molg):
                 e1,mol,e2 = eg1,molg,eg2
                 break

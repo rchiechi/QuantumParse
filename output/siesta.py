@@ -93,8 +93,8 @@ class Writer(xyz.Writer):
             fh.write("Gollum                  EMol\n")
             if solmeth == 'diagon':
                 return
-            le,re,se = 'electrode.TSHS','electrode.TSHS',self.opts.jobname+'TSHS'
-            fh.write(self._section("Transiesta")
+            le,re,se = 'lead.TSHS','lead.TSHS',self.opts.jobname+'.TSHS'
+            fh.write(self._section("Transiesta"))
             fh.write('# GF OPTIONS\n')
             fh.write('TS.ComplexContour.Emin    -30.0 eV\n')
             fh.write('TS.ComplexContour.NPoles       03\n')
@@ -126,5 +126,5 @@ class Writer(xyz.Writer):
             fh.write('#TS.NumUsedAtomsRight  03\n')
             fh.write('#TS.BufferAtomsRight   0\n\n')
             fh.write('# SCATTERING REGION\n')
-            rh.write('TS.TBT.HSFile    %s\n' % se)
+            fh.write('#TS.TBT.HSFile    %s\n' % se)
             fh.write('TS.TBT.AtomPDOS       T\n')
