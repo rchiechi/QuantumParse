@@ -14,7 +14,8 @@ class Writer:
             self.jobname = self.opts.jobname
             self.logger.debug('Setting jobname to %s' % self.jobname)
         else:
-            self.jobname = ''.join(self.parser.fn.split('.')[0:-1])
+            #self.jobname = ''.join(self.parser.fn.split('.')[0:-1])
+            self.jobname = ''.join(os.path.basename(self.parser.fn).split('.')[0:-1])
         self.fn = self.jobname+self.ext
 
     def write(self):
