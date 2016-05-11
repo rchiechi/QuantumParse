@@ -126,5 +126,5 @@ class Writer(xyz.Writer):
             fh.write('#TS.NumUsedAtomsRight  03\n')
             fh.write('#TS.BufferAtomsRight   0\n\n')
             fh.write('# SCATTERING REGION\n')
-            rh.write('#TS.TBT.HSFile    %s\n' % se)
+            rh.write('TS.TBT.HSFile    %s\n' % se)
             fh.write('TS.TBT.AtomPDOS       T\n')
