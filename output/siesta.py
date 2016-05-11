@@ -57,7 +57,6 @@ class Writer(xyz.Writer):
         fh.write("xc.authors              BLYP\n")
         fh.write("MeshCutoff              200. Ry\n")
         fh.write("ElectronicTemperature   300 K\n")
-        fh.write("MaxSCFIterations        1000\n")
         fh.write("DM.MixingWeight         0.02\n")
         fh.write("DM.NumberPulay          8\n")
         fh.write("DM.MixSCF1              T\n")
