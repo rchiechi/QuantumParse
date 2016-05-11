@@ -13,6 +13,7 @@ class Parser(xyz.Parser):
             for l in fh:
                 if '%block atomiccoordinatesandatomicspecies' in l.lower():
                     inblock = True
+                    continue
                 elif '%endblock atomiccoordinatesandatomicspecies' in l.lower():
                     break
                 if inblock:
@@ -23,7 +24,7 @@ class Parser(xyz.Parser):
                         zmat['x'].append(x)
                         zmat['y'].append(y)
                         zmat['z'].append(z)
-                        zmat['atoms'].append(elements[i])
+                        zmat['atoms'].append(atomlabels[i])
                     except ValueError as msg:
                         self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
@@ -37,11 +38,12 @@ class Parser(xyz.Parser):
         for l in fh:
             if '%block chemicalspecieslabel' in l.lower():
                 inblock = True
+                continue
             elif '%endblock chemicalspecieslabel' in l.lower():
                 break
             if inblock:
-                i,atom = re.split(self.ws,l)[:2]
-                atomlabels[i] = atom
+                i,atom = list(filter(None,re.split(self.ws,l)))[:2]
+                atomlabels[int(i)] = atom
                 self.logger.debug('Found atom %s' % atom)
         fh.seek(0)
         return atomlabels
