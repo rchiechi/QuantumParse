@@ -19,7 +19,7 @@ class Writer(xyz.Writer):
         self.atomnum = {}
         i = 1
         for atom in self.parser.zmat.atoms.unique():
-            fh.write("\t%s %s %s\n" % (i, atom, atomicNumber[atom]))
+            fh.write("\t%s %s %s\n" % (i, atomicNumber[atom]), atom)
             self.atomnum[atom]=i
             i+=1
         fh.write("%endblock ChemicalSpeciesLabel\n")
