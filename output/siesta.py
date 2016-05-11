@@ -95,7 +95,7 @@ class Writer(xyz.Writer):
 
         if self.opts.transport:
             fh.write(self._section('Gollum'))
-            fh.write("Gollum                  EMol\n")
+            fh.write("#Gollum                  EMol\n")
             if solmeth == 'diagon':
                 return
             le,re,se = 'leadL.TSHS','leadR.TSHS',self.opts.jobname+'.TSHS'
