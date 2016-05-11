@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(description=desc,formatter_class=argparse.Argum
 parser.add_argument('infiles', type=str, nargs='*', default=[], 
     help='Datafiles to parse.')
 parser.add_argument('-i','--informat', default='guess',
-    choices=('guess','orca','xyz','gaussian'),
+    choices=('guess','orca','xyz','gaussian','siesta'),
     help="Input file format.")
 parser.add_argument('-o','--outformat', required=True,
     choices=('artaios','orca','xyz','gaussian','siesta','gollum'),
@@ -62,6 +62,8 @@ if opts.informat == 'guess':
         opts.informat = 'orca'
     elif ext in ('xyz'):
         opts.informat = 'xyz'
+    elif ext in ('fdf'):
+        opts.informat = 'siesta'
     else:
         logger.error("Could not determine input file format")
         sys.exit()

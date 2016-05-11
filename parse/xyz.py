@@ -24,7 +24,6 @@ class Parser:
         with open(self.fn) as fh:
             for l in fh:
                 row = []
-                #for _l in l.replace('\t',' ').split(' '):
                 for _l in re.split(self.ws,l):
                     if _l.strip(): row.append(_l.strip())
                 if not row: continue
