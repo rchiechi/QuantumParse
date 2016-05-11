@@ -2,6 +2,8 @@ import logging
 import pandas as pd
 from util import elements
 from time import sleep
+import re
+
 class Parser:
   
     zmat = pd.DataFrame()
@@ -11,6 +13,7 @@ class Parser:
     #that terminate the z-matrix to avoid looping
     #over the entire file
     breaks = ()
+    ws = re.compile('\s+')
 
     def __init__(self,opts,fn):
         self.fn = fn
@@ -21,7 +24,8 @@ class Parser:
         with open(self.fn) as fh:
             for l in fh:
                 row = []
-                for _l in l.replace('\t',' ').split(' '):
+                #for _l in l.replace('\t',' ').split(' '):
+                for _l in re.split(self.ws,l):
                     if _l.strip(): row.append(_l.strip())
                 if not row: continue
                 elif row[0].lower() in self.breaks: 
