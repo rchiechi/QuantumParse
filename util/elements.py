@@ -1,5 +1,4 @@
 elements = (
-'n',
 'H',
 'He',
 'Li',
@@ -117,4 +116,4 @@ elements = (
 
 atomicNumber = {}
 for i in range(0,len(elements)):
-        atomicNumber[elements[i]] = i
+        atomicNumber[elements[i]] = i+1
