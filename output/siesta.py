@@ -80,9 +80,9 @@ class Writer(xyz.Writer):
         fh.write("#%block LocalDensityOfStates\n")
         fh.write("#\t-5.00  5.00   eV\n")
         fh.write("#%endblock LocalDensityOfStates\n")
-        fh.write("%block ProjectedDensityOfStates\n")
-        fh.write("\t-20.00  20.00  0.200  1000  eV\n")
-        fh.write("%endblock ProjectedDensityOfStates\n")
+        fh.write("#%block ProjectedDensityOfStates\n")
+        fh.write("#\t-20.00  20.00  0.200  1000  eV\n")
+        fh.write("#%endblock ProjectedDensityOfStates\n")
         solmeth = 'diagon'
         if self.opts.transport:
             for a in ('Au','Ag'):
