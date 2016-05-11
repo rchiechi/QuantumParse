@@ -68,6 +68,7 @@ class Writer(xyz.Writer):
         fh.write("WriteEigenvalues        T\n")
         fh.write("UseSaveData             T\n")
         fh.write("SaveHS                  T\n")
+        fh.write("MixHamiltonian          T\n")
         fh.write("SCFMustConverge         T\n")
         fh.write("MaxSCFIterations      128\n")
         fh.write("%block LocalDensityOfStates\n")
