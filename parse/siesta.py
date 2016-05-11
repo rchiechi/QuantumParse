@@ -42,8 +42,7 @@ class Parser(xyz.Parser):
             elif '%endblock chemicalspecieslabel' in l.lower():
                 break
             if inblock:
-                print(re.split(self.ws,l))
-                i,atom = list(filter(None,re.split(self.ws,l)))[:2]
+                i,n,atom = list(filter(None,re.split(self.ws,l)))[:3]
                 atomlabels[int(i)] = atom
                 self.logger.debug('Found atom %s' % atom)
         fh.seek(0)
