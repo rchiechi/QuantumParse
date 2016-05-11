@@ -56,7 +56,10 @@ class Writer(xyz.Writer):
         #fh.write("xc.authors              revPBE\n")
         fh.write("xc.authors              BLYP\n")
         fh.write("MeshCutoff              200. Ry\n")
-        fh.write("SolutionMethod          diagon\n")
+        if self.opts.transport:
+            fh.write("SolutionMethod      transiesta\n")
+        else:
+            fh.write("SolutionMethod          diagon\n")
         fh.write("ElectronicTemperature   300 K\n")
         fh.write("MaxSCFIterations        1000\n")
         fh.write("DM.MixingWeight         0.02\n")
@@ -69,6 +72,8 @@ class Writer(xyz.Writer):
         fh.write("UseSaveData             T\n")
         fh.write("SaveHS                  T\n")
         fh.write("MixHamiltonian          T\n")
+        fh.write("DM.UseSaveDM            T\n")
+        fh.write("Diag.ParallelOverK    yes\n")
         fh.write("SCFMustConverge         T\n")
         fh.write("MaxSCFIterations      128\n")
         fh.write("%block LocalDensityOfStates\n")
@@ -80,4 +85,45 @@ class Writer(xyz.Writer):
         if self.opts.transport:
                 fh.write(self._section('Gollum'))
                 fh.write("Gollum                  EMol\n")
+
+                '''
+                fh.write(self._section("Transiesta")
+                # Transiesta information
+
+                # GF OPTIONS
+                TS.ComplexContour.Emin    -30.0 eV
+                TS.ComplexContour.NPoles       03
+                TS.ComplexContour.NCircle      30
+                TS.ComplexContour.NLine        10
+                # BIAS OPTIONS
+                TS.biasContour.NumPoints       00
+
+
+                # TS OPTIONS
+                TS.Voltage 0.000000 eV
+
+                # TBT OPTIONS
+                TS.TBT.Emin -1.0 eV
+                TS.TBT.Emax +1.0 eV
+                TS.TBT.NPoints 100
+                TS.TBT.NEigen 3
+                TS.TBT.Eta        0.000001 Ry
+
+                # Write hamiltonian
+                TS.SaveHS   .true.
+
+                # LEFT ELECTRODE
+                TS.HSFileLeft  ./elec.fast.TSHS
+                TS.ReplicateA1Left    1
+                TS.ReplicateA2Left    1
+                TS.NumUsedAtomsLeft   03
+                TS.BufferAtomsLeft    0
+
+                # RIGHT ELECTRODE
+                TS.HSFileRight  ./elec.fast.TSHS
+                TS.ReplicateA1Right   1
+                TS.ReplicateA2Right   1
+                TS.NumUsedAtomsRight  03
+                TS.BufferAtomsRight   0
+                '''
     
