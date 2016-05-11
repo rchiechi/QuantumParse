@@ -38,11 +38,11 @@ class Writer(xyz.Writer):
         fh.write("#\t0.0    1.0     0.0\n")
         fh.write("#\t0.0    0.0     1.0\n")
         fh.write("#%endblock LatticeVectors\n")
-        fh.write(self._section('K-grid')
+        fh.write(self._section('K-grid'))
         fh.write('%block kgrid_Monkhorst_Pack\n')
         fh.write(' 1    0    0    0.0\n')
         fh.write(' 0    1    0    0.0\n')
-        fh.write(' 0    0   60    0.0\n')
+        fh.write(' 0    0    1    0.0\n')
         fh.write(' %endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
     def _writezmat(self,fh):
@@ -98,7 +98,7 @@ class Writer(xyz.Writer):
             fh.write("Gollum                  EMol\n")
             if solmeth == 'diagon':
                 return
-            le,re,se = 'lead.TSHS','lead.TSHS',self.opts.jobname+'.TSHS'
+            le,re,se = 'leadL.TSHS','leadR.TSHS',self.opts.jobname+'.TSHS'
             fh.write(self._section("Transiesta"))
             fh.write('# GF OPTIONS\n')
             fh.write('TS.ComplexContour.Emin    -30.0 eV\n')
