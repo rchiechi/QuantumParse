@@ -73,7 +73,7 @@ if opts.informat == 'guess':
 if opts.transport:
     if opts.outformat == 'siesta':
         logger.debug('Setting electrodes to true for transiesta.')
-        opts.electrdoes = True
+        opts.electrodes = True
 
 logger.debug("Input format: %s, Output format: %s" % (opts.informat,opts.outformat))
 if opts.informat == opts.outformat and not opts.jobname:
