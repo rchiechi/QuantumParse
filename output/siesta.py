@@ -33,12 +33,11 @@ class Writer(xyz.Writer):
         fh.write("%endblock PAO.BasisSizes\n")
         if self.parser.hasLattice():
             lattice = self.parser.getLattice()
-            vectors = lattice['vectors']
-            vectors.reverse()
             fh.write(self._section('Lattice'))
             fh.write('%s\n' % lattice['constant'])
             fh.write("%block LatticeVectors\n")
-            for v in vectors:
+            for v in lattice['vectors']:
+                # MUST be FIFO
                 fh.write('  %s\n' % v)
             fh.write("%endblock LatticeVectors\n")
         fh.write(self._section('K-grid'))
