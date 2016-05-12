@@ -58,11 +58,10 @@ class Parser:
                 break
             else:
                 self.logger.debug('Did not parse %s electrode.' % atom)
-        self.electrodes['L'] = (e1[0]+1,e1[-1]+1)
-        self.electrodes['M'] = (mol[0]+1,mol[-1]+1)
-        self.electrodes['R'] = (e2[0]+1,e2[-1]+1)
+        self.electrodes['L'] = (e1[0],e1[-1])
+        self.electrodes['M'] = (mol[0],mol[-1])
+        self.electrodes['R'] = (e2[0],e2[-1])
         self.electrodes['atom'] = atom
-
     def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
