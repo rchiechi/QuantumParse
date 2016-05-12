@@ -32,12 +32,12 @@ class Writer(xyz.Writer):
                 fh.write("\t%s DZP\n" % atom)
         fh.write("%endblock PAO.BasisSizes\n")
         fh.write(self._section('Lattice'))
-        fh.write("#LatticeConstant         1.000 Ang\n")
-        fh.write("#%block LatticeVectors\n")
-        fh.write("#\t1.0    0.0     0.0\n")
-        fh.write("#\t0.0    1.0     0.0\n")
-        fh.write("#\t0.0    0.0     1.0\n")
-        fh.write("#%endblock LatticeVectors\n")
+        fh.write("LatticeConstant         1.000 Ang\n")
+        fh.write("%block LatticeVectors\n")
+        fh.write("\t8.651275    0.0     0.0\n")
+        fh.write("\t-4.325637   7.492224     0.0\n")
+        fh.write("\t0.0    0.0     21.191209\n")
+        fh.write("%endblock LatticeVectors\n")
         fh.write(self._section('K-grid'))
         if 'lead' in self.opts.jobname:
             ygrid = 60
