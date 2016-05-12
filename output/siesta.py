@@ -39,10 +39,14 @@ class Writer(xyz.Writer):
         fh.write("#\t0.0    0.0     1.0\n")
         fh.write("#%endblock LatticeVectors\n")
         fh.write(self._section('K-grid'))
+        if 'lead' in self.opts.jobname:
+            ygrid = 60
+        else:
+            ytrid = 1
         fh.write('%block kgrid_Monkhorst_Pack\n')
         fh.write(' 1    0    0    0.0\n')
         fh.write(' 0    1    0    0.0\n')
-        fh.write(' 0    0    60   0.0\n')
+        fh.write(' 0    0    %s   0.0\n' % ygrid)
         fh.write(' %endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
     def _writezmat(self,fh):
@@ -57,7 +61,6 @@ class Writer(xyz.Writer):
         fh.write("%endblock AtomicCoordinatesAndAtomicSpecies\n")
     def _writetail(self,fh):
         fh.write(self._section('DFT'))
-        fh.write("%block kgrid_Monkhorst_Pack\n\t1    0    0    0.0\n\t0    1    0    0.0\n\t0    0    1    0.0\n%endblock kgrid_Monkhorst_Pack\n")
         fh.write("xc.functional           GGA\n")
         #fh.write("xc.authors              revPBE\n")
         fh.write("xc.authors              BLYP\n")
