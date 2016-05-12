@@ -31,23 +31,26 @@ class Writer(xyz.Writer):
             else:
                 fh.write("\t%s DZP\n" % atom)
         fh.write("%endblock PAO.BasisSizes\n")
-        fh.write(self._section('Lattice'))
-        fh.write("LatticeConstant         1.000 Ang\n")
-        fh.write("%block LatticeVectors\n")
-        fh.write("\t8.651275    0.0     0.0\n")
-        fh.write("\t-4.325637   7.492224     0.0\n")
-        fh.write("\t0.0    0.0     21.191209\n")
-        fh.write("%endblock LatticeVectors\n")
+        if self.parser.hasLattice():
+            lattice = self.parser.getLattice()
+            vectors = lattice['vectors']
+            vectors.reverse()
+            fh.write(self._section('Lattice'))
+            fh.write('%s\n' % lattice['constant'])
+            fh.write("%block LatticeVectors\n")
+            for v in vectors:
+                fh.write('  %s\n' % v)
+            fh.write("%endblock LatticeVectors\n")
         fh.write(self._section('K-grid'))
         if 'lead' in self.opts.jobname:
-            ygrid = 60
+            ygrid = '60'
         else:
-            ygrid = 1
+            ygrid = '01'
         fh.write('%block kgrid_Monkhorst_Pack\n')
         fh.write(' 1    0    0    0.0\n')
         fh.write(' 0    1    0    0.0\n')
         fh.write(' 0    0    %s   0.0\n' % ygrid)
-        fh.write(' %endblock kgrid_Monkhorst_Pack\n')
+        fh.write('%endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
     def _writezmat(self,fh):
         fh.write(self._section('Atomic Coordinates'))

@@ -3,7 +3,18 @@ from util import elements
 import re
 
 class Parser(xyz.Parser):
+    
+    lattice = {'constant':None,
+            'vectors':[]}
 
+    def getLattice(self):
+        return self.lattice
+
+    def hasLattice(self):
+        if self.lattice['constant'] == None or not self.lattice['vectors']:
+            return False
+        else:
+            return True
 
     def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
@@ -29,7 +40,22 @@ class Parser(xyz.Parser):
                         self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
             self._zmattodf(zmat)
+            self.parseLattice(fh)
 
+    def parseLattice(self,fh):
+        inblock = False
+        fh.seek(0)
+        for l in fh:
+            if 'latticeconstant' in l.lower():
+                self.lattice['constant'] = l.strip()
+            if '%block latticevectors' in l.lower():
+                inblock = True
+                continue
+            elif '%endblock latticevectors' in l.lower():
+                break
+            if inblock:
+                self.lattice['vectors'].append(l.strip())
+        fh.seek(0)
 
     def _atomlabels(self,fh):
         atomlabels = {}
