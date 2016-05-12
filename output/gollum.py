@@ -48,7 +48,7 @@ class Writer(xyz.Writer):
             self.logger.error("Error finding electrodes!")
             fh.write("Error in QuantumParse!")
             return
-        e = self.electrodes
+        e = self.parser.electrodes
         for a in ('L','M','R'):
             self.logger.debug('%s:%s' % (e[a][0],e[a][1]))
             for row in self.parser.zmat[e[a][0]:e[a][1]].iterrows():

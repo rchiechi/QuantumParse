@@ -46,7 +46,7 @@ class Writer(xyz.Writer):
 #        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
 
     def __writetransport(self):
-        if not self.haselectrodes():
+        if not self.parser.haselectrodes():
             self.logger.error('Did not parse any electrodes.')
             return
         self.logger.info('Writing transport.in')
@@ -58,12 +58,12 @@ class Writer(xyz.Writer):
         #with open(os.path.join(os.path.split(self.parser.fn)[0],'transport.in'), 'w') as fh:
         with open(fp, 'w') as fh:
             fh.write('# Total atoms: %i\n' % len(self.parser.zmat))
-            fh.write('# Guessed electrodes as %s\n' % self.electrodes['atom'])
+            fh.write('# Guessed electrodes as %s\n' % self.parser.electrodes['atom'])
             fh.write('# Check partitioning for accuracy!\n')
             fh.write('$partitioning\n')
-            fh.write('  leftatoms %i-%i\n' % self.electrodes['L']) 
-            fh.write('  centralatoms %i-%i\n' % self.electrodes['M']) 
-            fh.write('  rightatoms %i-%i\n' % self.electrodes['R']) 
+            fh.write('  leftatoms %i-%i\n' % self.parser.electrodes['L']) 
+            fh.write('  centralatoms %i-%i\n' % self.parser.electrodes['M']) 
+            fh.write('  rightatoms %i-%i\n' % self.parser.electrodes['R']) 
             fh.write('$end\n')
             fh.write('$energy_range\n')
             fh.write('  units   eV\n')
