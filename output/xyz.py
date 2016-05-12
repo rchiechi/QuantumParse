@@ -30,7 +30,7 @@ class Writer:
             opts.jobname = 'lead'+e
             s = self.parser.electrodes[e]
             parser = importlib.import_module('parse.%s' % opts.informat).Parser(opts,self.fn)
-            parser.setZmat(self.parser.getZmat()[s[0]:s[1]])
+            parser.setZmat(self.parser.getZmat()[s[0]:s[1]+1])
             writer = importlib.import_module('output.%s' % opts.outformat).Writer(parser)
             writer.write()
 
