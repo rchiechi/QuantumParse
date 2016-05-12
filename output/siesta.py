@@ -42,7 +42,7 @@ class Writer(xyz.Writer):
         if 'lead' in self.opts.jobname:
             ygrid = 60
         else:
-            ytrid = 1
+            ygrid = 1
         fh.write('%block kgrid_Monkhorst_Pack\n')
         fh.write(' 1    0    0    0.0\n')
         fh.write(' 0    1    0    0.0\n')
