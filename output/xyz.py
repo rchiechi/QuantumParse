@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import logging
+import importlib
 
 class Writer:
     
@@ -18,6 +19,21 @@ class Writer:
             self.jobname = ''.join(os.path.basename(self.parser.fn).split('.')[0:-1])
         self.fn = self.jobname+self.ext
 
+    def writeelectrodes(self):
+        if not self.parser.haselectrodes():
+            self.logger.warn('Not writing non-existant electrodes.')
+            return
+        #TODO Hackish way to avoid recursive loop
+        opts = self.opts
+        opts.electrodes = False
+        for e in ('L','R'):
+            opts.jobname = 'lead'+e
+            s = self.parser.electrodes[e]
+            parser = importlib.import_module('parse.%s' % opts.informat).Parser(opts,self.fn)
+            parser.setZmat(self.parser.getZmat()[s[0]:s[1]])
+            writer = importlib.import_module('output.%s' % opts.outformat).Writer(parser)
+            writer.write()
+
     def write(self):
         if os.path.exists(self.fn) and not self.opts.overwrite:
             self.logger.error('Not overwriting %s' % self.fn)
@@ -27,6 +43,8 @@ class Writer:
                 self._writehead(fh)
                 self._writezmat(fh)
                 self._writetail(fh)
+            if self.opts.electrodes:
+                self.writeelectrodes()
 
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))

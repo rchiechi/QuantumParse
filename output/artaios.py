@@ -46,7 +46,7 @@ class Writer(xyz.Writer):
 #        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
 
     def __writetransport(self):
-        if not self __haveelectrodes():
+        if not self.haselectrodes():
             self.logger.error('Did not parse any electrodes.')
             return
         self.logger.info('Writing transport.in')

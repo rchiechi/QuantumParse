@@ -77,13 +77,8 @@ class Writer(xyz.Writer):
         fh.write("Diag.ParallelOverK    yes\n")
         fh.write("SCFMustConverge         T\n")
         fh.write("MaxSCFIterations      128\n")
-        fh.write("#%block LocalDensityOfStates\n")
-        fh.write("#\t-5.00  5.00   eV\n")
-        fh.write("#%endblock LocalDensityOfStates\n")
-        fh.write("#%block ProjectedDensityOfStates\n")
-        fh.write("#\t-20.00  20.00  0.200  1000  eV\n")
-        fh.write("#%endblock ProjectedDensityOfStates\n")
         solmeth = 'diagon'
+        golmeth = 'Lead'
         if self.opts.transport:
             for a in ('Au','Ag'):
                 if len(self.parser.zmat.atoms[self.parser.zmat.atoms == a]) == len(self.parser.zmat.atoms):
@@ -91,11 +86,19 @@ class Writer(xyz.Writer):
                 elif a in self.parser.zmat.atoms.values:
                     self.logger.debug('This looks like a scattering matrix, setting up transiesta')
                     solmeth = 'transiesta'
+                    golmeth = 'EMol'
         fh.write("SolutionMethod      %s\n" % solmeth)
-
+        if solmeth == 'diagon':
+            fh.write(self._section('DOS Output'))
+            fh.write("%block LocalDensityOfStates\n")
+            fh.write("\t-5.00  5.00   eV\n")
+            fh.write("%endblock LocalDensityOfStates\n")
+            fh.write("%block ProjectedDensityOfStates\n")
+            fh.write("\t-20.00  20.00  0.200  1000  eV\n")
+            fh.write("%endblock ProjectedDensityOfStates\n")
         if self.opts.transport:
             fh.write(self._section('Gollum'))
-            fh.write("#Gollum                  EMol\n")
+            fh.write("#Gollum                  %s\n" % golmeth)
             if solmeth == 'diagon':
                 return
             le,re,se = 'leadL.TSHS','leadR.TSHS',self.opts.jobname+'.TSHS'

@@ -14,25 +14,32 @@ class Parser:
     #over the entire file
     breaks = ()
     ws = re.compile('\s+')
-    electrodes = {'L':(-1,-1),'M':(-1,-1),'R':(-1,-1),'atom':None}
+    electrodes = {'L':(0,0),'M':(0,0),'R':(0,0),'atom':None}
 
     def __init__(self,opts,fn):
         self.fn = fn
         self.opts = opts
 
-    def __haveelectrodes(self):
-        for a in self.electrodes:
-            if -1 in self.electrodes[a] or None in self.electrodes[a]:
+    def haselectrodes(self):
+        for a in ('L','M','R'):
+            if self.electrodes[a] == (0,0) or -1 in self.electrodes[a]:
                 return False
         return True
 
+    def setZmat(self,zmat):
+        self.zmat = zmat
+
+    def getZmat(self):
+        return self.zmat
 
     def _guesselectrodes(self):
         '''Try to guess electrodes for transport.in.
            only works if molecule is sorted along Z.'''
         e1,mol,e2,atom = (-1,-1),(-1,-1),(-1,-1),None
         if not self.opts.sortaxis == 'z':
-            self.logger.warn('Guessing electrodes along Z-axis but sort axis is %s!' % self.opts.sortaxis)
+            self.logger.debug('Guessing electrodes along Z-axis but sort axis is %s!' % self.opts.sortaxis)
+        if self.zmat.atoms.head(1).values[0] in ('Au','Ag') and self.zmat.atoms.tail(1).values[0] in ('S'):
+            self.logger.warn("You may have an S-atom appended to the end of the Z-matrix instead of a metal.")
         for atom in ('Au','Ag','S'):
             if len(self.zmat[self.zmat.atoms == atom]) == len(self.zmat.atoms):
                 self.logger.debug('This looks like an electrode, not guess electrode')
@@ -46,13 +53,15 @@ class Parser:
             eg1 = self.zmat.atoms[:molg[0]].index
             eg2 = self.zmat.atoms[molg[-1]+1:].index
             if len(eg1) and len(eg2) and len(molg):
+                self.logger.debug('Parsed %s electrodes.' % atom)
                 e1,mol,e2 = eg1,molg,eg2
                 break
-        #return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
+            else:
+                self.logger.debug('Did not parse %s electrode.' % atom)
         self.electrodes['L'] = (e1[0]+1,e1[-1]+1)
         self.electrodes['M'] = (mol[0]+1,mol[-1]+1)
         self.electrodes['R'] = (e2[0]+1,e2[-1]+1)
-        self.electrodes['L'] = atom
+        self.electrodes['atom'] = atom
 
     def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
@@ -80,8 +89,13 @@ class Parser:
 
     def _zmattodf(self,zmat):
         if self.opts.sortaxis:
+            idx = []
+            for i in range(0,len(zmat['atoms'])):
+                idx.append(i)
             self.logger.debug('Sorting Z-matrix by column %s' % self.opts.sortaxis)
-            self.zmat = pd.DataFrame(zmat).sort_values(self.opts.sortaxis)
+            zmat = pd.DataFrame(zmat)
+            self.zmat = zmat.sort_values(self.opts.sortaxis)
+            self.zmat.index = idx
         else:
             self.zmat = pd.DataFrame(zmat)
         if not len(self.zmat):

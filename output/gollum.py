@@ -44,7 +44,7 @@ class Writer(xyz.Writer):
     def _writezmat(self,fh):
         #e = self._guesselectrodes()
         #m = {"L":"1 1 1","M":"0 0 0","R":"2 1 2"}
-        if not self.__haveelectrodes():
+        if not self.haselectrodes():
             self.logger.error("Error finding electrodes!")
             fh.write("Error in QuantumParse!")
             return

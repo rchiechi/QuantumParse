@@ -37,6 +37,8 @@ parser.add_argument('-c', '--ncpus', type=int, default=24,
     help="Number of parallel cpus in output.")
 parser.add_argument('--jobname', type=str, default='',
     help="Specify a jobname (and output file name) instead of taking it from the input file name.")
+parser.add_argument('--electrodes', action='store_true', default=False,
+    help="Write copies of the electrodes to separate files.")
 
 
 opts=parser.parse_args()
