@@ -9,6 +9,10 @@ class Parser:
     zmat = pd.DataFrame()
     iorbs = pd.DataFrame()
     logger = logging.getLogger('default')
+ 
+    lattice = {'constant':None,
+            'vectors':[]}
+
     #When parsing large files set lowercase strings
     #that terminate the z-matrix to avoid looping
     #over the entire file
@@ -19,6 +23,12 @@ class Parser:
     def __init__(self,opts,fn):
         self.fn = fn
         self.opts = opts
+
+    def getLattice(self):
+        return self.lattice
+
+    def hasLattice(self):
+        return False
 
     def haselectrodes(self):
         for a in ('L','M','R'):

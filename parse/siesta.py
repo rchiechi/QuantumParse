@@ -4,12 +4,6 @@ import re
 
 class Parser(xyz.Parser):
     
-    lattice = {'constant':None,
-            'vectors':[]}
-
-    def getLattice(self):
-        return self.lattice
-
     def hasLattice(self):
         if self.lattice['constant'] == None or not self.lattice['vectors']:
             return False
