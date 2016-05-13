@@ -4,7 +4,7 @@ from math import pi,ceil
 from pandas import DataFrame
 import numpy as np
 
-__all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','findDistances','onAxis','toZaxis']
+__all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','sortZmat','findDistances','onAxis','toZaxis']
 
 def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1):
 
@@ -42,6 +42,14 @@ def atomsToZmat(atoms):
         zmat['y'].append(a.y)
         zmat['z'].append(a.z)
     return DataFrame(zmat)
+
+def sortZmat(zmat,axis='z'):
+    idx = []
+    for i in range(0,len(zmat['atoms'])):
+        idx.append(i)
+    zmat = zmat.sort_values(axis)
+    zmat.index = idx
+    return zmat
 
 def findDistances(xyz):
     distances = {}
@@ -83,5 +91,8 @@ def toZaxis(atoms):
         zc.append(_a.z)
     diff = min(zc)
     atoms.translate([0,0,-1*diff])
+    zmat = atomsToZmat(atoms)
+    zmat = sortZmat(zmat)
+    atoms = zmatToAtoms(zmat)
     #TODO reindex so min atom == min index
-    return atoms
+    return atoms,zmat
