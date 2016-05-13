@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import logging
 import importlib
+from ase.io import write as ase_write
 
 class Writer:
     
@@ -45,6 +46,8 @@ class Writer:
                 self._writetail(fh)
             if self.opts.electrodes:
                 self.writeelectrodes()
+        self.logger.info('Writing %s.png' % self.jobname)
+        ase_write('%s.png' % self.jobname,self.parser.atoms,rotation='90y')
 
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))

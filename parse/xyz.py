@@ -1,9 +1,13 @@
 import logging
 import pandas as pd
 from util import elements
+from util.build import *
 from time import sleep
 import re
 from ase import Atoms
+
+
+#TODO Electrodes ('Au','Ag') needs to be defined globally
 
 class Parser:
   
@@ -113,23 +117,7 @@ class Parser:
             self.logger.error('Empty Z-matrix parsed from %s' % self.fn)
             import sys
             sys.exit()
-
-        atoms = Atoms()
-        for a, group in self.zmat.groupby('atoms'):
-            f = ''
-            pos = []
-            if a in ('Au','Ag'):
-                tag = 1
-            elif a in ('S'):
-                tag = 2
-            else:
-                tag = 0
-            for row in group.iterrows():
-                f+=a
-                pos.append((row[1]['x'],row[1]['y'],row[1]['z']))
-            atoms += Atoms(f,positions=pos,tags=tag)
-        
-        self.atoms = atoms
+        self.atoms = zmatToAtoms(self.zmat)
         self.logger.info('Parsed a Z-matrix with %s atoms.' % len(self.zmat))
      
 

@@ -1,3 +1,5 @@
+__all__ = ['elements','atomicNumber']
+
 elements = (
 'H',
 'He',
