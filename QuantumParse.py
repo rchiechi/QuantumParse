@@ -39,6 +39,9 @@ parser.add_argument('--jobname', type=str, default='',
     help="Specify a jobname (and output file name) instead of taking it from the input file name.")
 parser.add_argument('--writeelectrodes', action='store_true', default=False,
     help="Write copies of the electrodes to separate files.")
+parser.add_argument('-b','--build', default=None,
+    choices=('Au','Ag'),
+    help="Build electrodes onto the ends of a molecule.")
 
 
 opts=parser.parse_args()
