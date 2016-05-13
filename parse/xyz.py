@@ -92,6 +92,7 @@ class Parser:
             return
 
         if onAxis(self.atoms) != 'z':
+            self.logger.debug('Trying to rotate molecule to Z axis.')
             self.atoms,self.zmat = toZaxis(self.atoms)
             if onAxis(self.atoms) != 'z':
                 self.logger.warn('Molecule is not projected along Z-axis!')
@@ -133,13 +134,7 @@ class Parser:
 
     def _zmattodf(self,zmat):
         if self.opts.sortaxis:
-            #idx = []
-            #for i in range(0,len(zmat['atoms'])):
-            #    idx.append(i)
             self.logger.debug('Sorting Z-matrix by column %s' % self.opts.sortaxis)
-            #zmat = pd.DataFrame(zmat)
-            #self.zmat = zmat.sort_values(self.opts.sortaxis)
-            #self.zmat.index = idx
             self.zmat = sortZmat(pd.DataFrame(zmat),self.opts.sortaxis)
         else:
             self.zmat = pd.DataFrame(zmat)

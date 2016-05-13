@@ -14,24 +14,24 @@ def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,off
     b.rotate('x',pi)
     b.translate([0,0,ceil(abs(b[-1].z))])
     b.rotate('z',(4/3)*pi)
-    add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=len(b)-1)
+    add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=-1)
     return c
 
 def zmatToAtoms(zmat):
-    atoms = Atoms()
-    for a, group in zmat.groupby('atoms'):
-        f = ''
-        pos = []
+    f = ''
+    pos = []
+    tag = []
+    for row in zmat.iterrows():
+        a = row[1]['atoms']
         if a in ('Au','Ag'):
-            tag = 1
+            tag.append(1)
         elif a in ('S'):
-            tag = 2
+            tag.append(2)
         else:
-            tag = 0
-        for row in group.iterrows():
-            f+=a
-            pos.append((row[1]['x'],row[1]['y'],row[1]['z']))
-        atoms += Atoms(f,positions=pos,tags=tag)
+            tag.append(0)
+        f+=a
+        pos.append((row[1]['x'],row[1]['y'],row[1]['z']))
+    atoms = Atoms(f,positions=pos,tags=tag)
     return atoms
 
 def atomsToZmat(atoms):
