@@ -2,8 +2,9 @@ from ase import Atoms
 from ase.build import fcc111,add_adsorbate
 from math import pi,ceil
 from pandas import DataFrame
+import numpy as np
 
-__all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','findDistances']
+__all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','findDistances','onAxis','toZaxis']
 
 def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1):
 
@@ -55,3 +56,32 @@ def findDistances(xyz):
                 c,d = np.array([_a[1].x,_a[1].y[1],_a.z]), np.array([_b[1].x,_b[1].y,_b[1].z])
                 distances[np.linalg.norm(c-d)] = (_a[0],_b[0])
     return distances
+
+def onAxis(xyz):
+    distances = findDistances(xyz)
+    maxd = distances[ max(list(distances.keys())) ]
+    f = np.array([xyz[maxd[0]].x,xyz[maxd[0]].y,xyz[maxd[0]].z])
+    l = np.array([xyz[maxd[1]].x,xyz[maxd[1]].y,xyz[maxd[1]].z])
+    diff = abs(f-l)
+    if diff.max() == diff[0]:
+        return 'x'
+    elif diff.max() == diff[1]:
+        return 'y'
+    elif diff.max() == diff[2]:
+        return 'z'
+    else:
+        return None
+
+def toZaxis(atoms):
+    axis = onAxis(atoms)
+    if axis == 'x':
+        atoms.rotate('y',pi/2)
+    elif axis == 'y':
+        atoms.rotate('x',pi/2)
+    zc = []
+    for _a in atoms:
+        zc.append(_a.z)
+    diff = min(zc)
+    atoms.translate([0,0,-1*diff])
+    #TODO reindex so min atom == min index
+    return atoms

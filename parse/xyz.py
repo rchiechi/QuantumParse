@@ -90,6 +90,13 @@ class Parser:
            projected along the Z axis.'''
         if not self.opts.build:
             return
+
+        if onAxis(self.atoms) != 'z':
+            self.atoms = toZaxis(self.atoms)
+            self.zmat = zmatToAtoms(self.atoms)
+            if onAxis(self.atoms) != 'z':
+                self.logger.warn('Molecule is not projected along Z-axis!')
+
         self.logger.info('Building %s electrodes.' % self.opts.build)
         self.atoms = buildElectrodes(self.atoms,self.opts.build)
         #TODO Don't repeat this code
