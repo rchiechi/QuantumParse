@@ -37,7 +37,7 @@ parser.add_argument('-c', '--ncpus', type=int, default=24,
     help="Number of parallel cpus in output.")
 parser.add_argument('--jobname', type=str, default='',
     help="Specify a jobname (and output file name) instead of taking it from the input file name.")
-parser.add_argument('--electrodes', action='store_true', default=False,
+parser.add_argument('--writeelectrodes', action='store_true', default=False,
     help="Write copies of the electrodes to separate files.")
 
 
@@ -73,7 +73,7 @@ if opts.informat == 'guess':
 if opts.transport:
     if opts.outformat == 'siesta':
         logger.debug('Setting electrodes to true for transiesta.')
-        opts.electrodes = True
+        opts.writeelectrodes = True
 
 logger.debug("Input format: %s, Output format: %s" % (opts.informat,opts.outformat))
 if opts.informat == opts.outformat and not opts.jobname:

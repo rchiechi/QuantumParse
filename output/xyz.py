@@ -26,7 +26,7 @@ class Writer:
             return
         #TODO Hackish way to avoid recursive loop
         opts = self.opts
-        opts.electrodes = False
+        opts.writeelectrodes = False
         for e in ('L','R'):
             opts.jobname = 'lead'+e
             s = self.parser.electrodes[e]
@@ -44,7 +44,7 @@ class Writer:
                 self._writehead(fh)
                 self._writezmat(fh)
                 self._writetail(fh)
-            if self.opts.electrodes:
+            if self.opts.writeelectrodes:
                 self.writeelectrodes()
         self.logger.info('Writing %s.png' % self.jobname)
         ase_write('%s.png' % self.jobname,self.parser.atoms,rotation='90y')

@@ -44,9 +44,16 @@ class Parser:
 
     def setZmat(self,zmat):
         self.zmat = zmat
+        self.atoms = zmatToAtoms(zmat)
+
+    def setAtoms(self,atoms):
+        self.atoms = atoms
+        self.zmat = atomsTozmat(atoms)
 
     def getZmat(self):
         return self.zmat
+    def getAtoms(self):
+        return self.atoms
 
     def _guesselectrodes(self):
         '''Try to guess electrodes for transport.in.
