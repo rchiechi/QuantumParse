@@ -85,6 +85,22 @@ class Parser:
         self.electrodes['M'] = (mol[0],mol[-1])
         self.electrodes['R'] = (e2[0],e2[-1])
         self.electrodes['atom'] = atom
+    def _buildelectrodes(self):
+        '''Try to build electrodes around a molecule
+           projected along the Z axis.'''
+        if not self.opts.build:
+            return
+        self.logger.info('Building %s electrodes.' % self.opts.build)
+        self.atoms = buildElectrodes(self.atoms,self.opts.build)
+        #TODO Don't repeat this code
+        self.logger.info('Sorting along Z-axis.')
+        self.zmat = atomsToZmat(self.atoms)
+        idx = []
+        for i in range(0,len(self.zmat['atoms'])):
+            idx.append(i)
+        self.zmat = self.zmat.sort_values('z')
+        self.zmat.index = idx
+
     def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
@@ -130,5 +146,6 @@ class Parser:
 
     def parseZmatrix(self):
         self._parsezmat()
+        self._buildelectrodes()
         self._guesselectrodes()
-    
+         
