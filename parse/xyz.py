@@ -3,9 +3,11 @@ import pandas as pd
 from util import elements
 from time import sleep
 import re
+from ase import Atoms
 
 class Parser:
   
+    atoms = Atoms()
     zmat = pd.DataFrame()
     iorbs = pd.DataFrame()
     logger = logging.getLogger('default')
@@ -111,7 +113,25 @@ class Parser:
             self.logger.error('Empty Z-matrix parsed from %s' % self.fn)
             import sys
             sys.exit()
+
+        atoms = Atoms()
+        for a, group in self.zmat.groupby('atoms'):
+            f = ''
+            pos = []
+            if a in ('Au','Ag'):
+                tag = 1
+            elif a in ('S'):
+                tag = 2
+            else:
+                tag = 0
+            for row in group.iterrows():
+                f+=a
+                pos.append((row[1]['x'],row[1]['y'],row[1]['z']))
+            atoms += Atoms(f,positions=pos,tags=tag)
+        
+        self.atoms = atoms
         self.logger.info('Parsed a Z-matrix with %s atoms.' % len(self.zmat))
+     
 
     def parseZmatrix(self):
         self._parsezmat()

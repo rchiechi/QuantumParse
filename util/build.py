@@ -4,7 +4,7 @@ from math import pi,ceil
 
 class Electrodes:
 
-    size=[4,4,4]
+    size=[4,4,2]
     distance=1.5
     atom='Au'
     position='hcp'
@@ -16,7 +16,7 @@ class Electrodes:
     def _attach(self):
         c = fcc111(self.atom,size=self.size)
         b = fcc111(self.atom,size=self.size)
-        add_adsorbate(b,self.atom,self.distance,self.position,offset=self.offset)
+        add_adsorbate(b,self.mol,self.distance,self.position,offset=self.offset)
         b.rotate('x',pi)
         b.translate([0,0,ceil(abs(b[-1].z))])
         b.rotate('z',(4/3)*pi)
