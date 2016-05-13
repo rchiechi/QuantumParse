@@ -3,7 +3,7 @@ from ase.build import fcc111,add_adsorbate
 from math import pi,ceil
 from pandas import DataFrame
 
-__all__ = ['Electrodes','zmatToAtoms','atomsToZmat']
+__all__ = ['Electrodes','zmatToAtoms','atomsToZmat','findDistances']
 
 class Electrodes:
 
@@ -53,3 +53,17 @@ def atomsToZmat(atoms):
         zmat['y'].append(a.y)
         zmat['z'].append(a.z)
     return DataFrame(zmat)
+
+def findDistances(xyz):
+    distances = {}
+    if type(xyz) == type(Atoms()):
+        for _a in xyz:
+            for _b in xyz:
+                c,d = np.array([_a.x,_a.y,_a.z]), np.array([_b.x,_b.y,_b.z])
+                distances[np.linalg.norm(c-d)] = (_a.index,_b.index)
+    elif type(xyz) == type(DataFrame()):
+        for _a in xyz.iterrows():
+            for _b in xyz.iterrows():
+                c,d = np.array([_a[1].x,_a[1].y[1],_a.z]), np.array([_b[1].x,_b[1].y,_b[1].z])
+                distances[np.linalg.norm(c-d)] = (_a[0],_b[0])
+    return distances
