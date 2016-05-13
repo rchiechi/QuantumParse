@@ -1,6 +1,7 @@
+from ase import Atoms
 from ase.build import fcc111,add_adsorbate
 from math import pi,ceil
-
+from pandas import DataFrame
 
 class Electrodes:
 
@@ -9,6 +10,8 @@ class Electrodes:
     atom='Au'
     position='hcp'
     offset=1
+    atoms = Atoms()
+    zmat = DataFrame()
 
     def __init__(self,mol):
         self.mol = mol
@@ -22,3 +25,4 @@ class Electrodes:
         b.rotate('z',(4/3)*pi)
         add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=len(b)-1)
         return c
+    

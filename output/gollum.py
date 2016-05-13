@@ -38,11 +38,10 @@ class Writer(xyz.Writer):
         fh.write('1  1  1\n')
         fh.write('# name: atom\n')
         fh.write('# type: matrix\n')
-        fh.write('# rows: %s\n' % len(self.parser.zmat))
+        fh.write('# rows: %s\n' % str(len(self.parser.zmat)-1) )
         fh.write('# columns: 4\n')
          
     def _writezmat(self,fh):
-        #e = self._guesselectrodes()
         m = {"L":"1 1 1","M":"0 0 0","R":"2 1 2"}
         if not self.parser.haselectrodes():
             self.logger.error("Error finding electrodes!")
