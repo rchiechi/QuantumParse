@@ -13,7 +13,7 @@ class Parser:
     atoms = Atoms()
     zmat = pd.DataFrame()
     iorbs = pd.DataFrame()
-    logger = logging.getLogger('default')
+    logger = logging.getLogger('Parser')
  
     lattice = {'constant':None,
             'vectors':[]}
@@ -91,12 +91,10 @@ class Parser:
             return
 
         if onAxis(self.atoms) != 'z':
-            self.logger.debug('Trying to rotate molecule to Z axis.')
             self.atoms,self.zmat = toZaxis(self.atoms)
             if onAxis(self.atoms) != 'z':
                 self.logger.warn('Molecule is not projected along Z-axis!')
 
-        self.logger.info('Building %s electrodes.' % self.opts.build)
         self.atoms = buildElectrodes(self.atoms,self.opts.build)
         #TODO Don't repeat this code
         self.logger.info('Sorting along Z-axis.')

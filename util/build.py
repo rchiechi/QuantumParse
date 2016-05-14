@@ -2,12 +2,15 @@ from ase import Atoms
 from ase.build import fcc111,add_adsorbate
 from math import pi,ceil
 from pandas import DataFrame
+import logging
 import numpy as np
 
 __all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','sortZmat','findDistances','onAxis','toZaxis']
 
-def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1):
+logger = logging.getLogger('Builder')
 
+def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1):
+    logger.info('Building %s electrodes.' % atom)
     c = fcc111(atom,size=size)
     b = fcc111(atom,size=size)
     add_adsorbate(b,atoms,distance,position,offset=offset)
@@ -81,6 +84,7 @@ def onAxis(xyz):
         return None
 
 def toZaxis(atoms):
+    logger.debug('Rotating zmatrix to Z-axis.')
     axis = onAxis(atoms)
     if axis == 'x':
         atoms.rotate('y',pi/2)

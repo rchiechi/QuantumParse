@@ -74,12 +74,13 @@ parser.add_argument('-b','--build', default=None,
 
 opts=parser.parse_args()
 
-logger = logging.getLogger('default')
+rootlogger = logging.getLogger()
 loghandler = logging.StreamHandler()
 loghandler.setFormatter(logging.Formatter(\
-    fmt=Fore.GREEN+prog+Fore.CYAN+' %(levelname)s '+Fore.YELLOW+'%(message)s'+Style.RESET_ALL))
-logger.addHandler(loghandler)
-logger.setLevel(getattr(logging,opts.loglevel.upper()))
+    fmt=Fore.GREEN+'%(name)s'+Fore.CYAN+' %(levelname)s '+Fore.YELLOW+'%(message)s'+Style.RESET_ALL))
+rootlogger.addHandler(loghandler)
+rootlogger.setLevel(getattr(logging,opts.loglevel.upper()))
+logger = logging.getLogger(prog)
 
 if not len(opts.infiles):
     logger.error("No input files!")

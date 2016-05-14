@@ -9,7 +9,7 @@ from ase.io import write as ase_write
 class Writer:
     
     ext = '.xyz'
-    logger = logging.getLogger('default')
+    logger = logging.getLogger('Writer')
 
     def __init__(self,parser):
         self.parser = parser
