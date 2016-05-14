@@ -1,5 +1,5 @@
 from output import xyz
-from util import atomicNumber 
+from util import *
 
 class Writer(xyz.Writer):
     ext = '.fdf'
@@ -26,7 +26,7 @@ class Writer(xyz.Writer):
         fh.write("PAO.EnergyShift         0.010 Ry\n")
         fh.write("%block PAO.BasisSizes\n")
         for atom in self.parser.zmat.atoms.unique():
-            if atom in ("Au","Ag"):
+            if atom in EATOMS:
                 fh.write("\t%s SZ\n" % atom)
             else:
                 fh.write("\t%s DZP\n" % atom)
@@ -85,7 +85,7 @@ class Writer(xyz.Writer):
         solmeth = 'diagon'
         golmeth = 'Lead'
         if self.opts.transport:
-            for a in ('Au','Ag'):
+            for a in EATOMS:
                 if len(self.parser.zmat.atoms[self.parser.zmat.atoms == a]) == len(self.parser.zmat.atoms):
                     self.logger.debug('This looks like an electrode file, not setting up transiesta')
                 elif a in self.parser.zmat.atoms.values:

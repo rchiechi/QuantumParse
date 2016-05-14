@@ -1,13 +1,12 @@
 import logging
 import pandas as pd
-from util import elements
+from util import *
 from util.build import *
 from time import sleep
 import re
 from ase import Atoms
 
 
-#TODO Electrodes ('Au','Ag') needs to be defined globally
 
 class Parser:
   
@@ -61,9 +60,9 @@ class Parser:
         e1,mol,e2,atom = (-1,-1),(-1,-1),(-1,-1),None
         if not self.opts.sortaxis == 'z':
             self.logger.debug('Guessing electrodes along Z-axis but sort axis is %s!' % self.opts.sortaxis)
-        if self.zmat.atoms.head(1).values[0] in ('Au','Ag') and self.zmat.atoms.tail(1).values[0] in ('S'):
+        if self.zmat.atoms.head(1).values[0] in EATOMS and self.zmat.atoms.tail(1).values[0] in ('S'):
             self.logger.warn("You may have an S-atom appended to the end of the Z-matrix instead of a metal.")
-        for atom in ('Au','Ag','S'):
+        for atom in EATOMS:
             if len(self.zmat[self.zmat.atoms == atom]) == len(self.zmat.atoms):
                 self.logger.debug('This looks like an electrode, not guess electrode')
                 return

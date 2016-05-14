@@ -3,4 +3,4 @@ from .build import *
 
 EATOMS = ('Au','Ag')
 
-__all__ == ['elements','EATOMS']
+__all__ = ['elements','atomicNumber','EATOMS']

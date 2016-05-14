@@ -56,22 +56,3 @@ class Writer(xyz.Writer):
     def _writetail(self,fh):
         self.logger.info("Wrote gollum input to '%s'" %fh.name)
 
-#    def _guesselectrodes(self):
-#        electrodes = {"L":[-1,-1], "M":[-1,-1], "R":[-1,-1]}
-#        if 'Au' not in self.parser.zmat.atoms.values and 'Ag' not in self.parser.zmat.atoms.values:
-#            self.logger.error("No electrodes found in input!")
-#            return electrodes
-#        for row in self.parser.zmat.iterrows():
-#            if str(row[1].atoms) in ('Au','Ag'):
-#                if electrodes["L"][0] == -1:
-#                    electrodes["L"][0] = row[0]
-#                elif electrodes["R"] == [-1,-1] and -1 not in electrodes['L']:
-#                    electrodes["R"][0] = row[0]
-#                elif -1 not in electrodes['M']:
-#                    electrodes["R"][1] = row[0]
-#            elif electrodes["M"][0] == -1:
-#                    electrodes["M"][0] = row[0]
-#                    electrodes["L"][1] = row[0]-1
-#            elif electrodes['R'] == [-1,-1]:
-#                electrodes["M"][1] = row[0]
-#        return electrodes

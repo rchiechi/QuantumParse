@@ -4,7 +4,7 @@ import sys,os
 from parse.orca import *
 from output import xyz
 import subprocess
-
+from util import *
 
 class Writer(xyz.Writer):
     #TODO Orca is a mess
@@ -25,25 +25,6 @@ class Writer(xyz.Writer):
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
-
-#    def __guesseletrodes(self):
-#        '''Try to guess electrodes for transport.in.
-#           only works if molecule crosses 0 along Z.'''
-#        e1,mol,e2,atom = (0,0),(0,0),(0,0),None
-#        self.logger.warn('Assuming atoms are sorted along Z.')
-#        for atom in ('Au','Ag','S'):
-#            if atom not in self.parser.zmat.atoms.get_values():
-#                self.logger.debug('No %s electrodes.' % atom)
-#                continue
-#            else:
-#                self.logger.info('Guessing %s electrodes.' % atom)
-#            molg = self.parser.zmat.atoms[self.parser.zmat.atoms != atom].index
-#            eg1 = self.parser.zmat.atoms[:molg[0]].index
-#            eg2 = self.parser.zmat.atoms[molg[-1]+1:].index
-#            if len(eg1) and len(eg2) and len(molg):
-#                e1,mol,e2 = eg1,molg,eg2
-#                break
-#        return (e1[0]+1,e1[-1]+1),(mol[0]+1,mol[-1]+1),(e2[0]+1,e2[-1]+1),atom
 
     def __writetransport(self):
         if not self.parser.haselectrodes():
@@ -132,7 +113,7 @@ class Writer(xyz.Writer):
             for a in self.parser.orbidx:
                 ie = i+len(self.parser.orbs[a])-1
                 fh.write("#%s %s-%s\n" % (a, i, ie) )
-                if 'Au' in a:
+                if a in EATOMS:
                     if guessorbs["L"][0] == 0:
                         guessorbs["L"][0] = i
                     elif guessorbs["M"] == [0,0]:
