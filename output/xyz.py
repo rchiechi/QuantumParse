@@ -49,16 +49,17 @@ class Writer:
             if self.opts.writeelectrodes:
                 self.writeelectrodes()
         self.logger.info('Writing %s.png' % self.jobname)
-        ase_write('%s.png' % self.jobname,self.parser.atoms,rotation='90y')
+        ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
 
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))
         fh.write('%s\n' % self.jobname)
 
     def _writezmat(self,fh):
-        self.parser.zmat.to_csv(fh, sep='\t', 
-                header=False, index=False,
-                float_format='%.8f')
+        self.parser.zmat.write(fh)
+        #, sep='\t', 
+        #        header=False, index=False,
+        #        float_format='%.8f')
 
     def _writetail(self,fh):
         return

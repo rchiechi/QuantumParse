@@ -59,8 +59,7 @@ def findDistances(xyz):
     if type(xyz) == type(Atoms()):
         for _a in xyz:
             for _b in xyz:
-                c,d = np.array([_a.x,_a.y,_a.z]), np.array([_b.x,_b.y,_b.z])
-                distances[np.linalg.norm(c-d)] = (_a.index,_b.index)
+                distances[xyz.get_distance(_a.index,_b.index)] = (_a.index,_b.index)
     elif type(xyz) == type(DataFrame()):
         for _a in xyz.iterrows():
             for _b in xyz.iterrows():

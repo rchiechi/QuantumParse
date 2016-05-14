@@ -11,7 +11,8 @@ from ase import Atoms
 class Parser:
   
     atoms = Atoms()
-    zmat = pd.DataFrame()
+    #zmat = pd.DataFrame()
+    zmat = ZMatrix()
     iorbs = pd.DataFrame()
     logger = logging.getLogger('Parser')
  
@@ -43,11 +44,11 @@ class Parser:
 
     def setZmat(self,zmat):
         self.zmat = zmat
-        self.atoms = zmatToAtoms(zmat)
+        #self.atoms = zmatToAtoms(zmat)
 
     def setAtoms(self,atoms):
         self.atoms = atoms
-        self.zmat = atomsTozmat(atoms)
+        #self.zmat = atomsTozmat(atoms)
 
     def getZmat(self):
         return self.zmat
@@ -57,11 +58,13 @@ class Parser:
     def _guesselectrodes(self):
         '''Try to guess electrodes for transport.in.
            only works if molecule is sorted along Z.'''
+        self.zmat.findElectrodes()
+        return
         e1,mol,e2,atom = (-1,-1),(-1,-1),(-1,-1),None
         if not self.opts.sortaxis == 'z':
             self.logger.debug('Guessing electrodes along Z-axis but sort axis is %s!' % self.opts.sortaxis)
-        if self.zmat.atoms.head(1).values[0] in EATOMS and self.zmat.atoms.tail(1).values[0] in ('S'):
-            self.logger.warn("You may have an S-atom appended to the end of the Z-matrix instead of a metal.")
+        #if self.zmat.atoms.head(1).values[0] in EATOMS and self.zmat.atoms.tail(1).values[0] in ('S'):
+        #    self.logger.warn("You may have an S-atom appended to the end of the Z-matrix instead of a metal.")
         for atom in EATOMS:
             if len(self.zmat[self.zmat.atoms == atom]) == len(self.zmat.atoms):
                 self.logger.debug('This looks like an electrode, not guess electrode')
@@ -84,29 +87,33 @@ class Parser:
         self.electrodes['M'] = (mol[0],mol[-1])
         self.electrodes['R'] = (e2[0],e2[-1])
         self.electrodes['atom'] = atom
+
     def _buildelectrodes(self):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if not self.opts.build:
             return
+        
+        #if onAxis(self.atoms) != 'z':
+        #    self.atoms,self.zmat = toZaxis(self.atoms)
+        #    if onAxis(self.atoms) != 'z':
+        #        self.logger.warn('Molecule is not projected along Z-axis!')
 
-        if onAxis(self.atoms) != 'z':
-            self.atoms,self.zmat = toZaxis(self.atoms)
-            if onAxis(self.atoms) != 'z':
-                self.logger.warn('Molecule is not projected along Z-axis!')
-
-        self.atoms = buildElectrodes(self.atoms,self.opts.build)
+        #self.atoms = buildElectrodes(self.atoms,self.opts.build)
         #TODO Don't repeat this code
-        self.logger.info('Sorting along Z-axis.')
-        self.zmat = atomsToZmat(self.atoms)
-        idx = []
-        for i in range(0,len(self.zmat['atoms'])):
-            idx.append(i)
-        self.zmat = self.zmat.sort_values('z')
-        self.zmat.index = idx
+        #self.logger.info('Sorting along Z-axis.')
+        #self.zmat = atomsToZmat(self.atoms)
+        #idx = []
+        #for i in range(0,len(self.zmat['atoms'])):
+        #    idx.append(i)
+        #self.zmat = self.zmat.sort_values('z')
+        #self.zmat.index = idx
+        self.zmat.buildElectrodes(self.opts.build)
 
     def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
+        f = ''
+        pos = []
         with open(self.fn) as fh:
             for l in fh:
                 row = []
@@ -124,10 +131,15 @@ class Parser:
                         zmat['y'].append(y)
                         zmat['z'].append(z)
                         zmat['atoms'].append(str(row[0]))
+                        f+=row[0].lower().capitalize()
+                        pos.append((x,y,z))
                     except ValueError:
                         self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
-        self._zmattodf(zmat)
+        #self._zmattodf(zmat)
+        self.zmat = ZMatrix(f,pos)
+        if self.opts.sortaxis:
+            self.zmat.sort(self.opts.sortaxis)
 
     def _zmattodf(self,zmat):
         if self.opts.sortaxis:
