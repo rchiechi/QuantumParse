@@ -1,11 +1,27 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.5
 
 import os,sys
+
+try:
+    import pip
+except ImportError:
+    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
+    sys.exit(1)
+
+prog = os.path.basename(sys.argv[0]).replace('.py','')
+# Need to make this check because ase does not check for dependencies like matplotlib at import
+installed = [package.project_name for package in pip.get_installed_distributions()]
+required = ['ase','pandas','colorama','matplotlib']
+for pkg in required:
+    if pkg not in installed:
+        print('You need to install %s to use %s.' % (pkg,prog))
+        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
+        sys.exit(1)
+
 import argparse
 import logging
 import importlib
 from colorama import init,Fore,Back,Style
-
 
 # Setup colors
 init(autoreset=True)
@@ -13,15 +29,27 @@ init(autoreset=True)
 # Parse args
 desc = 'Convert between quantum chemistry software file formats.'
 
+# Find parsers and writers
+writers,parsers = [],[]
+absdir = os.path.dirname(os.path.realpath(__file__))
+for f in os.listdir(os.path.join(absdir,'output')):
+    if f[0] in ('.','_'): continue
+    writers.append(f[:-3])
+for f in os.listdir(os.path.join(absdir,'parse')):
+    if f[0] in ('.','_'): continue
+    parsers.append(f[:-3])
+
 parser = argparse.ArgumentParser(description=desc,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('infiles', type=str, nargs='*', default=[], 
     help='Datafiles to parse.')
 parser.add_argument('-i','--informat', default='guess',
-    choices=('guess','orca','xyz','gaussian','siesta'),
+    choices = parsers,
+    #choices=('guess','orca','xyz','gaussian','siesta'),
     help="Input file format.")
 parser.add_argument('-o','--outformat', required=True,
-    choices=('artaios','orca','xyz','gaussian','siesta','gollum'),
+    choices = writers,
+    #choices=('artaios','orca','xyz','gaussian','siesta','gollum'),
     help="Output file format.")
 parser.add_argument('--overwrite', action='store_true', default=False,
     help="Overwrite output files without asking.")
@@ -46,7 +74,6 @@ parser.add_argument('-b','--build', default=None,
 
 opts=parser.parse_args()
 
-prog = os.path.basename(sys.argv[0]).replace('.py','')
 logger = logging.getLogger('default')
 loghandler = logging.StreamHandler()
 loghandler.setFormatter(logging.Formatter(\
