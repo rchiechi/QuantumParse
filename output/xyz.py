@@ -4,6 +4,8 @@ import logging
 import importlib
 from ase.io import write as ase_write
 
+#TODO Files are written in CWD instead of input (at least for siesta)
+
 class Writer:
     
     ext = '.xyz'
