@@ -14,18 +14,19 @@ class Writer(xyz.Writer):
         fh.write("SystemLabel %s\n" % self.jobname)
         fh.write(self._section('Species and Atoms'))
         fh.write("NumberOfAtoms %s\n" % len(self.parser.zmat))
-        fh.write("NumberOfSpecies %s\n" % len(self.parser.zmat.atoms.unique()))
+        fh.write("NumberOfSpecies %s\n" % len(self.parser.zmat.unique()))
         fh.write("%block ChemicalSpeciesLabel\n")
         self.atomnum = {}
         i = 1
-        for atom in self.parser.zmat.atoms.unique():
+        #TODO just use Atoms/ZMatrix
+        for atom in self.parser.zmat.unique():
             fh.write("\t%s %s %s\n" % (i, atomicNumber[atom], atom) )
             self.atomnum[atom]=i
             i+=1
         fh.write("%endblock ChemicalSpeciesLabel\n")
         fh.write("PAO.EnergyShift         0.010 Ry\n")
         fh.write("%block PAO.BasisSizes\n")
-        for atom in self.parser.zmat.atoms.unique():
+        for atom in self.parser.zmat.unique():
             if atom in EATOMS:
                 fh.write("\t%s SZ\n" % atom)
             else:
@@ -56,9 +57,9 @@ class Writer(xyz.Writer):
         fh.write("AtomicCoordinatesFormat Ang\n")
         fh.write("%block AtomicCoordinatesAndAtomicSpecies\n")
         i = 1
-        for row in self.parser.zmat.iterrows():
+        for _a in self.parser.zmat:
             fh.write("\t%.8f\t%.8f\t%.8f\t%s\t%s\t%s\n" % 
-                    (row[1].x,row[1].y,row[1].z,self.atomnum[row[1].atoms],row[1].atoms,i))
+                    (_a.x,_a.y,_a.z,self.atomnum[_a.symbol],_a.symbol,i))
             i += 1
         fh.write("%endblock AtomicCoordinatesAndAtomicSpecies\n")
     def _writetail(self,fh):
@@ -86,9 +87,9 @@ class Writer(xyz.Writer):
         golmeth = 'Lead'
         if self.opts.transport:
             for a in EATOMS:
-                if len(self.parser.zmat.atoms[self.parser.zmat.atoms == a]) == len(self.parser.zmat.atoms):
+                if len(self.parser.zmat.unique()) == 1:
                     self.logger.debug('This looks like an electrode file, not setting up transiesta')
-                elif a in self.parser.zmat.atoms.values:
+                elif a in self.parser.zmat.get_chemical_symbols():
                     self.logger.debug('This looks like a scattering matrix, setting up transiesta')
                     solmeth = 'transiesta'
                     golmeth = 'EMol'
