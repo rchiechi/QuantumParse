@@ -79,7 +79,7 @@ class ZMatrix(Atoms):
         
     def write(self,fh):
         for _a in self:
-            fh.write('%s\t%s\t%s\t%s\n' % (_a.symbol,_a.x,_a.y,_a.z) )
+            fh.write('%s\t%.8f\t%.8f\t%.8f\n' % (_a.symbol,_a.x,_a.y,_a.z) )
 
     def getAtomCounts(self):
         return Counter(self.get_chemical_symbols())

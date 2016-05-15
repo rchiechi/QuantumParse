@@ -23,13 +23,18 @@ class Parser(xyz.Parser):
 
     def parseMatrix(self):
         self.logger.debug('Parsing matrix from %s' % self.fn)
-        with open(self.fn) as fh:
-            self.fm = fock(fh)
-            self.orbs,self.orbidx = norbs(fh)
-            self.ol = overlap(fh)
-        if None in (self.fm, self.orbs, self.orbidx, self.ol):
-            self.logger.error("Did not parse Orca matrix correctly.")
-
+        if self.fn[-4:].lower() == '.out':
+            with open(self.fn) as fh:
+                self.fm = fock(fh)
+                self.orbs,self.orbidx = norbs(fh)
+                self.ol = overlap(fh)
+            if None in (self.fm, self.orbs, self.orbidx, self.ol):
+                self.logger.error("Did not parse Orca matrix correctly.")
+        else:
+            self._parsezmat()
+            if self.opts.build:
+                self.zmat.buildElectrodes(self.opts.build)
+            self.zmat.findElectrodes()
 
 def overlap(fh):
     print("Parsing overlap matrix...")
@@ -115,7 +120,7 @@ def fock(fh):
             continue
         if infock:
             ditch = False
-            lsf = filter(None, re.split('\s',l))
+            lsf = l.split()
             fl = []
             for n in lsf:
                 if '.' in n:
@@ -168,7 +173,6 @@ def norbs(fh):
     orbidx = []
     lk = []
     rp = re.compile('^\d+\D+$')
-    rps = re.compile('\s')
     lidx = 0
     print("Parsing molecular orbitals...",end='')
     for l in fh:
@@ -189,7 +193,7 @@ def norbs(fh):
             break
         if inorb:
             lsf = []
-            for ln in filter(None, re.split(rps,l)):
+            for ln in l.split():
                 lsf.append(ln)
             if not len(lsf):
                 continue

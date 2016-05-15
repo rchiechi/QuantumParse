@@ -1,9 +1,8 @@
 from parse import xyz
-from util import elements
-import re
+from util import *
 
 class Parser(xyz.Parser):
-    
+
     def hasLattice(self):
         if self.lattice['constant'] == None or not self.lattice['vectors']:
             return False
@@ -11,10 +10,11 @@ class Parser(xyz.Parser):
             return True
 
     def _parsezmat(self):
-        zmat = {'atoms':[],'x':[],'y':[],'z':[]}
         with open(self.fn) as fh:
-            atomlabels = self._atomlabels(fh)
+            atomlabels = self.parseAtomlabels(fh)
             inblock = False
+            pos = []
+            num = []
             for l in fh:
                 if '%block atomiccoordinatesandatomicspecies' in l.lower():
                     inblock = True
@@ -22,18 +22,16 @@ class Parser(xyz.Parser):
                 elif '%endblock atomiccoordinatesandatomicspecies' in l.lower():
                     break
                 if inblock:
-                    row = list(filter(None,re.split(self.ws,l)))
+                    row = l.split()
                     try:
                         x,y,z = map(float,row[:3])
                         i = int(row[3])
-                        zmat['x'].append(x)
-                        zmat['y'].append(y)
-                        zmat['z'].append(z)
-                        zmat['atoms'].append(atomlabels[i])
+                        pos.append([x,y,z])
+                        num.append(i)
                     except ValueError as msg:
                         self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
-            self._zmattodf(zmat)
+            self.zmat = ZMatrix(numbers=num, positions=pos)
             self.parseLattice(fh)
 
     def parseLattice(self,fh):
@@ -51,7 +49,7 @@ class Parser(xyz.Parser):
                 self.lattice['vectors'].append(l.strip())
         fh.seek(0)
 
-    def _atomlabels(self,fh):
+    def parseAtomlabels(self,fh):
         atomlabels = {}
         inblock = False
         fh.seek(0)
@@ -62,7 +60,7 @@ class Parser(xyz.Parser):
             elif '%endblock chemicalspecieslabel' in l.lower():
                 break
             if inblock:
-                i,n,atom = list(filter(None,re.split(self.ws,l)))[:3]
+                i,n,atom = l.split()[:3]
                 atomlabels[int(i)] = atom
                 self.logger.debug('Found atom %s' % atom)
         fh.seek(0)
