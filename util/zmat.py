@@ -15,8 +15,8 @@ class ZMatrix(Atoms):
         '''Guess indices of electrode atoms.'''
         for e in EATOMS:
             if e in self.get_chemical_symbols():
-                self.logger.debug('Guessing %s electrodes.' % e)
                 break
+        self.logger.debug('Searching for %s electrodes.' % e)
         _l,_m,_r = [],[],[] 
         for _a in self:
             if _a.symbol == e:

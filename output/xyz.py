@@ -31,7 +31,7 @@ class Writer:
         opts.writeelectrodes = False
         for e in ('L','R'):
             opts.jobname = 'lead'+e
-            s = self.parser.electrodes[e]
+            s = self.parser.zmat.electrodes[e]
             parser = importlib.import_module('parse.%s' % opts.informat).Parser(opts,self.fn)
             parser.setZmat(self.parser.getZmat()[s[0]:s[1]+1])
             writer = importlib.import_module('output.%s' % opts.outformat).Writer(parser)
@@ -67,8 +67,8 @@ class Writer:
     @classmethod
     def getMultiplicity(cls,zmat):
         n = 0
-        vc = zmat.atoms.value_counts()
-        for atom in vc.index:
+        vc = zmat.getAtomCounts()
+        for atom in vc:
             if atom.upper() == 'H':
                 n += vc[atom]
             else:

@@ -21,7 +21,6 @@ class Parser:
     #over the entire file
     breaks = ()
     ws = re.compile('\s+')
-    electrodes = {'L':(0,0),'M':(0,0),'R':(0,0),'atom':None}
 
     def __init__(self,opts,fn):
         self.fn = fn
@@ -35,7 +34,7 @@ class Parser:
 
     def haselectrodes(self):
         for a in ('L','M','R'):
-            if self.electrodes[a] == (0,0) or -1 in self.electrodes[a]:
+            if self.zmat.electrodes[a] == (0,0) or -1 in self.zmat.electrodes[a]:
                 return False
         return True
 
