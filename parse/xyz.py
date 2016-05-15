@@ -1,5 +1,4 @@
 import logging
-import pandas as pd
 from util import *
 from util.build import *
 from time import sleep
@@ -11,9 +10,7 @@ from ase import Atoms
 class Parser:
   
     atoms = Atoms()
-    #zmat = pd.DataFrame()
     zmat = ZMatrix()
-    iorbs = pd.DataFrame()
     logger = logging.getLogger('Parser')
  
     lattice = {'constant':None,
@@ -55,64 +52,9 @@ class Parser:
     def getAtoms(self):
         return self.atoms
 
-    def _guesselectrodes(self):
-        '''Try to guess electrodes for transport.in.
-           only works if molecule is sorted along Z.'''
-        self.zmat.findElectrodes()
-        return
-        e1,mol,e2,atom = (-1,-1),(-1,-1),(-1,-1),None
-        if not self.opts.sortaxis == 'z':
-            self.logger.debug('Guessing electrodes along Z-axis but sort axis is %s!' % self.opts.sortaxis)
-        #if self.zmat.atoms.head(1).values[0] in EATOMS and self.zmat.atoms.tail(1).values[0] in ('S'):
-        #    self.logger.warn("You may have an S-atom appended to the end of the Z-matrix instead of a metal.")
-        for atom in EATOMS:
-            if len(self.zmat[self.zmat.atoms == atom]) == len(self.zmat.atoms):
-                self.logger.debug('This looks like an electrode, not guess electrode')
-                return
-            if atom not in self.zmat.atoms.get_values():
-                self.logger.debug('No %s electrodes.' % atom)
-                continue
-            else:
-                self.logger.info('Guessing %s electrodes.' % atom)
-            molg = self.zmat.atoms[self.zmat.atoms != atom].index
-            eg1 = self.zmat.atoms[:molg[0]].index
-            eg2 = self.zmat.atoms[molg[-1]+1:].index
-            if len(eg1) and len(eg2) and len(molg):
-                self.logger.debug('Parsed %s electrodes.' % atom)
-                e1,mol,e2 = eg1,molg,eg2
-                break
-            else:
-                self.logger.debug('Did not parse %s electrode.' % atom)
-        self.electrodes['L'] = (e1[0],e1[-1])
-        self.electrodes['M'] = (mol[0],mol[-1])
-        self.electrodes['R'] = (e2[0],e2[-1])
-        self.electrodes['atom'] = atom
-
-    def _buildelectrodes(self):
-        '''Try to build electrodes around a molecule
-           projected along the Z axis.'''
-        if not self.opts.build:
-            return
-        
-        #if onAxis(self.atoms) != 'z':
-        #    self.atoms,self.zmat = toZaxis(self.atoms)
-        #    if onAxis(self.atoms) != 'z':
-        #        self.logger.warn('Molecule is not projected along Z-axis!')
-
-        #self.atoms = buildElectrodes(self.atoms,self.opts.build)
-        #TODO Don't repeat this code
-        #self.logger.info('Sorting along Z-axis.')
-        #self.zmat = atomsToZmat(self.atoms)
-        #idx = []
-        #for i in range(0,len(self.zmat['atoms'])):
-        #    idx.append(i)
-        #self.zmat = self.zmat.sort_values('z')
-        #self.zmat.index = idx
-        self.zmat.buildElectrodes(self.opts.build)
-
     def _parsezmat(self):
         zmat = {'atoms':[],'x':[],'y':[],'z':[]}
-        f = ''
+        f = []
         pos = []
         with open(self.fn) as fh:
             for l in fh:
@@ -131,12 +73,11 @@ class Parser:
                         zmat['y'].append(y)
                         zmat['z'].append(z)
                         zmat['atoms'].append(str(row[0]))
-                        f+=row[0].lower().capitalize()
+                        f.append(row[0].lower().capitalize())
                         pos.append((x,y,z))
                     except ValueError:
                         self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
-        #self._zmattodf(zmat)
         self.zmat = ZMatrix(f,pos)
         if self.opts.sortaxis:
             self.zmat.sort(self.opts.sortaxis)
@@ -157,6 +98,7 @@ class Parser:
 
     def parseZmatrix(self):
         self._parsezmat()
-        self._buildelectrodes()
-        self._guesselectrodes()
+        if self.opts.build:
+            self.zmat.buildElectrodes(self.opts.build)
+        self.zmat.findElectrodes()
          

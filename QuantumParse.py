@@ -11,7 +11,7 @@ except ImportError:
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 # Need to make this check because ase does not check for dependencies like matplotlib at import
 installed = [package.project_name for package in pip.get_installed_distributions()]
-required = ['ase','pandas','colorama','matplotlib']
+required = ['colorama','ase','matplotlib']
 for pkg in required:
     if pkg not in installed:
         print('You need to install %s to use %s.' % (pkg,prog))

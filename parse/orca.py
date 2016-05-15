@@ -6,7 +6,6 @@ import numpy as np
 from parse import xyz
 import logging
 import warnings
-import pandas as pd
 from util import elements
 from colorama import Fore,Back,Style
 
