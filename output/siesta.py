@@ -1,4 +1,5 @@
 from output import xyz
+from ase import Atom
 from util import *
 
 class Writer(xyz.Writer):
@@ -18,9 +19,8 @@ class Writer(xyz.Writer):
         fh.write("%block ChemicalSpeciesLabel\n")
         self.atomnum = {}
         i = 1
-        #TODO just use Atoms/ZMatrix
         for atom in self.parser.zmat.unique():
-            fh.write("\t%s %s %s\n" % (i, atomicNumber[atom], atom) )
+            fh.write("\t%s %s %s\n" % (i, Atom(atom).number, atom) )
             self.atomnum[atom]=i
             i+=1
         fh.write("%endblock ChemicalSpeciesLabel\n")
