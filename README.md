@@ -1,15 +1,16 @@
-## QuantumParse
+# QuantumParse
 
 This is just a small Python script for converting between file formats for quantum chemistry software. 
 It is customized for our lab and I am not a programmer, but it seems to work ok.
 
-# Requirements
+## Requirements
 - python 3.5+
 - colorama
 - ase
 - matplotlib
+- Artaios (for artaios output)
 
-#Usage
+## Usage
 
 To read a linear molecule projected along the x, y, or z axis from <FILE> in XYZ, Gaussian or siesta format, attach
 two Au electrodes and write an output file suitable for a trasport calculation in transiesta:
