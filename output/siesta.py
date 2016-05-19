@@ -24,7 +24,7 @@ class Writer(xyz.Writer):
             self.atomnum[atom]=i
             i+=1
         fh.write("%endblock ChemicalSpeciesLabel\n")
-        fh.write("PAO.EnergyShift         0.010 Ry\n")
+        fh.write("PAO.EnergyShift         0.0010 Ry\n")
         fh.write("%block PAO.BasisSizes\n")
         for atom in self.parser.zmat.unique():
             if atom in EATOMS:
@@ -43,12 +43,12 @@ class Writer(xyz.Writer):
             fh.write("%endblock LatticeVectors\n")
         fh.write(self._section('K-grid'))
         if 'lead' in self.opts.jobname:
-            ygrid = '60'
+            zgrid = '60'
         else:
-            ygrid = '01'
+            zgrid = '01'
         fh.write('%block kgrid_Monkhorst_Pack\n')
-        fh.write(' 1    0    0    0.0\n')
-        fh.write(' 0    1    0    0.0\n')
+        fh.write(' 10    0    0    0.0\n')
+        fh.write(' 0    10    0    0.0\n')
         fh.write(' 0    0    %s   0.0\n' % ygrid)
         fh.write('%endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
