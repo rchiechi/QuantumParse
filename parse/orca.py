@@ -80,7 +80,7 @@ def fock(fh):
     for l in fh:
         l = l.strip()
         if key in l: scfidx += 1
-    print(Fore.GREEN+scfidx+Style.RESET_ALL)
+    print(Fore.GREEN+str(scfidx)+Style.RESET_ALL)
     fh.seek(0)
     iscf = 0 
     print("Parsing Fock matrix...",end='')
@@ -162,7 +162,7 @@ def norbs(fh):
     lk = []
     rp = re.compile('^\d+\D+$')
     lidx = 0
-    logger.info("Parsing molecular orbitals...",end='')
+    logger.info("Parsing molecular orbitals...")
     for l in fh:
         lidx += 1
         if not lidx%1000000:
