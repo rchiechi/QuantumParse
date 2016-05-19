@@ -4,6 +4,7 @@ import sys,os
 from parse.orca import *
 from output import xyz
 import subprocess
+import numpy as np
 from util import *
 
 class Writer(xyz.Writer):
@@ -42,9 +43,9 @@ class Writer(xyz.Writer):
             fh.write('# Guessed electrodes as %s\n' % self.parser.electrodes['atom'])
             fh.write('# Check partitioning for accuracy!\n')
             fh.write('$partitioning\n')
-            fh.write('  leftatoms %i-%i\n' % self.parser.electrodes['L']) 
-            fh.write('  centralatoms %i-%i\n' % self.parser.electrodes['M']) 
-            fh.write('  rightatoms %i-%i\n' % self.parser.electrodes['R']) 
+            fh.write('  leftatoms %i-%i\n' % np.array(self.parser.electrodes['L'])+1) 
+            fh.write('  centralatoms %i-%i\n' % np.array(self.parser.electrodes['M'])+1) 
+            fh.write('  rightatoms %i-%i\n' % np.array(self.parser.electrodes['R'])+1) 
             fh.write('$end\n')
             fh.write('$energy_range\n')
             fh.write('  units   eV\n')
