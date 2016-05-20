@@ -37,14 +37,18 @@ class ZMatrix(Atoms):
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
 
-    def buildElectrodes(self,atom,size,offset=1,distance=1.5,position='hcp'):
+    def buildElectrodes(self,atom,size,distance=1.5,position='hcp'):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if self.onAxis() != 'z':
             self.toZaxis()
             if self.onAxis() != 'z':
                 self.logger.warn('Molecule is not projected along Z-axis!')
+        if self[0].symbol != 'S' or self[-1].symbol != 'S':
+            self.logger.warn('Molecule is not terminated with S atoms!')
         self.logger.info('Building %s electrodes.' % atom)
+        offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
+        self.logger.debug('Electrode size: %s offset: %s' % (str(size),str(offset)))
         c = fcc111(atom,size=size)
         b = fcc111(atom,size=size)
         add_adsorbate(b,self,distance,position,offset=offset)
