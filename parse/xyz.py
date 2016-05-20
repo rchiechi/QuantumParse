@@ -47,7 +47,7 @@ class Parser:
     def parseZmatrix(self):
         self._parsezmat()
         if self.opts.build:
-            self.zmat.buildElectrodes(self.opts.build)
+            self.zmat.buildElectrodes(self.opts.build,self.opts.size)
         self.zmat.findElectrodes()
 
     def _parsezmat(self):
@@ -77,7 +77,9 @@ class Parser:
                     except KeyError:
                         self.logger.debug("Error parsing atom name in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
-        if self.opts.sortaxis:
+        if self.opts.project:
+            zmat.toZaxis()
+        elif self.opts.sortaxis:
             zmat.sort(self.opts.sortaxis)
         self.zmat = zmat
     

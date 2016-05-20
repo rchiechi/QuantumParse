@@ -39,7 +39,7 @@ for f in os.listdir(os.path.join(absdir,'parse')):
     if f[0] in ('.','_'): continue
     parsers.append(f[:-3])
 
-parser = argparse.ArgumentParser(description=desc,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(description=desc,formatter_class=argparse.ArgumentDefaultsHelpFormatter,add_help=False)
 
 parser.add_argument('infiles', type=str, nargs='*', default=[], 
     help='Datafiles to parse.')
@@ -67,9 +67,12 @@ parser.add_argument('--jobname', type=str, default='',
     help="Specify a jobname (and output file name) instead of taking it from the input file name.")
 parser.add_argument('--writeelectrodes', action='store_true', default=False,
     help="Write copies of the electrodes to separate files.")
-parser.add_argument('-b','--build', default=None,
-    choices=('Au','Ag'),
-    help="Build electrodes onto the ends of a molecule.")
+parser.add_argument('--project', action='store_true', default=False,
+    help="Project the molecule along the z-axis.")
+parser.add_argument('--build', default=None, choices=('Au','Ag'),
+    help="Build electrodes comprising this atom onto the ends of the input molecule.")
+parser.add_argument('--size', type=str, default='2,2,4',
+    help="Size of electrodes (x,y,z).")
 
 
 opts=parser.parse_args()
@@ -84,6 +87,14 @@ logger = logging.getLogger(prog)
 
 if not len(opts.infiles):
     logger.error("No input files!")
+    sys.exit()
+
+try:
+    opts.size = tuple(map(int,opts.size.split(',')))
+    if len(opts.size) != 3:
+        raise ValueError
+except ValueError:
+    logger.error('%s is not a valid size.' % str(opts.size))
     sys.exit()
 
 if opts.informat == 'guess':

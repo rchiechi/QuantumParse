@@ -37,7 +37,7 @@ class ZMatrix(Atoms):
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
 
-    def buildElectrodes(self,atom,size=[4,4,2],offset=1,distance=1.5,position='hcp'):
+    def buildElectrodes(self,atom,size,offset=1,distance=1.5,position='hcp'):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if self.onAxis() != 'z':
@@ -110,6 +110,9 @@ class ZMatrix(Atoms):
 
     def toZaxis(self):
         axis = self.onAxis()
+        if axis == 'z':
+            self.logger.debug('Already on z-axis, skipping rotation.')
+            return
         self.logger.debug('Rotating from %s to z-axis.' % axis)
         if axis == 'x':
             self.rotate('y',pi/2)
