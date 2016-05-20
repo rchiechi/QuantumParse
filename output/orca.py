@@ -10,10 +10,11 @@ class Writer(xyz.Writer):
         mult = xyz.Writer.getMultiplicity(self.parser.zmat)
         with open(fn,'wt') as fh:
             if self.opts.transport:
-                fh.write('! DFT B3LYP Def2-TZVP ECP{LANL2,LANLDZ}\n') 
-            else:
+                fh.write('! DFT B3LYP Def2-TZVP ECP{LANL2,LANLDZ} vdwgrid3\n') 
+                fh.write('%scf MaxIter 1000 end\n') 
+           else:
                 fh.write('! DFT B3LYP Def2-TZVP ECP{def2-TZVP}\n') 
-            fh.write('#! AHSCF vdwgrid3\n') 
+            fh.write('#! AHSCF\n') 
             fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n'% (mult,xyzfh.name) )
             fh.write('%pal nprocs 48 end\n')
@@ -22,8 +23,9 @@ class Writer(xyz.Writer):
                return
             fh.write('\n$new_job\n')
             #fh.write('! DFT B3LYP Def2-TZVP ECP{def2-TZVP} MOREAD\n')
-            fh.write('! DFT B3LYP Def2-TZVP ECP{LANL2,LANLDZ} MOREAD\n') 
-            fh.write('#! AHSCF vdwgrid3\n') 
+            fh.write('! DFT B3LYP Def2-TZVP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n') 
+            fh.write('%scf MaxIter 1 end\n') 
+            fh.write('#! AHSCF\n') 
             fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name) )
             fh.write('%%MoInp "%s.gbw"\n' % bn)
