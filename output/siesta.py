@@ -49,7 +49,7 @@ class Writer(xyz.Writer):
         fh.write('%block kgrid_Monkhorst_Pack\n')
         fh.write(' 10    0    0    0.0\n')
         fh.write(' 0    10    0    0.0\n')
-        fh.write(' 0    0    %s   0.0\n' % ygrid)
+        fh.write(' 0    0    %s   0.0\n' % zgrid)
         fh.write('%endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
     def _writezmat(self,fh):
