@@ -147,3 +147,11 @@ class Writer(xyz.Writer):
             fh.write('# SCATTERING REGION\n')
             fh.write('#TS.TBT.HSFile    %s\n' % se)
             fh.write('TS.TBT.AtomPDOS       T\n')
+            if 'lead' not in self.opts.jobname and self.opts.build and self.opts.size[2] > 2:
+                L = xyz.Writer.trimElectrodes(self.parser.zmat, 'L', self.opts.size)
+                R = xyz.Writer.trimElectrodes(self.parser.zmat, 'R', self.opts.size)
+                Ll = len(self.parser.getZmat()[L[0]:L[1]+1])
+                Rl = len(self.parser.getZmat()[R[0]:R[1]+1])
+                fh.write('TS.NumUsedAtomsLeft       %s\n' % Ll)
+                fh.write('TS.NumUsedAtomsRight      %s\n' % Rl)
+

@@ -32,12 +32,13 @@ class Writer:
         for e in ('L','R'):
             if self.opts.build and self.opts.size[2] > 2:
                 self.logger.debug('Removing two layers of atoms for Siesta leads')
-                if e == 'L':
-                    s = (self.parser.zmat.electrodes[e][0],
-                     self.parser.zmat.electrodes[e][1]-int(self.opts.size[0]*self.opts.size[1]*2))
-                elif e == 'R':
-                    s = (self.parser.zmat.electrodes[e][0]+int(self.opts.size[0]*self.opts.size[1]*2),
-                     self.parser.zmat.electrodes[e][1])
+                s = Writer.trimElectrodes(self.parser.zmat, e, self.opts.size)
+                #if e == 'L':
+                #    s = (self.parser.zmat.electrodes[e][0],
+                #     self.parser.zmat.electrodes[e][1]-int(self.opts.size[0]*self.opts.size[1]*2))
+                #elif e == 'R':
+                #    s = (self.parser.zmat.electrodes[e][0]+int(self.opts.size[0]*self.opts.size[1]*2),
+                #     self.parser.zmat.electrodes[e][1])
             else:
                 s = self.parser.zmat.electrodes[e]
             opts.jobname = 'lead'+e
@@ -45,6 +46,16 @@ class Writer:
             parser.setZmat(self.parser.getZmat()[s[0]:s[1]+1])
             writer = importlib.import_module('output.%s' % opts.outformat).Writer(parser)
             writer.write()
+    
+    @classmethod
+    def trimElectrodes(cls, zmat, e, size):
+        if e == 'L':
+            s = (zmat.electrodes[e][0],
+             zmat.electrodes[e][1]-int(size[0]*size[1]*2))
+        elif e == 'R':
+            s = (zmat.electrodes[e][0]+int(size[0]*size[1]*2),
+             zmat.electrodes[e][1])
+        return s
 
     def write(self):
         if os.path.exists(self.fn) and not self.opts.overwrite:
