@@ -71,6 +71,11 @@ parser.add_argument('--build', default=None, choices=('Au','Ag'),
     help="Build electrodes comprising this atom onto the ends of the input molecule.")
 parser.add_argument('--size', type=str, default='4,4,2',
     help="Size of electrodes (x,y,z).")
+parser.add_argument('--binding', default='hcp', choices=('ontop','hollow','fcc','hcp','bridge'),
+    help="Binding geometry to electrode.")
+parser.add_argument('--distance', type=int, default=2,
+    help="Distance from electrode.")
+
 
 
 opts=parser.parse_args()

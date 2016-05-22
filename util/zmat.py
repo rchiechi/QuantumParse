@@ -37,7 +37,7 @@ class ZMatrix(Atoms):
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
 
-    def buildElectrodes(self,atom,size,distance=1.5,position='hcp'):
+    def buildElectrodes(self,atom,size,distance,position):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if self.onAxis() != 'z':

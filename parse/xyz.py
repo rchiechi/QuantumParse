@@ -47,7 +47,8 @@ class Parser:
     def parseZmatrix(self):
         self._parsezmat()
         if self.opts.build:
-            self.zmat.buildElectrodes(self.opts.build,self.opts.size)
+            self.zmat.buildElectrodes(self.opts.build,
+                    self.opts.size,self.opts.distance,self.ops.binding)
         self.zmat.findElectrodes()
 
     def _parsezmat(self):
