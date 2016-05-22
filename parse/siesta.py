@@ -14,7 +14,7 @@ class Parser(xyz.Parser):
             atomlabels = self.parseAtomlabels(fh)
             inblock = False
             pos = []
-            num = []
+            f = []
             for l in fh:
                 if '%block atomiccoordinatesandatomicspecies' in l.lower():
                     inblock = True
@@ -25,13 +25,13 @@ class Parser(xyz.Parser):
                     row = l.split()
                     try:
                         x,y,z = map(float,row[:3])
-                        i = int(row[3])
+                        atom = atomlabels[int(row[3])]
                         pos.append([x,y,z])
-                        num.append(i)
+                        f.append(atom)
                     except ValueError as msg:
                         self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
                         self.logger.debug(' '.join(row))
-            self.zmat = ZMatrix(numbers=num, positions=pos)
+            self.zmat = ZMatrix(f, positions=pos)
             self.parseLattice(fh)
 
     def parseLattice(self,fh):
