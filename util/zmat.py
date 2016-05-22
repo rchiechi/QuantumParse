@@ -58,7 +58,7 @@ class ZMatrix(Atoms):
         b.rotate('x',pi)
         b.translate([0,0,ceil(abs(b[-1].z))])
         b.rotate('z',(4/3)*pi)
-        ase.build.add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=-1)
+        ase.build.add_adsorbate(c,b,1.5,'hcp',offset=offset,mol_index=-1)
         self.__init__(c)
         self.sort()
         self.findElectrodes()
