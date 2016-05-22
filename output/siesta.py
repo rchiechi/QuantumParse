@@ -109,7 +109,7 @@ class Writer(xyz.Writer):
                 return
             le,re,se = 'leadL.TSHS','leadR.TSHS',self.opts.jobname+'.TSHS'
             fh.write(self._section("Transiesta"))
-            fh.write('# GF OPTIONS\n')
+            fh.write('# TS OPTIONS\n')
             fh.write('TS.ComplexContour.Emin    -30.0 eV\n')
             fh.write('TS.ComplexContour.NPoles       03\n')
             fh.write('TS.ComplexContour.NCircle      30\n')
@@ -126,7 +126,7 @@ class Writer(xyz.Writer):
             fh.write('%endblock TBT_Monkhorst_Pack\n')
             fh.write('TS.TBT.Emin -2.0 eV\n')
             fh.write('TS.TBT.Emax +2.0 eV\n')
-            fh.write('TS.TBT.NPoints 500\n')
+            fh.write('TS.TBT.NPoints 200\n')
             fh.write('TS.TBT.NEigen 3\n')
             fh.write('TS.TBT.Eta        0.000001 Ry\n')
             fh.write('TS.TBT.ReUseGF    T\n\n')
