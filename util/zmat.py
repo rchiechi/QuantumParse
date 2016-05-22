@@ -1,5 +1,6 @@
 from ase import Atom,Atoms
-from ase.build import fcc111,add_adsorbate
+#from ase.build import fcc111,add_adsorbate
+import ase.build
 from math import ceil,pi
 from collections import Counter
 import numpy as np
@@ -37,7 +38,7 @@ class ZMatrix(Atoms):
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
 
-    def buildElectrodes(self,atom,size,distance,position):
+    def buildElectrodes(self,atom,size,distance,position,surface):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if self.onAxis() != 'z':
@@ -49,13 +50,15 @@ class ZMatrix(Atoms):
         self.logger.info('Building %s electrodes.' % atom)
         offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
         self.logger.debug('Electrode size: %s offset: %s' % (str(size),str(offset)))
-        c = fcc111(atom,size=size)
-        b = fcc111(atom,size=size)
-        add_adsorbate(b,self,distance,position,offset=offset)
+        b = getattr(ase.build,surface)(atom,size=size)
+        c = getattr(ase.build,surface)(atom,size=size)
+        #c = ase.build.fcc111(atom,size=size)
+        #b = ase.build.fcc111(atom,size=size)
+        ase.build.add_adsorbate(b,self,distance,position,offset=offset)
         b.rotate('x',pi)
         b.translate([0,0,ceil(abs(b[-1].z))])
         b.rotate('z',(4/3)*pi)
-        add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=-1)
+        ase.build.add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=-1)
         self.__init__(c)
         self.sort()
         self.findElectrodes()

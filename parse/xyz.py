@@ -48,7 +48,7 @@ class Parser:
         self._parsezmat()
         if self.opts.build:
             self.zmat.buildElectrodes(self.opts.build,
-                    self.opts.size,self.opts.distance,self.ops.binding)
+                    self.opts.size,self.opts.distance,self.ops.binding,self.opts.surface)
         self.zmat.findElectrodes()
 
     def _parsezmat(self):

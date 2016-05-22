@@ -75,6 +75,8 @@ parser.add_argument('--binding', default='hcp', choices=('ontop','hollow','fcc',
     help="Binding geometry to electrode.")
 parser.add_argument('--distance', type=int, default=2,
     help="Distance from electrode.")
+parser.add_argument('--surface', default='fcc111', choices=('fcc111','fcc110','fcc100'),
+    help="Electrode surface.")
 
 
 
