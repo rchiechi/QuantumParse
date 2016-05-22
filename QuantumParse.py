@@ -67,13 +67,13 @@ parser.add_argument('--writeelectrodes', action='store_true', default=False,
     help="Write copies of the electrodes to separate files.")
 parser.add_argument('--project', action='store_true', default=False,
     help="Project the molecule along the z-axis.")
-parser.add_argument('--build', default=None, choices=('Au','Ag'),
+parser.add_argument('-b','--build', default=None, choices=('Au','Ag'),
     help="Build electrodes comprising this atom onto the ends of the input molecule.")
 parser.add_argument('--size', type=str, default='4,4,2',
     help="Size of electrodes (x,y,z).")
 parser.add_argument('--binding', default='hcp', choices=('ontop','hollow','fcc','hcp','bridge'),
     help="Binding geometry to electrode.")
-parser.add_argument('--distance', type=int, default=2,
+parser.add_argument('--distance', type=float, default=1.75,
     help="Distance from electrode.")
 parser.add_argument('--surface', default='fcc111', choices=('fcc111','fcc110','fcc100'),
     help="Electrode surface.")
