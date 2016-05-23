@@ -43,12 +43,12 @@ class Writer(xyz.Writer):
             fh.write("%endblock LatticeVectors\n")
         fh.write(self._section('K-grid'))
         if 'lead' in self.opts.jobname:
-            zgrid = '60'
+            zgrid = '6'
         else:
-            zgrid = '01'
+            zgrid = '1'
         fh.write('%block kgrid_Monkhorst_Pack\n')
-        fh.write(' 3    0    0    0.0\n')
-        fh.write(' 0    3    0    0.0\n')
+        fh.write(' 8    0    0    0.0\n')
+        fh.write(' 0    8    0    0.0\n')
         fh.write(' 0    0    %s   0.0\n' % zgrid)
         fh.write('%endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
@@ -122,7 +122,7 @@ class Writer(xyz.Writer):
             fh.write('%block TBT_Monkhorst_Pack\n')
             fh.write(' 1    0    0    0.0\n')
             fh.write(' 0    1    0    0.0\n')
-            fh.write(' 0    0    60   0.5\n')
+            fh.write(' 0    0    10   0.5\n')
             fh.write('%endblock TBT_Monkhorst_Pack\n')
             fh.write('TS.TBT.Emin -2.0 eV\n')
             fh.write('TS.TBT.Emax +2.0 eV\n')
