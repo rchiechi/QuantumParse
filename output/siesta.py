@@ -47,8 +47,8 @@ class Writer(xyz.Writer):
         else:
             zgrid = '01'
         fh.write('%block kgrid_Monkhorst_Pack\n')
-        fh.write(' 10    0    0    0.0\n')
-        fh.write(' 0    10    0    0.0\n')
+        fh.write(' 3    0    0    0.0\n')
+        fh.write(' 0    3    0    0.0\n')
         fh.write(' 0    0    %s   0.0\n' % zgrid)
         fh.write('%endblock kgrid_Monkhorst_Pack\n')
         #fh.write("#AtomicCoordinatesFormat ScaledCartesian\n")
@@ -120,8 +120,8 @@ class Writer(xyz.Writer):
             fh.write('TS.Voltage 0.000000 eV\n\n')
             fh.write('# TBT OPTIONS\n')
             fh.write('%block TBT_Monkhorst_Pack\n')
-            fh.write(' 3    0    0    0.0\n')
-            fh.write(' 0    3    0    0.0\n')
+            fh.write(' 1    0    0    0.0\n')
+            fh.write(' 0    1    0    0.0\n')
             fh.write(' 0    0    60   0.5\n')
             fh.write('%endblock TBT_Monkhorst_Pack\n')
             fh.write('TS.TBT.Emin -2.0 eV\n')
