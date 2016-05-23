@@ -89,6 +89,7 @@ class Writer(xyz.Writer):
             for a in EATOMS:
                 if len(self.parser.zmat.unique()) == 1:
                     self.logger.debug('This looks like an electrode file, not setting up transiesta')
+                    golmeth = 'lead'
                 elif a in self.parser.zmat.get_chemical_symbols():
                     self.logger.debug('This looks like a scattering matrix, setting up transiesta')
                     solmeth = 'transiesta'
