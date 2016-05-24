@@ -38,7 +38,7 @@ class ZMatrix(Atoms):
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
 
-    def buildElectrodes(self,atom,size,distance,position,surface):
+    def buildElectrodes(self,atom,size,distance,position,surface,adatom=False):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if self.onAxis() != 'z':
@@ -49,12 +49,16 @@ class ZMatrix(Atoms):
             self.logger.warn('Molecule is not terminated with S atoms!')
         self.logger.info('Building %s electrodes.' % atom)
         offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
-        self.logger.debug('Electrode size: %s offset: %s' % (str(size),str(offset)))
+        self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
-        #c = ase.build.fcc111(atom,size=size)
-        #b = ase.build.fcc111(atom,size=size)
-        ase.build.add_adsorbate(b,self,distance,position,offset=offset)
+        if adatom:
+            self.logger.debug('Adding %s adatom' % atom)
+            Spos = self[-1].position
+            self += Atom(atom,position=[Spos[0],Spos[1],Spos[2]+2.5])
+            ase.build.add_adsorbate(b,self,distance,'fcc',offset=offset)
+        else:
+            ase.build.add_adsorbate(b,self,distance,position,offset=offset)
         b.rotate('x',pi)
         b.translate([0,0,ceil(abs(b[-1].z))])
         b.rotate('z',(4/3)*pi)
@@ -111,7 +115,10 @@ class ZMatrix(Atoms):
         elif diff.max() == diff[1]:
             return 'y'
         elif diff.max() == diff[2]:
-            return 'z'
+            if self[-1].position[2] - self[0].position[2] > 0:
+                return 'z'
+            else:
+                return '-z'
         else:
             return None
 
