@@ -14,6 +14,7 @@ class Writer(xyz.Writer):
                 fh.write('%scf MaxIter 1000 end\n') 
             else:
                 fh.write('! DFT B3LYP Def2-TZVP ECP{def2-TZVP}\n') 
+            fh.write('#! NRSCF\n') 
             fh.write('#! AHSCF\n') 
             fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n'% (mult,xyzfh.name) )
