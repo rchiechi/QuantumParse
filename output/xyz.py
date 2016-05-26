@@ -87,10 +87,6 @@ class Writer:
     @classmethod
     def getMultiplicity(cls,zmat):
         n = 0
-        vc = zmat.getAtomCounts()
-        for atom in vc:
-            if atom.upper() == 'H':
-                n += vc[atom]
-            else:
-                n += vc[atom]*2
+        for atom in zmat:
+            n += atom.number
         return n%2 + 1
