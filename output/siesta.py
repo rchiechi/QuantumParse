@@ -27,7 +27,8 @@ class Writer(xyz.Writer):
         fh.write("PAO.EnergyShift         0.0010 Ry\n")
         fh.write("%block PAO.BasisSizes\n")
         for atom in self.parser.zmat.unique():
-            if atom in EATOMS:
+            #Single Zeta past Cl
+            if atom.number > 17:
                 fh.write("\t%s SZ\n" % atom)
             else:
                 fh.write("\t%s DZP\n" % atom)
