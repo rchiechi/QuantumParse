@@ -8,7 +8,6 @@ class Writer(xyz.Writer):
         fn = bn+'.inp'
         self.logger.info('Writing to %s' % fn)
         mult = xyz.Writer.getMultiplicity(self.parser.zmat)
-        homo,lumo = xyz.Writer.getFrontier(self.parser.zmat)
         with open(fn,'wt') as fh:
             if self.opts.transport:
                 fh.write('! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 SlowConv\n') 
@@ -21,6 +20,14 @@ class Writer(xyz.Writer):
             fh.write('* xyzfile 0 %s %s\n'% (mult,xyzfh.name) )
             fh.write('%pal nprocs 48 end\n')
             fh.write('%maxcore 2048\n')
+            fh.write('#%plots\n')
+            fh.write('#dim1  128\n')
+            fh.write('#dim2  128\n')
+            fh.write('#dim3  128\n')
+            fh.write('#Format Gaussian_Cube\n')
+            fh.write('#MO("HOMO.cube",1,0);\n')
+            fh.write('#MO("LUMO.cube",2,0);\n')
+            fh.write('#end\n')
             if self.opts.transport:
                 fh.write('\n$new_job\n')
                 fh.write('! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 NOITER MOREAD\n') 
@@ -34,11 +41,4 @@ class Writer(xyz.Writer):
                 fh.write('  Print[P_Mos] 1\n')
                 fh.write('  Print[P_InputFile] 1\n')
                 fh.write('end\n')
-            fh.write('%plots\n')
-            fh.write('dim1  128\n')
-            fh.write('dim2  128\n')
-            fh.write('dim3  128\n')
-            fh.write('Format Gaussian_Cube\n')
-            fh.write('MO("HOMO.cube",%s,0);\n' % homo)
-            fh.write('MO("LUMO.cube",%s,0);\n' % lumo)
-            fh.write('end\n')
+            
