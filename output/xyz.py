@@ -90,3 +90,10 @@ class Writer:
         for atom in zmat:
             n += atom.number
         return n%2 + 1
+
+    @classmethod
+    def getFrontier(cls,zmat):
+        n = 0
+        for atom in zmat:
+            n += atom.number
+        return int(n/2), int(n/2+1)

@@ -9,7 +9,7 @@ hn = os.uname()[1]
 if 'pg' in hn or 'peregrine' in hn:
     ORCABIN=''
 else:
-    ORCABIN=os.path.join(os.environ['HOME'],'Library','Orca','bin')
+    ORCABIN=os.path.join(os.environ['HOME'],'Library','Orca')
 #print("Orca bin dir is %s" % ORCABIN)
 
 def GetOrbsOrca(fn):
