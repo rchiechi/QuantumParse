@@ -41,4 +41,4 @@ class Writer(xyz.Writer):
             fh.write('Format Gaussian_Cube\n')
             fh.write('MO("HOMO.cube",%s,0);\n' % homo)
             fh.write('MO("LUMO.cube",%s,0);\n' % lumo)
-            fn.write('end\n')
+            fh.write('end\n')
