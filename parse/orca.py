@@ -83,19 +83,16 @@ def fock(fh):
     print(Fore.GREEN+str(scfidx)+Style.RESET_ALL)
     fh.seek(0)
     iscf = 0 
-    print("Parsing Fock matrix...",end='')
+    print("Parsing Fock matrix...")
     sys.stdout.flush()
     for l in fh:
         l = l.strip()
+        if not l:
+            continue
         if 'ERROR' in l:
-            logger.error('Orca calculation did not converge!')
-            sys.exit()
+            logger.warning('Orca calculation may not have converge!')
         if key in l:
             iscf += 1
-            if not iscf % 5:
-                sys.stdout.write('.')
-                sys.stdout.flush()
-
         if key in l and not infock:
             infock = True
             continue
@@ -137,7 +134,6 @@ def fock(fh):
                     fockdict[i] = fl[1:]
                 else:
                     fockdict[i] += fl[1:]
-    print('.')
     fockmatrix = []
     for i in sorted(fockdict.keys()):
         if len(fockdict[i]) != len(fockdict):
@@ -165,9 +161,9 @@ def norbs(fh):
     logger.info("Parsing molecular orbitals...")
     for l in fh:
         lidx += 1
-        if not lidx%1000000:
-            sys.stdout.write(".")
-            sys.stdout.flush()
+#        if not lidx%1000000:
+#            sys.stdout.write(".")
+#            sys.stdout.flush()
         if not inorb:
             lk.append(l.strip())
             if len(lk) > 3: lk.pop(0)
@@ -184,7 +180,7 @@ def norbs(fh):
             else:
                 orbdict[lsf[0]] = [lsf[1]]
                 orbidx.append(lsf[0])
-    print('.')
+#    print('.')
     torbs = 0
     for a in orbdict: torbs+=len(orbdict[a])
     if torbs == 0:
