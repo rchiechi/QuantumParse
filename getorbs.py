@@ -13,10 +13,16 @@ else:
 #print("Orca bin dir is %s" % ORCABIN)
 
 def GetOrbsOrca(fn):
+    DEF='! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER'
     orbs = []
     with open(fn, 'r') as fh:
+        indef = False
         inorb = False
-        for l in fh.readlines():
+        for l in fh:
+            if 'INPUT FILE' in l:
+                indef = True
+            elif '****END OF INPUT****' in l:
+                indef = False
             if 'ORBITAL ENERGIES' in l:
                 inorb = True
             elif '------------------' in l:
@@ -125,10 +131,25 @@ for fn in sys.argv[1:]:
         #print('HOMO: %s, LUMO: %s' % (HOMO,LUMO))
         print('HOMO: %s (%0.4f eV), LUMO: %s (%0.4f eV)' % (HOMO,heng,LUMO,leng) )
         print('# # # # # # # # # # # # # # # # # # # # # # # #')
-        if ORCABIN:
-            os.system('%s/orca_plot %s -i' % (ORCABIN,gbw))
-        else:
-            os.system('module add ORCA; orca_plot %s -i' % gbw)
+        
+        with open('%s_plot.inp' % BN, 'wt') as fh:
+            fh.write('! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
+            fh.write('* xyzfile 0 1 %s.xyz\n' % gbw[:-4])
+            fh.write('%%base "%s-plot"\n' % BN)
+            fh.write('%%MoInp "%s"\n' % gbw)
+            fh.write('%plots\n')
+            fh.write('dim1  128   # resolution in x-direction\n')
+            fh.write('dim2  128   # resolution in y-direction\n')
+            fh.write('dim3  128   # resolution in z-direction\n')
+            fh.write('Format Gaussian_Cube\n')
+            fh.write('MO("LUMO.cube",%s,0);  # orbital to plot\n' % LUMO)
+            fh.write('MO("HOMO.cube",%s,0);  # orbital to plot\n' % HOMO)
+            fh.write('end\n')
+        print("Write %s" % '%s_plot.inp' % BN)
+        #if ORCABIN:
+        #    os.system('%s/orca_plot %s -i' % (ORCABIN,gbw))
+        #else:
+        #    os.system('module add ORCA; orca_plot %s -i' % gbw)
     elif PROG == 'nwchem':
         try:
             orbs = GetOrbsNwchem(fn)
