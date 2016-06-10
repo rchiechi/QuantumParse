@@ -14,7 +14,7 @@ class Writer(xyz.Writer):
             self.__g09_2unform()
             self.__writetransport()
         elif self.opts.informat == 'orca':
-            self.parser.parseMatrix()
+            #self.parser.parseMatrix()
             self.writeOrcatransport()
 
     def __g09_2unform(self):
@@ -114,7 +114,13 @@ class Writer(xyz.Writer):
             for a in self.parser.orbidx:
                 ie = i+len(self.parser.orbs[a])-1
                 fh.write("#%s %s-%s\n" % (a, i, ie) )
-                if a in EATOMS:
+                _a = ''
+                for c in a:
+                    try:
+                        int(c)
+                    except ValueError:
+                        _a += c
+                if _a in EATOMS:
                     if guessorbs["L"][0] == 0:
                         guessorbs["L"][0] = i
                     elif guessorbs["M"] == [0,0]:

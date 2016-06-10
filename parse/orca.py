@@ -22,9 +22,10 @@ class Parser(xyz.Parser):
     breaks = ('internal')
    
 
-    def parseMatrix(self):
-        self.logger.debug('Parsing matrix from %s' % self.fn)
+    def parseZmatrix(self):
+        self._parsezmat()
         if self.fn[-4:].lower() == '.out':
+            self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
             with open(self.fn) as fh:
                 self.fm = fock(fh)
                 self.orbs,self.orbidx = norbs(fh)
@@ -32,10 +33,9 @@ class Parser(xyz.Parser):
             if None in (self.fm, self.orbs, self.orbidx, self.ol):
                 self.logger.error("Did not parse Orca matrix correctly.")
         else:
-            self._parsezmat()
             if self.opts.build:
                 self.zmat.buildElectrodes(self.opts.build)
-            self.zmat.findElectrodes()
+        self.zmat.findElectrodes()
 
 logger = logging.getLogger('OrcaMatrix')
 
