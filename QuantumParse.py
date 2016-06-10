@@ -69,7 +69,7 @@ parser.add_argument('--project', action='store_true', default=False,
     help="Project the molecule along the z-axis.")
 parser.add_argument('-b','--build', default=None, choices=('Au','Ag'),
     help="Build electrodes comprising this atom onto the ends of the input molecule.")
-parser.add_argument('--size', type=str, default='4,4,2',
+parser.add_argument('--size', type=str, default='4,4,3',
     help="Size of electrodes (x,y,z).")
 parser.add_argument('--binding', default='hcp', choices=('ontop','hollow','fcc','hcp','bridge'),
     help="Binding geometry to electrode.")
