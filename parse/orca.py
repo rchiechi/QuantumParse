@@ -85,12 +85,15 @@ def fock(fh):
     iscf = 0 
     print("Parsing Fock matrix...")
     sys.stdout.flush()
+    converged = False
     for l in fh:
         l = l.strip()
         if not l:
             continue
-        if 'ERROR' in l:
-            logger.warning('Orca calculation may not have converge!')
+        if 'SCF CONVERGED' in l:
+            converged = True
+        if 'ERROR' in l and not converged:
+            logger.warning('Error detected in Orca output!')
         if key in l:
             iscf += 1
         if key in l and not infock:
@@ -148,6 +151,8 @@ def fock(fh):
     print("%sFock matrix " % Fore.YELLOW,end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" \
             % (Fore.YELLOW,Fore.GREEN,fm.shape[0],Fore.YELLOW,Fore.GREEN,fm.shape[1],Style.RESET_ALL) )
+    if not converged:
+        logger.warning('Orca calculation may not have converged!')
     return fm
 
 def norbs(fh):
