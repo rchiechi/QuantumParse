@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys,os,stat
+from collections import OrderedDict
 
 NCPU=8
 BIN = os.path.join(os.environ['HOME'],"source/artaios_beta_020914/bin/artaios")
@@ -46,7 +47,7 @@ remainder = energy['steps']%NCPU
 print("Check the math...")
 print("%s/%s = %s (%s)" % (energy['steps'],NCPU,int(energy['steps']/NCPU),energy['steps']%NCPU) )
 
-jobs = {}
+jobs = OrderedDict()
 for i in range(0,NCPU):
     jobs[i]=[int((energy['steps']-remainder)/NCPU)]
 i = 0
