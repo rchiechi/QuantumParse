@@ -83,13 +83,15 @@ for j in jobs:
     jobs[j] = (jobs[j],s,e)
     s = e
 
-print("End: %0.2f = %0.2f" % (s,energy['end']))
+print("End: %0.2f = %0.2f" % (s,energy['end']), end='\n\n')
 
 for j in jobs:
     print('%.4f -> %.4f' % jobs[j][1:])
 
 
-print("\n * * * * * * * * * * * * * * * * \n Creating directories under %s \n * * * * * * * * * * * * * * * * \n" % TDIR)
+print("\n* * * * * * * * * * * * * * * * * * * * * * * * ")
+print(" Creating directories under %s " % TDIR)
+print("* * * * * * * * * * * * * * * * * * * * * * * * ")
 
 if not os.path.exists(TDIR):
     os.mkdir(TDIR)
