@@ -2,8 +2,8 @@
 
 import sys,os,stat
 
-NCPU=4
-BIN = "/Volumes/Data/rchiechi/source/artaios_beta_020914/bin/artaios"
+NCPU=8
+BIN = os.path.join(os.environ['HOME'],"source/artaios_beta_020914/bin/artaios")
 
 TDIR = 'artaios_parallel'
 INPUTS= ('hamiltonian.1', 'overlap')
