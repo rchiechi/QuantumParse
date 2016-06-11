@@ -19,7 +19,7 @@ else:
     IN=sys.argv[1]
 
 transport = []
-energy = {}
+energy = OrderedDict()
 with open(IN, 'r') as fh:
     inrange=False
     for l in fh:
@@ -40,19 +40,25 @@ with open(IN, 'r') as fh:
                 energy[kv[0]]=kv[1]
         else:
             transport.append(l)
+try:
+    energy['steps'] = int(energy['steps'])
+except KeyError:
+    print('Error finding steps.')
+    sys.exit()
+
 for e in energy:
     print("%s: %s" % (e, energy[e]))
 remainder = energy['steps']%NCPU
 
 print("Check the math...")
-print("%s/%s = %s (%s)" % (energy['steps'],NCPU,int(energy['steps']/NCPU),energy['steps']%NCPU) )
+print("Steps/nCPU: %s/%s = %s (%s)" % (energy['steps'],NCPU,int(energy['steps']/NCPU),remainder) )
 
 jobs = OrderedDict()
 for i in range(0,NCPU):
-    jobs[i]=[int((energy['steps']-remainder)/NCPU)]
+    jobs[i]=int((energy['steps']-remainder)/NCPU)
 i = 0
 while remainder:
-    jobs[i][0] = jobs[i][0]+1
+    jobs[i] = jobs[i]+1
     remainder -=1
     i += 1
     if i not in jobs:
@@ -60,27 +66,24 @@ while remainder:
 
 s = 0
 for j in jobs:
-    s += jobs[j][0]
-if s != energy['steps']:
-    print("Error distributing jobs")
-    sys.exit()
+    s += jobs[j]
 
-print("%s = %s" % (s,energy['steps']) )
-print("%s - %s = %s" % (energy['end'],energy['start'], energy['end']-energy['start']) )
+print("Steps: %s = %s" % (s,energy['steps']) )
+print("Interval: %s - %s = %s" % (energy['end'],energy['start'], energy['end']-energy['start']) )
 
 interval = energy['end']-energy['start']
 mstep = interval/energy['steps']
 
-print("%s / %s = %s (%s)" % (interval,energy['steps'],interval/energy['steps'], interval%energy['steps'] ) )
+print("Interval/steps: %s / %s = %s (%s)" % (interval,energy['steps'],interval/energy['steps'],interval%energy['steps'] ) )
 
 s = energy['start']
 e = energy['start']
 for j in jobs:
-    e += jobs[j][0]*mstep
-    jobs[j] = (jobs[j][0],s,e)
+    e += jobs[j]*mstep
+    jobs[j] = (jobs[j],s,e)
     s = e
 
-print("%s =? %s" % (int(s),interval))
+print("End: %0.2f = %0.2f" % (s,energy['end']))
 
 for j in jobs:
     print('%.4f -> %.4f' % jobs[j][1:])
@@ -91,7 +94,7 @@ print("\n * * * * * * * * * * * * * * * * \n Creating directories under %s \n * 
 if not os.path.exists(TDIR):
     os.mkdir(TDIR)
 else:
-    print("Please cleanup %s fist" % TDIR)
+    print("Cleanup %s fist" % TDIR)
     sys.exit()
 
 with open(BFILE, 'w') as fh:
