@@ -122,8 +122,19 @@ for j in jobs:
         fh.write("(cd %s; $ARTAIOS)&\n" % os.path.join(TDIR,str(j)) )
 
 with open(BFILE, 'a') as fh:
-    #fh.write("sleep 5")
-    #fh.write("tail -f $LOG")
     fh.write("wait\n")
     fh.write('find "%s" -name transmission.1.dat -print0 | xargs -0I {} cat {} >> transmission.1.dat\n' % TDIR)
+with open('transmission.gpin', 'wt') as fh:
+    fh.write('set term postscript color\n')
+    fh.write('set term pngcairo\n')
+    fh.write('set output "transmission.png"\n')
+    fh.write('set nokey\n')
+    fh.write('set title "Transmission"\n')
+    fh.write('set xlabel "E-E_f (eV)"\n')
+    #fh.write('set xrange [%f:%f]\n' % (energy['start'],energy['end']))
+    fh.write('set ylabel "transmission"\n')
+    fh.write('set logscale y\n')
+    fh.write('plot "transmission.1.dat"  u ($1-%s):2 w l\n' % energy['fermi_level'])
+
+
 os.chmod(BFILE, os.stat(BFILE).st_mode | stat.S_IEXEC)
