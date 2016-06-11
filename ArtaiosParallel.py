@@ -134,7 +134,7 @@ with open('transmission.gpin', 'wt') as fh:
     #fh.write('set xrange [%f:%f]\n' % (energy['start'],energy['end']))
     fh.write('set ylabel "transmission"\n')
     fh.write('set logscale y\n')
-    fh.write('plot "transmission.1.dat"  u ($1-%s):2 w l\n' % energy['fermi_level'])
+    fh.write('plot "transmission.1.dat"  u ($1-%s):2 w l smooth unique\n' % energy['fermi_level'])
 
 
 os.chmod(BFILE, os.stat(BFILE).st_mode | stat.S_IEXEC)
