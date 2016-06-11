@@ -86,7 +86,7 @@ for j in jobs:
 print("End: %0.2f = %0.2f" % (s,energy['end']), end='\n\n')
 
 for j in jobs:
-    print('%.4f -> %.4f' % jobs[j][1:])
+    print('Thread %s: %.4f -> %.4f' % (j+1, jobs[j][1], jobs[j][2]))
 
 
 print("\n* * * * * * * * * * * * * * * * * * * * * * * * ")
