@@ -2,10 +2,11 @@
 
 import sys,os,stat
 from collections import OrderedDict
+from psutil import cpu_count
 
-NCPU=8
-BIN = os.path.join(os.environ['HOME'],"source/artaios_beta_020914/bin/artaios")
+BIN = os.path.join(os.path.expanduser('~'),"source/artaios_beta_020914/bin/artaios")
 
+NCPU=cpu_count()
 TDIR = 'artaios_parallel'
 INPUTS= ('hamiltonian.1', 'overlap')
 BFILE = 'artaios_parallel.sh'
@@ -143,6 +144,5 @@ with open('transmission.gpin', 'wt') as fh:
     fh.write('set ylabel "transmission"\n')
     fh.write('set logscale y\n')
     fh.write('plot "transmission.1.dat"  u ($1-%s):2 w l smooth unique\n' % energy['fermi_level'])
-
 
 os.chmod(BFILE, os.stat(BFILE).st_mode | stat.S_IEXEC)
