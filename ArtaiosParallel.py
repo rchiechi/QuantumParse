@@ -124,6 +124,8 @@ for j in jobs:
 with open(BFILE, 'a') as fh:
     fh.write("wait\n")
     fh.write('find "%s" -name transmission.1.dat -print0 | xargs -0I {} cat {} >> transmission.1.dat\n' % TDIR)
+    fh.write('gnuplot transmission.gpin\n')
+
 with open('transmission.gpin', 'wt') as fh:
     fh.write('set term postscript color\n')
     fh.write('set term pngcairo\n')
