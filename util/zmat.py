@@ -56,13 +56,13 @@ class ZMatrix(Atoms):
             self.logger.debug('Adding %s adatom' % atom)
             Spos = self[-1].position
             self += Atom(atom,position=[Spos[0],Spos[1],Spos[2]+2.5])
-            ase.build.add_adsorbate(b,self,distance,'fcc',offset=offset)
+            ase.build.add_adsorbate(b,self,distance,position,offset=offset)
         else:
             ase.build.add_adsorbate(b,self,distance,position,offset=offset)
         b.rotate('x',pi)
         b.translate([0,0,ceil(abs(b[-1].z))])
         b.rotate('z',(4/3)*pi)
-        ase.build.add_adsorbate(c,b,1.5,'hcp',offset=offset,mol_index=-1)
+        ase.build.add_adsorbate(c,b,distance,position,offset=offset,mol_index=-1)
         self.__init__(c)
         self.sort()
         self.findElectrodes()
