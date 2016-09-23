@@ -45,8 +45,9 @@ class ZMatrix(Atoms):
             self.toZaxis()
             if self.onAxis() != 'z':
                 self.logger.warn('Molecule is not projected along Z-axis!')
-        if self[0].symbol != 'S' or self[-1].symbol != 'S':
-            self.logger.warn('Molecule is not terminated with S atoms!')
+        #if self[0].symbol != 'S' or self[-1].symbol != 'S':
+        if self[0].symbol != 'S' and self[-1].symbol != 'S':
+            self.logger.warn('Molecule is not terminated with at least one S atom!')
         self.logger.info('Building %s electrodes.' % atom)
         offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
         self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
