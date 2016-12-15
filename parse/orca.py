@@ -34,7 +34,8 @@ class Parser(xyz.Parser):
                 self.logger.error("Did not parse Orca matrix correctly.")
         else:
             if self.opts.build:
-                self.zmat.buildElectrodes(self.opts.build)
+                self.zmat.buildElectrodes(self.opts.build,self.opts.size,
+                    self.opts.distance,self.opts.binding,self.opts.surface,self.opts.adatom,self.opts.SAM)
         self.zmat.findElectrodes()
 
 logger = logging.getLogger('OrcaMatrix')

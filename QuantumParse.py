@@ -79,6 +79,9 @@ parser.add_argument('--surface', default='fcc111', choices=('fcc111','fcc110','f
     help="Electrode surface.")
 parser.add_argument('--adatom', action='store_true', default=False,
     help="Add an adatom to the fcc site of the bottom electrode.")
+parser.add_argument('-S', '--SAM', action='store_true', default=False,
+    help="Create a molecular ensemble instead of a single-molecule junction.")
+
 
 
 

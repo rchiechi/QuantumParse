@@ -38,7 +38,7 @@ class ZMatrix(Atoms):
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
 
-    def buildElectrodes(self,atom,size,distance,position,surface,adatom=False):
+    def buildElectrodes(self,atom,size,distance,position,surface,adatom=False,SAM=False):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
         if self.onAxis() != 'z':
@@ -49,17 +49,23 @@ class ZMatrix(Atoms):
         if self[0].symbol != 'S' and self[-1].symbol != 'S':
             self.logger.warn('Molecule is not terminated with at least one S atom!')
         self.logger.info('Building %s electrodes.' % atom)
-        offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
-        self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
         if adatom:
             self.logger.debug('Adding %s adatom' % atom)
             Spos = self[-1].position
             self += Atom(atom,position=[Spos[0],Spos[1],Spos[2]+2.5])
-            ase.build.add_adsorbate(b,self,distance,position,offset=offset)
+        if SAM:
+            offset = 0
+            self.logger.debug('Building an n x n SAM (%s)' % str(size[0]/2) )
+            for i in range(0,size[0],2):
+                ase.build.add_adsorbate(b,self,distance,position,offset=[0,i])
+                for n in range(2,size[0],2):
+                    ase.build.add_adsorbate(b,self,distance,position,offset=[n,i])
         else:
+            offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
             ase.build.add_adsorbate(b,self,distance,position,offset=offset)
+        self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
         b.rotate('x',pi)
         b.translate([0,0,ceil(abs(b[-1].z))])
         b.rotate('z',(4/3)*pi)

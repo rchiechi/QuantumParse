@@ -9,11 +9,19 @@ __all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','sortZmat','findDistanc
 
 logger = logging.getLogger('Builder')
 
-def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1):
+def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1,SAM=False):
     logger.info('Building %s electrodes.' % atom)
     c = fcc111(atom,size=size)
     b = fcc111(atom,size=size)
-    add_adsorbate(b,atoms,distance,position,offset=offset)
+    
+    if SAM:
+        for i in range(0,size[0]+1,2):
+            add_adsorbate(b,atoms,distance,position,offset=[0,i])
+            for n in range(2,size[0]+1,2):
+                add_adsorbate(b,atoms,distance,position,offset=[n,i])
+    else:
+        add_adsorbate(b,atoms,distance,position,offset=offset)
+    
     b.rotate('x',pi)
     b.translate([0,0,ceil(abs(b[-1].z))])
     b.rotate('z',(4/3)*pi)
