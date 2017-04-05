@@ -32,6 +32,7 @@ To convert between file formats:
 ```
 QuantumParse -o {orca,gaussian,siesta,xyz} <FILE>
 
+
 # ArtaiosParallel
 
 This is a Python script that runs an Artaios job in parallel across multiple threads of execution. It is very basic; make sure the input file is named 'transport.in' and execute ArtaoisParallel.py from the directory containing the Artaios job. It will create a directory called artaios_parallel and a BASH script called artaios_parallel.sh that runs the job and concatenates the output into the parent directory. Note that the datapoints in the transmission output file will be out of order.
