@@ -21,21 +21,31 @@ else:
 
 fermi_level = ''
 mosfile = ''
+electrodes = []
 transport = []
 energy = OrderedDict()
 with open(IN, 'r') as fh:
     inrange=False
+    inelectrodes=False
     for l in fh:
         if "mosfile" in l.lower():
             #No spaces in file names!
             mosfile = l.strip().split(' ')[-1]
         if "fermi_level" in l.lower():
             fermi_level = l.strip().split(' ')[-1]
+            #Do not write this line (we need Ef between energy ranges)
+            continue
         if "$energy_range" in l.lower():
             inrange = True
             continue
         elif "$end" in l.lower() and inrange:
             inrange = False
+            continue
+        if "$electrodes" in l.lower():
+            inelectrodes = True
+            continue
+        elif "$end" in l.lower() and inelectrodes:
+            inelectrodes = False
             continue
         if inrange:
             kv = []
@@ -45,6 +55,8 @@ with open(IN, 'r') as fh:
                 energy[kv[0]]=float(kv[1])
             except:
                 energy[kv[0]]=kv[1]
+        elif inelectrodes:
+            electrodes.append(l)
         else:
             transport.append(l)
 try:
@@ -131,6 +143,11 @@ for j in jobs:
     energy_range+="$end\n"
     with open(os.path.join(TDIR,str(j),'transport.in'), 'w') as fh:
         fh.write("".join(transport))
+        fh.write("$electrodes\n")
+        fh.write("".join(electrodes))
+        #Set fermi_level to the lower energy range to avoid an error in artaios
+        fh.write("  fermi_level %s\n" % jobs[j][1] )
+        fh.write("$end\n")
         fh.write(energy_range)
     with open(BFILE, 'a') as fh:
         fh.write("(cd %s; $ARTAIOS transport.in | tee artaios.log)&\n" % os.path.join(TDIR,str(j)) )
