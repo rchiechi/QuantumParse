@@ -126,7 +126,7 @@ for j in jobs:
         fh.write("".join(transport))
         fh.write(energy_range)
     with open(BFILE, 'a') as fh:
-        fh.write("(cd %s; $ARTAIOS)&\n" % os.path.join(TDIR,str(j)) )
+        fh.write("(cd %s; $ARTAIOS transport.in | tee artaios.log)&\n" % os.path.join(TDIR,str(j)) )
 
 with open(BFILE, 'a') as fh:
     fh.write("wait\n")
