@@ -19,17 +19,20 @@ elif os.path.exists('transport.in'):
 else:
     IN=sys.argv[1]
 
+mosfile = ''
 transport = []
 energy = OrderedDict()
 with open(IN, 'r') as fh:
     inrange=False
     for l in fh:
+        if "mosfile" in l.lower():
+            #No spaces in file names!
+            mosfile = l.strip().split(' ')[-1]
         if "$energy_range" in l.lower():
             inrange = True
             continue
-        elif "$end" in l.lower():
+        elif "$end" in l.lower() and inrange:
             inrange = False
-            transport.append(l)
             continue
         if inrange:
             kv = []
@@ -109,8 +112,9 @@ for j in jobs:
         if not os.path.exists(I):
             print("%s does not exist!" % I)
             sys.exit()
-        os.symlink('../../%s'%I, os.path.join(TDIR,str(j),I))
-
+        os.symlink('../../%s' % I, os.path.join(TDIR,str(j),I))
+    if mosfile:
+        os.symlink('../../%s' % mosfile, os.path.join(TDIR,str(j),mosfile))
     energy_range="$energy_range\n"
     for e in energy:
         if e.lower() not in ('start','end','steps'):
