@@ -19,6 +19,7 @@ elif os.path.exists('transport.in'):
 else:
     IN=sys.argv[1]
 
+fermi_level = ''
 mosfile = ''
 transport = []
 energy = OrderedDict()
@@ -28,6 +29,8 @@ with open(IN, 'r') as fh:
         if "mosfile" in l.lower():
             #No spaces in file names!
             mosfile = l.strip().split(' ')[-1]
+        if "fermi_level" in l.lower():
+            fermi_level = l.strip().split(' ')[-1]
         if "$energy_range" in l.lower():
             inrange = True
             continue
@@ -147,6 +150,6 @@ with open('transmission.gpin', 'wt') as fh:
     #fh.write('set xrange [%f:%f]\n' % (energy['start'],energy['end']))
     fh.write('set ylabel "transmission"\n')
     fh.write('set logscale y\n')
-    fh.write('plot "transmission.1.dat"  u ($1-%s):2 w l smooth unique\n' % -5.0)
+    fh.write('plot "transmission.1.dat"  u ($1-%s):2 w l smooth unique\n' % fermi_level)
 
 os.chmod(BFILE, os.stat(BFILE).st_mode | stat.S_IEXEC)
