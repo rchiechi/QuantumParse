@@ -2,11 +2,19 @@
 
 import sys,os,stat
 from collections import OrderedDict
-from psutil import cpu_count
 
-#Change this to point at the artaios binary
+
+## Change this to point at the artaios binary
 BIN = os.path.join(os.path.expanduser('~'),"source/artaios-030417/bin/artaios")
-#
+##
+
+try:
+    from psutil import cpu_count
+except ImportError:
+    print('You need to install psutil.')
+    print('e.g., sudo -H pip3 install --upgrade psutil')
+    sys.exit(1)
+
 
 NCPU=cpu_count()
 TDIR = 'artaios_parallel'
