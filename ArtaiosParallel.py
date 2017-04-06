@@ -4,7 +4,9 @@ import sys,os,stat
 from collections import OrderedDict
 from psutil import cpu_count
 
+#Change this to point at the artaios binary
 BIN = os.path.join(os.path.expanduser('~'),"source/artaios-030417/bin/artaios")
+#
 
 NCPU=cpu_count()
 TDIR = 'artaios_parallel'
