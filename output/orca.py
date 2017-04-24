@@ -11,9 +11,11 @@ class Writer(xyz.Writer):
         with open(fn,'wt') as fh:
             if self.opts.transport:
                 fh.write('! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 SlowConv\n') 
+                fh.write('# ORCA 4\n#! DFT B3LYP/G DUNNING-DZP LANL2,LANLDZ vdwgrid3 SlowConv\n') 
                 fh.write('%scf MaxIter 1000 end\n') 
             else:
                 fh.write('! DFT B3LYP/G Def2-TZVP ECP{def2-TZVP}\n') 
+                fh.write('# ORCA 4\n#! DFT B3LYP/G Def2-TZVP def2-TZVP\n') 
             fh.write('#! NRSCF\n') 
             fh.write('#! AHSCF\n') 
             fh.write('#%method SFitInvertType Diag_Q end\n')
