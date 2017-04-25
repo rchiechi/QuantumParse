@@ -156,7 +156,7 @@ class Writer(xyz.Writer):
             self.__wrblock(fh,["$energy_range","  start  -8.0","   end     -1.0", "   steps 200", "$end"])
             self.__wrblock(fh,["$system","   nspin  1","$end"])
             self.__wrblock(fh,["$electrodes", "   self_energy wbl","   dos_s 0.036", '   fermi_level -5.0', "$end"])
-            self.__wrblock(fh,["$general", '  do_transport', '  unit   eV', '  modelham', '  loewdin_central', '  rbas',\
+            self.__wrblock(fh,["$general", '  do_transport', '  unit   eV', '  modelham', '  loewdin_central', \
                                '  qcprog gen', '#  conductance', '$end'])
             fh.write('#Uncomment below to enable local bondflux. Check fluxdir!\n')
             fh.write('#$local_transmission\n')
