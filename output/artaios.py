@@ -63,7 +63,7 @@ class Writer(xyz.Writer):
             fh.write('$general\n')
             fh.write('  do_transport\n')
             fh.write('  unit   eV\n')
-            fh.write('#  modelham\n')
+            fh.write('#  conductance\n')
             fh.write('  loewdin_central\n')
             fh.write('  rbas\n')
             fh.write('  qcprog g09\n')
@@ -153,12 +153,11 @@ class Writer(xyz.Writer):
             self.__wrblock(fh,["$partitioning","   totnbas  %s" % nb, "   leftbas %s-%s #CHECK THIS!" % tuple(guessorbs["L"]),\
                     "   centralbas %s-%s #CHECK THIS!" % tuple(guessorbs["M"]), \
                     "   rightbas %s-%s #CHECK THIS!" % tuple(guessorbs["R"]),"$end"])
-            self.__wrblock(fh,["$energy_range","  units   eV","  start  -8.0","   end     -1.0",\
-                    "   fermi_level -5.0","   steps 500", "$end"])
+            self.__wrblock(fh,["$energy_range","  start  -8.0","   end     -1.0", "   steps 200", "$end"])
             self.__wrblock(fh,["$system","   nspin  1","$end"])
             self.__wrblock(fh,["$electrodes", "   self_energy wbl","   dos_s 0.036", '   fermi_level -5.0', "$end"])
-            self.__wrblock(fh,["$general", '  do_transport', '  unit   eV', '#  modelham', '  loewdin_central', '  rbas',\
-                               '  qcprog gen', '$end'])
+            self.__wrblock(fh,["$general", '  do_transport', '  unit   eV', '  modelham', '  loewdin_central', '  rbas',\
+                               '  qcprog gen', '#  conductance', '$end'])
             fh.write('#Uncomment below to enable local bondflux. Check fluxdir!\n')
             fh.write('#$local_transmission\n')
             fh.write('#  bondflux\n')
