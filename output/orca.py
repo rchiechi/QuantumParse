@@ -10,7 +10,7 @@ class Writer(xyz.Writer):
         mult = xyz.Writer.getMultiplicity(self.parser.zmat)
         with open(fn,'wt') as fh:
             if self.opts.transport:
-                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv\n') 
+                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv TIGHTSCF\n') 
                 fh.write('# ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 SlowConv\n') 
                 fh.write('%scf MaxIter 1000 end\n') 
             else:
@@ -32,9 +32,9 @@ class Writer(xyz.Writer):
             fh.write('#end\n')
             if self.opts.transport:
                 fh.write('\n$new_job\n')
-                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 MOREAD\n') 
+                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv TIGHTSCF MOREAD\n') 
                 fh.write('# ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n') 
-                fh.write('%scf MaxIter 1 end\n')
+                fh.write('#%scf MaxIter 1 end\n')
                 fh.write('#%method SFitInvertType Diag_Q end\n')
                 fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name) )
                 fh.write('%%MoInp "%s.gbw"\n' % bn)
