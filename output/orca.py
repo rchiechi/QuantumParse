@@ -32,7 +32,7 @@ class Writer(xyz.Writer):
             fh.write('#end\n')
             if self.opts.transport:
                 fh.write('\n$new_job\n')
-                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv\n') 
+                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 MOREAD\n') 
                 fh.write('# ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n') 
                 fh.write('%scf MaxIter 1 end\n')
                 fh.write('#%method SFitInvertType Diag_Q end\n')
