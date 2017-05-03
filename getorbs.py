@@ -16,8 +16,9 @@ else:
 
 ORCABIN=None
 for b in ('orca', 'orca.sh'):
-    if subprocess.run(['which', b],stdout=subprocess.PIPE).returncode == 0:
-        ORCABIN=b
+    p = subprocess.run(['which', b],stdout=subprocess.PIPE)
+    if p.returncode == 0:
+        ORCABIN=p.stdout.strip()
 
 if VMDBIN:
     print("Found VMD: %s" % VMDBIN)
@@ -225,7 +226,7 @@ for fn in opts.infiles:
                 orcasuccess=True
             else:
                 print('Something may have gone wrong with Orca, check the output.')
-                print(p.stdout) 
+                print('\n'.join(p.stdout.strip().split(b'\n')))
         if VMDBIN and orcasuccess:
             if OSNAME == 'Darwin':
                 print("I am going to launch VMD now, but you probably have to copy/paste this command into the terminal:")
