@@ -8,6 +8,7 @@ import numpy as np
 from util import *
 
 class Writer(xyz.Writer):
+    self.transport = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
     #TODO Orca is a mess
     def write(self):
         if self.opts.informat == 'gaussian':
@@ -31,13 +32,14 @@ class Writer(xyz.Writer):
         if not self.parser.haselectrodes():
             self.logger.error('Did not parse any electrodes.')
             return
-        self.logger.info('Writing transport.in')
-        fp = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
+        self.logger.info('Writing %s' % self.transport)
+        #fp = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
+        fp = os.path.join(os.path.split(self.parser.fn)[0],self.transport)
+        
         if os.path.exists(fp) and not self.opts.overwrite:
             self.logger.error('Not overwriting %s' %fp)
             return
             
-        #with open(os.path.join(os.path.split(self.parser.fn)[0],'transport.in'), 'w') as fh:
         with open(fp, 'w') as fh:
             fh.write('# Total atoms: %i\n' % len(self.parser.zmat))
             fh.write('# Guessed electrodes as %s\n' % self.parser.zmat.electrodes['atom'])
@@ -122,7 +124,7 @@ class Writer(xyz.Writer):
                         l = 0
 
         guessorbs = {"L":[0,0], "M":[0,0], "R":[0,0]}
-        with open('transport.in', 'tw') as fh:
+        with open(self.transport, 'tw') as fh:
             fh.write("#Here is a list of orbitals on each atom:\n")
             i=1
             for a in self.parser.orbidx:
