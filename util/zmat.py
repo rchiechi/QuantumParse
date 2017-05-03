@@ -31,12 +31,18 @@ class ZMatrix(Atoms):
                 _m.append(_a.index)
                 self[_a.index].tag = TAGS['molecule']
         if not _m:
-            self.logger.debug('This zmatrix looks like an electrode.')
+            if _l or _r:
+                self.logger.debug('This zmatrix looks like an electrode.')
+                self.logger.debug(_l)
+                self.logger.debug(_r)
+            else:
+                self.logger.debug('No electrodes found.')
             return
         elif not _l or not _r:
             self.logger.debug('No electrodes found.')
             return
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
+        self.logger.debug(self.electrodes)
 
     def buildElectrodes(self,atom,size,distance,position,surface,adatom=False,SAM=False):
         '''Try to build electrodes around a molecule

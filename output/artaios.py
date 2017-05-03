@@ -8,9 +8,11 @@ import numpy as np
 from util import *
 
 class Writer(xyz.Writer):
-    self.transport = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
     #TODO Orca is a mess
+
     def write(self):
+        self.transport = self.jobname+'.transport.in'
+        self.logger.debug('Writing to %s' % self.transport)
         if self.opts.informat == 'gaussian':
             self.__g09_2unform()
             self.__writetransport()
@@ -136,13 +138,15 @@ class Writer(xyz.Writer):
                         int(c)
                     except ValueError:
                         _a += c
-                if _a in EATOMS:
+                if _a == self.parser.zmat.electrodes['atom']:
                     if guessorbs["L"][0] == 0:
                         guessorbs["L"][0] = i
+                        guessorbs["L"][1] = ie
                     elif guessorbs["M"] == [0,0]:
                         guessorbs["L"][1] = ie
                     elif guessorbs["R"][0] == 0:
                         guessorbs["R"][0] = i
+                        guessorbs["R"][1] = ie
                     else:
                         guessorbs["R"][1] = ie
                 elif guessorbs["M"][0] == 0:

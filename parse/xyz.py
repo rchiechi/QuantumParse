@@ -13,6 +13,9 @@ class Parser:
     #that terminate the z-matrix to avoid looping
     #over the entire file
     breaks = ()
+    # Optionally set a starting point to search for
+    # coordinates (helpful with orca outputs)
+    begin = ()
 
     def __init__(self,opts,fn):
         self.fn = fn
@@ -54,16 +57,29 @@ class Parser:
     def _parsezmat(self):
         self.logger.debug('Building zmatrix...')
         zmat = ZMatrix()
+        if not self.begin:
+            in_zmat = True
+        else:
+            in_zmat = False
         with open(self.fn) as fh:
             for l in fh:
-                row = []
-                for _l in l.split():
-                    if _l.strip(): row.append(_l.strip())
-                if not row: 
+                if not l.strip():
                     continue
-                elif row[0].lower() in self.breaks: 
+                if l.strip() in self.begin:
+                    self.logger.debug("Hit start in Z-matrix (%s)" % l.strip())
+                    in_zmat = True
+                if l.strip() in self.breaks:
                     self.logger.debug("Hit break in Z-matrix (%s)" % l.strip())
                     break
+                row = []
+                for _l in l.split():
+                    if _l.strip() and in_zmat: row.append(_l.strip())
+                if not row: 
+                    continue
+                #elif row[0].lower() in self.breaks:
+                #elif " ".join(row) in self.breaks:
+                #elif not in_zmat:
+                #    break
                 elif row[0] not in elements:
                     continue
                 elif row[0] not in elements and len(zmat):
@@ -84,4 +100,5 @@ class Parser:
         elif self.opts.sortaxis:
             zmat.sort(self.opts.sortaxis)
         self.zmat = zmat
+        self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
     

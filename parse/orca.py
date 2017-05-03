@@ -19,8 +19,8 @@ class Parser(xyz.Parser):
     orbs = None
     orbidx = None
     ol = None
-    breaks = ('internal')
-   
+    breaks = ('CARTESIAN COORDINATES (A.U.)')
+    begin = ('CARTESIAN COORDINATES (ANGSTROEM)')
 
     def parseZmatrix(self):
         self._parsezmat()
