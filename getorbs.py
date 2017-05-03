@@ -99,8 +99,8 @@ def writedplot(bn, homo,heng,lumo,leng):
 def writeVMD(fn):
     with open(fn,'wt') as fh:
         mols = -1
-        for o in opts.orbs:
-            fh.write('mol new %s/%s.cube\n' % (os.getcwd(),o))
+        for o in ORBS:
+            fh.write('mol new %s/%s.cube\n' % (os.getcwd(),ORBS[o][2]))
             mols += 1
         fh.write('rotate y by 90\n')
         fh.write('axes location off\n')
@@ -185,15 +185,15 @@ for fn in opts.infiles:
             if orbs[i][1] == 0:
                 for o in opts.orbs:
                     if o.upper() == 'HOMO':
-                        ORBS[o] = (orbs[i-1][0],orbs[i-1][3])
+                        ORBS[o] = (orbs[i-1][0],orbs[i-1][3],BN+'_'+o)
                     if 'HOMO-' in o.upper():
                         offset = int(o.split('-')[-1])+1
-                        ORBS[o] = (orbs[i-offset][0],orbs[i-offset][3])
+                        ORBS[o] = (orbs[i-offset][0],orbs[i-offset][3],BN+'_'+o)
                     if o.upper() == 'LUMO':
-                        ORBS[o] = (orbs[i][0],orbs[i][3])
+                        ORBS[o] = (orbs[i][0],orbs[i][3],BN+'_'+o)
                     if 'LUMO+' in o.upper():
                         offset = int(o.split('+')[-1])
-                        ORBS[o] = (orbs[i+offset][0],orbs[i+offset][3])
+                        ORBS[o] = (orbs[i+offset][0],orbs[i+offset][3],BN+'_'+o)
                 break
         
         for o in ORBS:
@@ -212,7 +212,7 @@ for fn in opts.infiles:
             fh.write('dim3  128   # resolution in z-direction\n')
             fh.write('Format Gaussian_Cube\n')
             for o in ORBS:
-                fh.write('MO("%s.cube",%s,0);  # orbital to plot\n' % (o,ORBS[o][0]))
+                fh.write('MO("%s.cube",%s,0);  # orbital to plot\n' % (ORBS[o][2],ORBS[o][0]))
             fh.write('end\n')
         print("Write %s" % fn)
         tclfn = fn[:-4]+'_vmd.tcl'
