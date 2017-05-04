@@ -28,6 +28,16 @@ def GetOrbsOrca(fn):
                     continue
     return orbs
 
+
+def FindGBW(fn):
+    d,f = os.path.split(fn)
+    if not d:
+        d = './'
+    for fs in os.listdir(d):
+        if fn[:-4] == fs[:-4] and 'gbw' in fs.lower():
+            return fs
+
+
 def GetOrbsNwchem(fn):
     orbs = []
     with open(fn, 'r') as fh:
@@ -50,15 +60,6 @@ def GetOrbsNwchem(fn):
                     continue
 
     return orbs
-
-def FindGBW(fn):
-    d,f = os.path.split(fn)
-    if not d:
-        d = './'
-    for fs in os.listdir(d):
-        if fn[:-4] == fs[:-4] and 'gbw' in fs.lower():
-            return fs
-
 def writedplot(bn, homo,heng,lumo,leng):
 
     def gen(title, orb, eng):
@@ -87,9 +88,9 @@ def writeVMD(fn):
         fh.write('display projection orthographic\n')
         fh.write('mol addrep 0\n')
         fh.write('mol modstyle 0 0 Licorice\n')
-        fh.write('mol modselect 0 0 all not name au\n')
+        fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode.lower())
         fh.write('mol modstyle 1 0 VDW\n')
-        fh.write('mol modselect 1 0 all name au\n')
+        fh.write('mol modselect 1 0 all name %s\n' % opts.electrode.lower())
         fh.write('mol modcolor 1 0 Element\n')
         for m in range(0,mols+1): 
             if m == 0: i = 2
@@ -166,6 +167,9 @@ parser.add_argument('-c','--colors', nargs=2, default=['blue','red'],  choices=t
     help='Colors for +/- orbital coefficients.')
 parser.add_argument('-i','--isovalue', type=float, default=0.005, 
     help='Cutoff for isoplots.')
+parser.add_argument('-e','--electrode', type=str, default='Au', 
+    help='Type of electrode, if present.')
+
 
 opts=parser.parse_args()
 
