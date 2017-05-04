@@ -36,3 +36,14 @@ QuantumParse -o {orca,gaussian,siesta,xyz} <FILE>
 # ArtaiosParallel
 
 This is a Python script that runs an Artaios job in parallel across multiple threads of execution. It is very basic; execute ArtaoisParallel.py from the directory containing the Artaios job. It expects a file called 'transport.in' but you can specify a differnet file as an argument. It will create a directory called artaios_parallel and a BASH script called artaios_parallel.sh that runs the job and concatenates the output into the parent directory. Note that the datapoints in the transmission output file will be out of order.
+
+
+
+# getorbs
+
+This is a Python script that parses Orca output files to find orbitals. It can automatically call Orca and VMD to render the cube files into isoplots. The syntax is relative to the frontier orbitals.
+
+To render the HOMO-1, HOMO and LUMO:
+```
+getorbs.py <orca out> -o HOMO-1 HOMO LUMO 
+```
