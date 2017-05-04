@@ -86,44 +86,44 @@ def FindGBW(fn):
             return fs
 
 
-def GetOrbsNwchem(fn):
-    orbs = []
-    with open(fn, 'r') as fh:
-        inorb = False
-        for l in fh.readlines():
-            if 'Vector' in l:
-                inorb = True
-            #elif l == '':
-            #   inorb = False
-            else:
-                inorb = False
-            if inorb:
-                try:
-                    #Vector 1363  Occ=0.000000D+00  E= 2.383287D+01  Symmetry=bu
-                    lo = re.split('\s+', l.strip())
-                    #orbs.append(list(map(int, lo)))
-                    orbs.append(lo)
-                except ValueError:
-                    #print("Error finding orbital in %s" % l)
-                    continue
-
-    return orbs
-def writedplot(bn, homo,heng,lumo,leng):
-
-    def gen(title, orb, eng):
-        dplot = ['dplot' ,'  title "%s (%0.4f eV)"' % (title,eng*27.207), '  gaussian',
-             '  spin total',
-                 '  orbitals view; 1; %s' % orb, 
-             '  output "%s_%s_%s.cube"' % (bn, title, orb),
-             '  limitXYZ', '  -20.0 20.0 200', 
-             '  -20.0 20.0 200', '  -20.0 20.0 200',
-             'end\n']
-        return "\n".join(dplot)
-
-    dplot_homo = gen('HOMO', homo, heng)
-    dplot_lumo = gen('LUMO', lumo, leng)
-
-    return dplot_homo, dplot_lumo
+#def GetOrbsNwchem(fn):
+#    orbs = []
+#    with open(fn, 'r') as fh:
+#        inorb = False
+#        for l in fh.readlines():
+#            if 'Vector' in l:
+#                inorb = True
+#            #elif l == '':
+#            #   inorb = False
+#            else:
+#                inorb = False
+#            if inorb:
+#                try:
+#                    #Vector 1363  Occ=0.000000D+00  E= 2.383287D+01  Symmetry=bu
+#                    lo = re.split('\s+', l.strip())
+#                    #orbs.append(list(map(int, lo)))
+#                    orbs.append(lo)
+#                except ValueError:
+#                    #print("Error finding orbital in %s" % l)
+#                    continue
+#
+#    return orbs
+#def writedplot(bn, homo,heng,lumo,leng):
+#
+#    def gen(title, orb, eng):
+#        dplot = ['dplot' ,'  title "%s (%0.4f eV)"' % (title,eng*27.207), '  gaussian',
+#             '  spin total',
+#                 '  orbitals view; 1; %s' % orb, 
+#             '  output "%s_%s_%s.cube"' % (bn, title, orb),
+#             '  limitXYZ', '  -20.0 20.0 200', 
+#             '  -20.0 20.0 200', '  -20.0 20.0 200',
+#             'end\n']
+#        return "\n".join(dplot)
+#
+#    dplot_homo = gen('HOMO', homo, heng)
+#    dplot_lumo = gen('LUMO', lumo, leng)
+#
+#    return dplot_homo, dplot_lumo
 
 def writeVMD(fn):
     with open(fn,'wt') as fh:
@@ -279,12 +279,12 @@ for fn in opts.infiles:
     ORBS=OrderedDict()
     with open(fn, 'rt') as fh:
         h = fh.read(2048)
-        if 'nwchem' in h.lower():
-            PROG = 'nwchem'
-        elif 'O   R   C   A' in h:
+        if 'O   R   C   A' in h:
             PROG = 'orca'
+        #elif 'nwchem' in h.lower():
+        #    PROG = 'nwchem'
         else:
-            print(Fore.RED+"I don't know what kind of file this is.")
+            print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
             continue
     print(Back.BLUE+Fore.WHITE+"# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
     BN = os.path.basename(fn)[:-4]
