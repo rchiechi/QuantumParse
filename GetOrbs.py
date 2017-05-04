@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys,os,re,argparse,subprocess,configparser
-
+from collections import OrderedDict
 try:
     import pip
 except ImportError:
@@ -131,6 +131,7 @@ def writeVMD(fn):
         for o in ORBS:
             fh.write('mol new %s/%s.cube\n' % (os.getcwd(),ORBS[o][2]))
             mols += 1
+            fh.write('mol rename %s %s\n' % (mols,o))
         fh.write('rotate y by 90\n')
         fh.write('axes location off\n')
         fh.write('display projection orthographic\n')
@@ -275,7 +276,7 @@ if opts.electrodemethod not in VMDMETHODS:
 
 # Loop through input files and process
 for fn in opts.infiles:
-    ORBS={}
+    ORBS=OrderedDict()
     with open(fn, 'rt') as fh:
         h = fh.read(2048)
         if 'nwchem' in h.lower():
@@ -305,16 +306,16 @@ for fn in opts.infiles:
         for i in range(0,len(orbs)):
             if orbs[i][1] == 0:
                 for o in opts.orbs:
-                    if o.upper() == 'HOMO':
-                        ORBS[o] = (orbs[i-1][0],orbs[i-1][3],BN+'_'+o)
-                    if 'HOMO-' in o.upper():
-                        offset = int(o.split('-')[-1])+1
-                        ORBS[o] = (orbs[i-offset][0],orbs[i-offset][3],BN+'_'+o)
                     if o.upper() == 'LUMO':
                         ORBS[o] = (orbs[i][0],orbs[i][3],BN+'_'+o)
                     if 'LUMO+' in o.upper():
                         offset = int(o.split('+')[-1])
                         ORBS[o] = (orbs[i+offset][0],orbs[i+offset][3],BN+'_'+o)
+                    if o.upper() == 'HOMO':
+                        ORBS[o] = (orbs[i-1][0],orbs[i-1][3],BN+'_'+o)
+                    if 'HOMO-' in o.upper():
+                        offset = int(o.split('-')[-1])+1
+                        ORBS[o] = (orbs[i-offset][0],orbs[i-offset][3],BN+'_'+o)
                 break
         if not ORBS:
             print(Fore.RED+"No orbitals selected!")
