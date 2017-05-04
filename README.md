@@ -39,7 +39,7 @@ This is a Python script that runs an Artaios job in parallel across multiple thr
 
 
 
-# getorbs
+# GetOrbs
 
 This is a Python script that parses Orca output files to find orbitals. It can automatically call Orca and VMD to render the cube files into isoplots. The syntax is relative to the frontier orbitals.
 
