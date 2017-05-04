@@ -2,6 +2,25 @@
 
 import sys,os,re,argparse,subprocess,configparser
 
+try:
+    import pip
+except ImportError:
+    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
+    sys.exit(1)
+
+prog = os.path.basename(sys.argv[0]).replace('.py','')
+installed = [package.project_name for package in pip.get_installed_distributions()]
+required = ['colorama']
+for pkg in required:
+    if pkg not in installed:
+        print('You need to install %s to use %s.' % (pkg,prog))
+        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
+        sys.exit(1)
+
+from colorama import init,Fore,Back,Style
+# Setup colors
+init(autoreset=True)
+
 
 # # # # # # # # # # # # # # # # FUNCTIONS  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -25,13 +44,13 @@ def FindBins():
             orcabin=p.stdout.strip()
 
     if os.path.exists(vmdbin):
-        print("Found VMD: %s" % vmdbin)
+        print(Fore.YELLOW+"Found VMD: %s" % vmdbin)
     else:
-        print("VMD was not found, specify the path if you want to render isoplots automatically.")
+        print(Fore.RED+"VMD was not found, specify the path if you want to render isoplots automatically.")
     if os.path.exists(orcabin):
-        print("Found Orca: %s" % orcabin)
+        print(Fore.YELLOW+"Found Orca: %s" % orcabin)
     else:
-        print("Orca was not found, specify the path if you want to generate cube files automatically.")
+        print(Fore.RED+"Orca was not found, specify the path if you want to generate cube files automatically.")
     return orcabin,vmdbin
 
 def GetOrbsOrca(fn):
@@ -138,7 +157,7 @@ def writeVMD(fn):
                 fh.write('mol showrep %s %s off\n' % (m,0))
                 fh.write('mol showrep %s %s off\n' % (m,1))
         fh.write('menu graphics on\n')
-    print('Wrote %s' % fn)
+    print(Fore.GREEN+Style.BRIGHT+'Wrote %s' % fn)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -181,9 +200,9 @@ if not rcconfig.read(RCFILE):
                        'electrode':'Au'}
     with open(RCFILE,'w') as fh:
         rcconfig.write(fh)
-    print('I wrote default values to %s. Edit that file to change them.' % RCFILE)
+    print(Fore.YELLOW+Style.BRIGHT+'I wrote default values to %s. Edit that file to change them.' % RCFILE)
 else:
-    print('Read defaults from %s' % RCFILE)
+    print(Fore.GREEN+'Read defaults from %s' % RCFILE)
 
 # Convert binary strings to paths
 for path in ('VMDpath','ORCApath'):
@@ -191,9 +210,9 @@ for path in ('VMDpath','ORCApath'):
             continue
     m = re.match('^b?[\'"](.*)[\'"]', rcconfig['GENERAL'][path])
     if not m:
-        print("Error parsing %s as a path." % rcconfig['GENERAL'][path])
+        print(Fore.RED+Style.BRIGHT+"Error parsing %s as a path." % rcconfig['GENERAL'][path])
     else:
-        rcconfig['GENERAL'][path] = m.groups()[0]
+        rcconfig['GENERAL'][path] = m.groups()[0].strip()
 
 # Parse command line arguments
 desc='Find and render orbitals in Orca outputs using VMD.\
@@ -215,15 +234,15 @@ parser.add_argument('-V','--VMDpath', type=str, default=rcconfig['GENERAL']['VMD
     help='Specify the location of the vmd binary.')
 parser.add_argument('-c','--colors', nargs=2, default=rcconfig['VMD']['colors'].replace(' ','').split(','),  choices=tuple(VMDCOLORS.keys()), 
     help='Colors for +/- orbital coefficients.')
-parser.add_argument('-m','--material', type=str, default=rcconfig['VMD']['material'],  choices=VMDMATERIALS, 
+parser.add_argument('-m','--material', type=str, default=rcconfig['VMD']['material'].strip(),  choices=VMDMATERIALS, 
     help='Material to use for isosurfaces.')
-parser.add_argument('-M','--molmethod', type=str, default=rcconfig['VMD']['molmethod'],  choices=VMDMETHODS, 
+parser.add_argument('-M','--molmethod', type=str, default=rcconfig['VMD']['molmethod'].strip(),  choices=VMDMETHODS, 
     help='Method used to render the molecule.')
-parser.add_argument('-E','--electrodemethod', type=str, default=rcconfig['VMD']['electrodemethod'],  choices=VMDMETHODS, 
+parser.add_argument('-E','--electrodemethod', type=str, default=rcconfig['VMD']['electrodemethod'].strip(),  choices=VMDMETHODS, 
     help='Material to use for isosurfaces.')
 parser.add_argument('-i','--isovalue', type=float, default=rcconfig['VMD'].getfloat('isovalue'), 
     help='Cutoff for isoplots.')
-parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['electrode'], 
+parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['electrode'].strip(), 
     help='Type of electrode, if present.')
 #parser.add_argument('-s','--savedefaults', action='store_true', default=False, 
 #    help='Store these settings as defaults.')
@@ -231,15 +250,28 @@ parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['elect
 
 opts=parser.parse_args()
 
+# Check that options were parsed correctly
 if not opts.infiles:
-    print("No input file.")
+    print(Fore.RED+"No input file.")
     sys.exit()
 
 if len(opts.colors) != 2:
-    print("Invalid color selection %s" % str(opts.colors))
+    print(Fore.RED+"Too many colors: %s" % str(opts.colors))
     sys.exit()
 
-
+for c in opts.colors:
+    if c not in VMDCOLORS.keys():
+        print(Fore.RED+"Invalid color selection: %s" % str(opts.colors))
+        sys.exit()
+if opts.material not in VMDMATERIALS:
+    print(Fore.RED+"Invalid material: %s" % str(opts.material))
+    sys.exit()
+if opts.molmethod not in VMDMETHODS:
+    print(Fore.RED+"Invalid molmethod: %s" % str(opts.molmethod))
+    sys.exit()
+if opts.electrodemethod not in VMDMETHODS:
+    print(Fore.RED+"Invalid electrodemethod: %s" % str(opts.electrodemethod))
+    sys.exit()
 
 # Loop through input files and process
 for fn in opts.infiles:
@@ -251,9 +283,9 @@ for fn in opts.infiles:
         elif 'O   R   C   A' in h:
             PROG = 'orca'
         else:
-            print("I don't know what kind of file this is.")
+            print(Fore.RED+"I don't know what kind of file this is.")
             continue
-    print("# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
+    print(Back.BLUE+Fore.WHITE+"# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
     BN = os.path.basename(fn)[:-4]
     if PROG=='orca':
         try:
@@ -263,12 +295,12 @@ for fn in opts.infiles:
             else:
                 gbw = FindGBW(fn)
             if gbw:
-                print('gbw file: %s' % gbw)
+                print(Fore.YELLOW+'gbw file: %s' % gbw)
             else:
-                print('No GBW file found, try specifying it manually')
+                print(Fore.RED+Style.BRIGHT+'No GBW file found, try specifying it manually')
                 continue
         except FileNotFoundError:
-            print("%s does not exist." % fn)
+            print(Fore.RED+"%s does not exist." % fn)
             continue
         for i in range(0,len(orbs)):
             if orbs[i][1] == 0:
@@ -285,12 +317,11 @@ for fn in opts.infiles:
                         ORBS[o] = (orbs[i+offset][0],orbs[i+offset][3],BN+'_'+o)
                 break
         if not ORBS:
-            print("No orbitals selected!")
-            print(opts.orbs)
+            print(Fore.RED+"No orbitals selected!")
             continue
         for o in ORBS:
-            print('%s: (%0.4f eV)' % (o,ORBS[o][1]))
-        print('# # # # # # # # # # # # # # # # # # # # # # # #')
+            print(Style.BRIGHT+'%s: (%0.4f eV)' % (o,ORBS[o][1]))
+        print(Back.BLUE+Fore.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # # # # # #')
         RUNORCA=False
         fn = '%s_plot.inp' % BN
         with open(fn, 'wt') as fh:
@@ -299,7 +330,6 @@ for fn in opts.infiles:
             fh.write('* xyzfile 0 1 %s.xyz\n' % gbw[:-4])
             fh.write('%%base "%s-plot"\n' % BN)
             fh.write('%%MoInp "%s"\n' % gbw)
-            #fh.write('%pal nprocs 8 end\n') 
             fh.write('%plots\n')
             fh.write('dim1  128   # resolution in x-direction\n')
             fh.write('dim2  128   # resolution in y-direction\n')
@@ -310,26 +340,24 @@ for fn in opts.infiles:
                 if not os.path.exists("%s.cube" % ORBS[o][2]):
                     RUNORCA=True
             fh.write('end\n')
-        print("Write %s" % fn)
+        print(Fore.GREEN+Style.BRIGHT+"Wrote %s" % fn)
         tclfn = fn[:-4]+'_vmd.tcl'
         writeVMD(tclfn)
         orcasuccess=False
+        print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
         if opts.render and opts.ORCApath and RUNORCA:
-            print('Starting orca...')
+            print(Fore.CYAN+'Starting orca...')
             p = subprocess.run([opts.ORCApath,fn],stdout=subprocess.PIPE)
             if b'****ORCA TERMINATED NORMALLY****' in p.stdout:
-                print('Successfully generated cube files with Orca.')
+                print(Fore.GREEN+'Successfully generated cube files with Orca.')
                 orcasuccess = True
             else:
-                print('Something may have gone wrong with Orca, check the output:')
-                #stdout = p.stdout.strip().split(b'\n')
-                #for i in range(len(stdout)-10,len(stdout)):
-                #    print(stdout[i])
+                print(Back.RED+'Something may have gone wrong with Orca, check the output:')
                 subprocess.run(['tail','-n','15',fn[:-4]+'.out'])
         elif opts.ORCApath and opts.render:
             orcasuccess = True
-            print("Skipping Orca run because cube files already exist.")
-            print("* * * * * * * * * * *\n")
+            print(Fore.BLUE+"Skipping Orca run because cube files already exist.")
+        print(Fore.BLUE+Back.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # #')
 
         if opts.render and opts.VMDpath and orcasuccess:
             subprocess.run([opts.VMDpath, '-e', tclfn])
