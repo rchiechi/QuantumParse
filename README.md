@@ -1,7 +1,7 @@
 # QuantumParse
 
 This is just a small Python script for converting between file formats for quantum chemistry software. 
-It is customized for our lab and I am not a programmer, but it seems to work ok.
+It is customized for our lab and I am not a programmer, but it seems to work ok with Gaussian and ORCA 4.
 
 ## Requirements
 - python 3.5+
@@ -41,7 +41,7 @@ This is a Python script that runs an Artaios job in parallel across multiple thr
 
 # GetOrbs
 
-This is a Python script that parses Orca output files to find orbitals. It can automatically call Orca and VMD to render the cube files into isoplots. The syntax is relative to the frontier orbitals.
+This is a Python script that parses Orca output files to find orbitals. It can automatically call [Orca](https://orcaforum.cec.mpg.de/) and [VMD](http://www.ks.uiuc.edu/Research/vmd/) to render the cube files into isoplots. The syntax is relative to the frontier orbitals.
 
 To render the HOMO-1, HOMO and LUMO:
 ```
