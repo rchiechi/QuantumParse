@@ -136,9 +136,9 @@ def writeVMD(fn):
         fh.write('display projection orthographic\n')
         fh.write('mol addrep 0\n')
         fh.write('mol modstyle 0 0 %s\n' % opts.molmethod)
-        fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode.lower())
+        fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode)
         fh.write('mol modstyle 1 0 %s\n' % opts.electrodemethod)
-        fh.write('mol modselect 1 0 all name %s\n' % opts.electrode.lower())
+        fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
         fh.write('mol modcolor 1 0 Element\n')
         for m in range(0,mols+1): 
             if m == 0: i = 2
