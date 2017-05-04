@@ -6,9 +6,9 @@ It is customized for our lab and I am not a programmer, but it seems to work ok 
 ## Requirements
 - python 3.5+
 - colorama
-- ase
+- [ase](https://wiki.fysik.dtu.dk/ase/)
 - matplotlib
-- Artaios (for artaios output)
+- [Artaios](https://www.chemie.uni-hamburg.de/ac/herrmann/software/artaios_e.html) (for artaios output)
 
 ## Usage
 
@@ -35,7 +35,7 @@ QuantumParse -o {orca,gaussian,siesta,xyz} <FILE>
 
 # ArtaiosParallel
 
-This is a Python script that runs an [Artaios](https://www.chemie.uni-hamburg.de/ac/herrmann/software/artaios_e.html) job in parallel across multiple threads of execution. It is very basic; execute ArtaoisParallel.py from the directory containing the Artaios job. It expects a file called 'transport.in' but you can specify a differnet file as an argument. It will create a directory called artaios_parallel and a BASH script called artaios_parallel.sh that runs the job and concatenates the output into the parent directory. Note that the datapoints in the transmission output file will be out of order.
+This is a Python script that runs an Artaios job in parallel across multiple threads of execution. It is very basic; execute ArtaoisParallel.py from the directory containing the Artaios job. It expects a file called 'transport.in' but you can specify a differnet file as an argument. It will create a directory called artaios_parallel and a BASH script called artaios_parallel.sh that runs the job and concatenates the output into the parent directory. Note that the datapoints in the transmission output file will be out of order.
 
 
 
