@@ -27,23 +27,24 @@ parser.add_argument('-s','--size', type=str, default='10,10,2',
 
 opts=parser.parse_args()
 
-if not infile:
+if not opts.infile:
     print("I need an input file.")
     sys.exit()
 
-#height=1.5
 position='hcp'
-#size=[10,10,2]
+try:
+    opts.size = tuple(map(int, opts.size.strip().split(',')))
+except:
+    print("Error parsing size as three comma-separated integers")
+    sys.exit()
 
-opts.size = opts.size.strip().split(',')
-
-slab=fcc111(opts.electrode,opts.size)
+slab=fcc111(opts.electrode, opts.size)
 slab.info['adsorbate_info']['top layer atom index'] = len(slab.positions)-1
-AC=read(opts.infile)
+AC=read(opts.infile[0])
 print(AC)
-for i in range(1,size[0]-1,2):
-    add_adsorbate(slab,AC,height,position,offset=[0,i],mol_index=0)
-    for n in range(2,size[0]-1,2):
-        add_adsorbate(slab,AC,height,position,offset=[n,i],mol_index=0)
-write(opts.infile[:-4]+'.png',slab,rotation='80x,180z')
-write(opts.infile[:-4]+'_SAM.xyz',slab)
+for i in range(1,opts.size[0]-1,2):
+    add_adsorbate(slab,AC,opts.height,position,offset=[0,i],mol_index=0)
+    for n in range(2,opts.size[0]-1,2):
+        add_adsorbate(slab,AC,opts.height,position,offset=[n,i],mol_index=0)
+write(opts.infile[0][:-4]+'.png',slab,rotation='80x,180z')
+write(opts.infile[0][:-4]+'_SAM.xyz',slab)
