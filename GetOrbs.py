@@ -129,7 +129,7 @@ def writeVMD(fn):
     with open(fn,'wt') as fh:
         mols = -1
         for o in ORBS:
-            fh.write('mol new %s/%s.cube\n' % (os.getcwd(),ORBS[o][2]))
+            fh.write('mol new "%s/%s.cube"\n' % (os.getcwd(),ORBS[o][2]))
             mols += 1
             fh.write('mol rename %s %s\n' % (mols,o))
         fh.write('rotate y by 90\n')
@@ -157,6 +157,42 @@ def writeVMD(fn):
                 fh.write('mol delrep 2 %s\n' % m)
                 fh.write('mol showrep %s %s off\n' % (m,0))
                 fh.write('mol showrep %s %s off\n' % (m,1))
+        fh.write('menu graphics on\n')
+    print(Fore.GREEN+Style.BRIGHT+'Wrote %s' % fn)
+
+
+def writeSimpleVMD(fn,xyz):
+    with open(fn,'wt') as fh:
+       # mols = -1
+        #for o in ORBS:
+        fh.write('mol new "%s/%s"\n' % (os.getcwd(),xyz))
+        #    mols += 1
+            #fh.write('mol rename %s %s\n' % (mols,o))
+        fh.write('rotate y by 90\n')
+        fh.write('axes location off\n')
+        fh.write('display projection orthographic\n')
+        fh.write('mol addrep 0\n')
+        fh.write('mol modstyle 0 0 %s\n' % opts.molmethod)
+        fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode)
+        fh.write('mol modstyle 1 0 %s\n' % opts.electrodemethod)
+        fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
+        fh.write('mol modcolor 1 0 Element\n')
+        #for m in range(0,mols+1): 
+        #    if m == 0: i = 2
+        #    else: i = 0
+        #    fh.write('mol addrep %s\n' % m) 
+        #    fh.write('mol modstyle %s %s Isosurface %s 0 0 0\n' % (i,m,opts.isovalue))
+        #    fh.write('mol modcolor %s %s ColorID %s\n' % (i,m,VMDCOLORS[opts.colors[0]]))
+        #    fh.write('mol modmaterial %s %s %s\n' % (i,m,opts.material))
+        #    fh.write('mol addrep %s\n' % m) 
+        #    fh.write('mol modstyle %s %s Isosurface -%s 0 0 0\n' % (i+1,m,opts.isovalue))
+        #    fh.write('mol modcolor %s %s ColorID %s\n' % (i+1,m,VMDCOLORS[opts.colors[1]]))
+        #    fh.write('mol modmaterial %s %s %s\n' % (i+1,m,opts.material))
+        #if mols > 0:
+        #    for m in range(1,mols+1):
+        #        fh.write('mol delrep 2 %s\n' % m)
+        #        fh.write('mol showrep %s %s off\n' % (m,0))
+        #        fh.write('mol showrep %s %s off\n' % (m,1))
         fh.write('menu graphics on\n')
     print(Fore.GREEN+Style.BRIGHT+'Wrote %s' % fn)
 
@@ -281,13 +317,30 @@ for fn in opts.infiles:
         h = fh.read(2048)
         if 'O   R   C   A' in h:
             PROG = 'orca'
+            print(Fore.YELLOW+"Parsing ORCA output file")
         #elif 'nwchem' in h.lower():
         #    PROG = 'nwchem'
         else:
-            print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
-            continue
+            try:
+                int(h[0])
+                if fn[-3:].lower() == 'xyz':
+                    print(Fore.YELLOW+"Parsing XYZ file")
+                else:
+                    print(Fore.YELLOW+Style.BRIGH+"Guessing XYZ file")
+                PROG = 'xyz'
+            except ValueError:
+                print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
+                continue
     print(Back.BLUE+Fore.WHITE+"# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
     BN = os.path.basename(fn)[:-4]
+    if PROG=='xyz':
+        tclfn = fn[:-4]+'_vmd.tcl'
+        writeSimpleVMD(tclfn, os.path.basename(fn))
+        if opts.render and opts.VMDpath:
+            print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
+            subprocess.run([opts.VMDpath, '-e', tclfn])
+
+    
     if PROG=='orca':
         try:
             orbs = GetOrbsOrca(fn)
