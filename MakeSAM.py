@@ -4,6 +4,7 @@
 # THIS IS A TEST: DO NOT USE
 #
 
+import sys,os
 from ase.io import read,write
 from ase.build import fcc111,add_adsorbate
 
@@ -11,14 +12,14 @@ height=1.5
 position='hcp'
 size=[10,10,2]
 
-b=fcc111('Au',size)
-b.info['adsorbate_info']['top layer atom index'] = len(b.positions)-1
+slab=fcc111('Au',size)
+slab.info['adsorbate_info']['top layer atom index'] = len(b.positions)-1
 AC=read('AQ.xyz')
 print(AC)
 for i in range(1,size[0]-1,2):
-    add_adsorbate(b,AC,height,position,offset=[0,i],mol_index=0)
+    add_adsorbate(slab,AC,height,position,offset=[0,i],mol_index=0)
     for n in range(2,size[0]-1,2):
-        add_adsorbate(b,AC,height,position,offset=[n,i],mol_index=0)
+        add_adsorbate(slab,AC,height,position,offset=[n,i],mol_index=0)
 
     
 
