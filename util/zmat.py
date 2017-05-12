@@ -161,5 +161,5 @@ class ZMatrix(Atoms):
         '''Project molecule along Z-axis and rotate around another axis'''
         self.toZaxis()
         self.logger.debug('Rotating around %s by %s°.' % (axis,degree))
-        self.rotate(degree,axis)
+        self.rotate(float(degree),axis)
         self.__moveAfterRotate()
