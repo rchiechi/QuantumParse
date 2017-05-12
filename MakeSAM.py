@@ -21,7 +21,7 @@ parser.add_argument('-H', '--height', type=int, default=1.5,
     help='Height in Angstroms to place molecules above surface.')
 parser.add_argument('-t', '--tilt', type=int, default=0, 
     help='Tilt angle.')
-parser.add_argument('-A', '--tiltaxis', type=str, default='-x', 
+parser.add_argument('-A', '--tiltaxis', type=str, default='x', 
     help='Tilt axis.')
 parser.add_argument('-e','--electrode', type=str, default='Au', 
     help='Type of electrode.')

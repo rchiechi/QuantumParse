@@ -141,12 +141,11 @@ class ZMatrix(Atoms):
             self.logger.debug('Already on z-axis, skipping rotation.')
             return
         self.logger.debug('Rotating from %s to z-axis.' % axis)
-        if axis == 'x':
-            self.rotate(pi/2,'y')
-            #self.rotate('y',pi/2)
-        elif axis == 'y':
-            self.rotate(pi/2,'x')
-            #self.rotate('x',pi/2)
+        self.rotate(axis,'z')
+        #if axis == 'x':
+        #    self.rotate('x','z')
+        #elif axis == 'y':
+        #    self.rotate('x',pi/2)
         self.__moveAfterRotate()
 
     def __moveAfterRotate(self):
