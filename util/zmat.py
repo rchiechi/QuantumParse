@@ -142,12 +142,14 @@ class ZMatrix(Atoms):
             return
         self.logger.debug('Rotating from %s to z-axis.' % axis)
         if axis == 'x':
-            self.rotate('y',pi/2)
+            self.rotate(pi/2,'y')
+            #self.rotate('y',pi/2)
         elif axis == 'y':
-            self.rotate('x',pi/2)
+            self.rotate(pi/2,'x')
+            #self.rotate('x',pi/2)
         self.__moveAfterRotate()
 
-    def __moveAafterRotate(self):
+    def __moveAfterRotate(self):
         zc = {}
         for _a in self:
             zc[_a.z] = [_a.x,_a.y]
@@ -156,9 +158,9 @@ class ZMatrix(Atoms):
         self.translate([-1*xmin,-1*ymin,-1*zmin])
         self.sort()
 
-    def rotateAboutiAxis(self,axis,degree):
+    def rotateAboutAxis(self,axis,degree):
         '''Project molecule along Z-axis and rotate around another axis'''
         self.toZaxis()
         self.logger.debug('Rotating around %s by %s°.' % (axis,degree))
-        self.rotate(axis,degree)
+        self.rotate(degree,axis)
         self.__moveAfterRotate()

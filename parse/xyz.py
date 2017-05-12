@@ -46,7 +46,7 @@ class Parser:
         return self.zmat
     def getAtoms(self):
         return self.atoms
-
+    
     def parseZmatrix(self):
         self._parsezmat()
         if self.opts.build:
