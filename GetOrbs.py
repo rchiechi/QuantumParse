@@ -323,7 +323,7 @@ if opts.electrodemethod not in VMDMETHODS:
 # Loop through input files and process
 for fn in opts.infiles:
     ORBS=OrderedDict()
-    
+    PROG=None
     with open(fn, 'rt') as fh:
         h = fh.read(2048)
         if 'O   R   C   A' in h:
@@ -337,16 +337,16 @@ for fn in opts.infiles:
                 int(h[0])
                 PROG = 'xyz'
             except ValueError:
-                print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
-                continue
+                pass
         elif fn[-4:].lower() == 'cube':
             print(Fore.YELLOW+"Parsing cube file")
-            if 'Title' in h[:6]:
+            try:
+                int(h[0])
+            except ValueError:
                 PROG='cube'
-            else:
-                print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
-                continue
-
+    if not PROG:
+        print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
+        continue
     print(Back.BLUE+Fore.WHITE+"# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
     BN = os.path.basename(fn)[:-4]
     if PROG=='xyz':
