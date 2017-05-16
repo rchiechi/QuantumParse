@@ -138,7 +138,7 @@ def writeVMD(fn):
         fh.write('mol addrep 0\n')
         fh.write('mol modstyle 0 0 %s\n' % opts.molmethod)
         fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode)
-        fh.write('mol modstyle 1 0 %s\n' % opts.electrodemethod)
+        fh.write('mol modstyle 1 0 %s 1 37\n' % opts.electrodemethod)
         fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
         fh.write('mol modcolor 1 0 Element\n')
         for m in range(0,mols+1): 
@@ -170,7 +170,7 @@ def writeSimpleVMD(fn,xyz):
         fh.write('mol addrep 0\n')
         fh.write('mol modstyle 0 0 %s\n' % opts.molmethod)
         fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode)
-        fh.write('mol modstyle 1 0 %s\n' % opts.electrodemethod)
+        fh.write('mol modstyle 1 0 %s 1 37\n' % opts.electrodemethod)
         fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
         fh.write('mol modcolor 1 0 Element\n')
         fh.write('menu graphics on\n')
@@ -186,7 +186,7 @@ def writeCubeVMD(fn,cube):
         fh.write('mol addrep 0\n')
         fh.write('mol modstyle 0 0 %s\n' % opts.molmethod)
         fh.write('mol modselect 0 0 all not name %s\n' % opts.electrode)
-        fh.write('mol modstyle 1 0 %s\n' % opts.electrodemethod)
+        fh.write('mol modstyle 1 0 %s 1 37\n' % opts.electrodemethod)
         fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
         fh.write('mol modcolor 1 0 Element\n')
         m = 0
