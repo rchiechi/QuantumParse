@@ -302,6 +302,10 @@ if len(opts.colors) != 2:
     print(Fore.RED+"Too many colors: %s" % str(opts.colors))
     sys.exit()
 
+if len(opts.orbs) > 7:
+    print(Fore.RED+"Something is wrong with the orbital specfication: %s" % str(opts.orbs))
+    sys.exit()
+
 for c in opts.colors:
     if c not in VMDCOLORS.keys():
         print(Fore.RED+"Invalid color selection: %s" % str(opts.colors))
