@@ -11,7 +11,8 @@ class Writer(xyz.Writer):
     #TODO Orca is a mess
 
     def write(self):
-        self.transport = self.jobname+'.transport.in'
+        self.transport = 'transport.in'
+        #self.transport = self.jobname+'.transport.in'
         self.logger.debug('Writing to %s' % self.transport)
         if self.opts.informat == 'gaussian':
             self.__g09_2unform()
