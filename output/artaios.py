@@ -88,7 +88,7 @@ class Writer(xyz.Writer):
             fh.write('  print_molden T\n')
             fh.write('  do_diag_central T\n')
             fh.write('  print_diag_central T\n')
-            fh.write('  moldeninfile %s_molden.input\n' % os.path.splitext(os.path.basename(self.parser.fn))[0])
+            fh.write('  moldeninfile %s.molden.input\n' % os.path.splitext(os.path.basename(self.parser.fn))[0])
             fh.write('$end\n\n')
 
     def __wrblock(self,fh,l):
@@ -180,6 +180,6 @@ class Writer(xyz.Writer):
             fh.write('  print_molden T\n')
             fh.write('  print_diag_central T\n')
             fh.write('  do_diag_central T\n')
-            fh.write('  moldeninfile %s_molden.input\n' % os.path.splitext(os.path.basename(self.parser.fn))[0])
+            fh.write('  moldeninfile %s.molden.input\n' % os.path.splitext(os.path.basename(self.parser.fn))[0])
             fh.write('$end\n\n')
 
