@@ -338,7 +338,7 @@ for fn in opts.infiles:
                 PROG = 'xyz'
             except ValueError:
                 pass
-        elif fn[-4:].lower() == 'cube':
+        elif fn[-4:].lower() == 'cube' or fn[-5:].lower() == 'gcube':
             print(Fore.YELLOW+"Parsing cube file")
             try:
                 int(h[0])
