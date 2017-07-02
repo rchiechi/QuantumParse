@@ -37,7 +37,7 @@ def FindBins():
     else:
         vmdbin=None
 
-    orcabin=None
+    orcabin=''
     for b in ('orca', 'orca.sh'):
         p = subprocess.run(['which', b],stdout=subprocess.PIPE)
         if p.returncode == 0:
