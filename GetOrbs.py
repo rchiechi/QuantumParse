@@ -37,7 +37,7 @@ def FindBins():
     else:
         vmdbin=None
 
-    orcabin=None
+    orcabin=''
     for b in ('orca', 'orca.sh'):
         p = subprocess.run(['which', b],stdout=subprocess.PIPE)
         if p.returncode == 0:
@@ -338,7 +338,7 @@ for fn in opts.infiles:
                 PROG = 'xyz'
             except ValueError:
                 pass
-        elif fn[-4:].lower() == 'cube':
+        elif fn[-4:].lower() == 'cube' or fn[-5:].lower() == 'gcube':
             print(Fore.YELLOW+"Parsing cube file")
             try:
                 int(h[0])
