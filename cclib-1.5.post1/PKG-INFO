@@ -1,0 +1,23 @@
+Metadata-Version: 1.1
+Name: cclib
+Version: 1.5.post1
+Summary: cclib: parsers and algorithms for computational chemistry
+Home-page: http://cclib.github.io/
+Author: cclib development team
+Author-email: cclib-users@lists.sourceforge.net
+License: BSD 3-Clause License
+Description: cclib is a Python library that provides parsers for computational
+        chemistry log files. It also provides a platform to implement
+        algorithms in a package-independent manner.
+        
+Platform: Any.
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
