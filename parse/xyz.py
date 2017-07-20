@@ -109,11 +109,16 @@ class Parser:
         self.logger.debug("Using cclib to parse input.")
         zmat = ZMatrix()
         fh = ccread(self.fn)
-        for i in range(0, len(fh.atomnos)):
-            zmat += Atom(fh.atomnos[i], fh.atomcoords[-1][i])
+        try:
+            for i in range(0, len(fh.atomnos)):
+                zmat += Atom(fh.atomnos[i], fh.atomcoords[-1][i])
+        except AttributeError as msg:
+            self.logger.error("Error parsing input %s" % str(msg))
+            return False
         if self.opts.project:
             zmat.toZaxis()
         elif self.opts.sortaxis:
             zmat.sort(self.opts.sortaxis)
         self.zmat = zmat
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
+        self.logger.info('HOMO/LUMO (eV): %0.4f/%0.4f' % (fh.moenergies[0][fh.homos[0]],fh.moenergies[0][fh.homos[0]+1]) )
