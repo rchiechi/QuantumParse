@@ -119,7 +119,8 @@ class Writer(xyz.Writer):
             with open(fn, 'wt') as fh:
                 self.logger.info('Writing %s...' % fn)
                 i = 0
-                for (x,y), value in np.ndenumerate(ar):
+                #for (x,y), value in np.ndenumerate(ar):
+                for value in np.nditer(ar):
                     #print('%s,%s' % (x,y), end='\r')
                     if i == 4:
                         i = 0
