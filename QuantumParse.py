@@ -138,6 +138,9 @@ if opts.informat not in ('gaussian','orca') and opts.outformat == 'artaios':
     sys.exit()
 if opts.outformat in ('artaios') and opts.sortaxis:
     logger.warn('Sorting the z-matrix and outputting to artaios is a bad idea.')
+if opts.outformat == 'artaios':
+    logger.debug('Artaios output forces transport flag')
+    opts.transport = True
 
 parsers = []
 for fn in opts.infiles:

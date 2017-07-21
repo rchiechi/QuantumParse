@@ -27,18 +27,29 @@ class Parser(xyz.Parser):
     def parseZmatrix(self):
         self._parsezmat()
         if self.fn[-4:].lower() == '.out':
-            self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
-            with open(self.fn) as fh:
-                self.fm = fock(fh)
-                self.orbs,self.orbidx = norbs(fh)
-                self.ol = overlap(fh)
-            if None in (self.fm, self.orbs, self.orbidx, self.ol):
-                self.logger.error("Did not parse Orca matrix correctly.")
+            self.__dotransport()
+            #self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
+            #with open(self.fn) as fh:
+            #    self.fm = fock(fh)
+            #    self.orbs,self.orbidx = norbs(fh)
+            #    self.ol = overlap(fh)
+            #if None in (self.fm, self.orbs, self.orbidx, self.ol):
+            #    self.logger.error("Did not parse Orca matrix correctly.")
         else:
             if self.opts.build:
                 self.zmat.buildElectrodes(self.opts.build,self.opts.size,
                     self.opts.distance,self.opts.binding,self.opts.surface,self.opts.adatom,self.opts.SAM)
         self.zmat.findElectrodes()
+
+    def __dotransport(self):
+        self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
+        with open(self.fn) as fh:
+            self.fm = fock(fh)
+            self.orbs,self.orbidx = norbs(fh)
+            self.ol = overlap(fh)
+        if None in (self.fm, self.orbs, self.orbidx, self.ol):
+            self.logger.error("Did not parse Orca matrix correctly.")
+
 
 logger = logging.getLogger('OrcaMatrix')
 

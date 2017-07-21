@@ -107,7 +107,7 @@ class Parser:
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
     
     def _cclibparse(self):
-        self.logger.debug("Using cclib to parse input.")
+        self.logger.info("Using cclib to parse input; it may take a while...")
         zmat = ZMatrix()
         fh = ccread(self.fn)
         try:
@@ -124,6 +124,9 @@ class Parser:
         self.ccparsed = fh
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
         self.logger.info('HOMO/LUMO (eV): %0.4f/%0.4f' % (fh.moenergies[0][fh.homos[0]],fh.moenergies[0][fh.homos[0]+1]) )
+        if self.opts.transport:
+            self.__dotransport()
 
     def __dotransport(self):
+        self.logger.debug('Calling dummy __dotransport')
         return None
