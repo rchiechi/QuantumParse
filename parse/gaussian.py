@@ -18,7 +18,7 @@ class Parser(xyz.Parser):
         while infile:
             line = next(fh)
             if line[1:7] == "******" and (line[8:24] == "Core Hamiltonian" or line[11:27] == "Core Hamiltonian" ):
-                self.logger.debug(line)
+                self.logger.debug(line.strip())
                 hamiltonian = np.zeros((self.ccparsed.nbasis, self.ccparsed.nbasis), "d")
                 base = 0
                 colmNames = next(fh)

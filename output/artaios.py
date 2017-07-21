@@ -6,7 +6,7 @@ from output import xyz
 import subprocess
 import numpy as np
 from util import *
-import fortranformat as ff
+#import fortranformat as ff
 
 class Writer(xyz.Writer):
     #TODO Orca is a mess
@@ -31,8 +31,6 @@ class Writer(xyz.Writer):
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
-
-        
 
     def __writetransport(self):
         if not self.parser.haselectrodes():
@@ -116,18 +114,61 @@ class Writer(xyz.Writer):
         # lineformat.write(a)
         # '    0.100000000000D+01    0.123456789000D+22    0.000000000000D+00    0.100000000000D-11\n     0.100000000000D+01...'
         self.logger.info('Writing transport data using internal parser.')
-        lineformat = ff.FortranRecordWriter('(4D22.12)')
-        overlap, fock = [],[]
-        for (x,y), value in np.ndenumerate(self.parser.ol):
-            print('%s,%s' % (x,y), end='\r')
-            overlap.append(self.parser.ol[x,y])
-            fock.append(self.parser.fm[x,y])
-        with open('overlap', 'wt') as fh:
-            self.logger.info('Writing overlap...')
-            fh.write(lineformat.write(overlap))
+        
+        def __fortranformat(fn, ar):
+            with open(fn, 'wt') as fh:
+                self.logger.info('Writing %s...' % fn)
+                i = 0
+                for (x,y), value in np.ndenumerate(ar):
+                    #print('%s,%s' % (x,y), end='\r')
+                    if i == 4:
+                        i = 0
+                        fh.write('\n')
+                    if value < 0:
+                        sp = '   '
+                    else:
+                        sp = '    '
+                    fh.write( str('%s%.12E' % (sp,value) ).replace('E','D'))
+                    i += 1
+                if i != 1:
+                    fh.write('\n')
+        __fortranformat('overlap', self.parser.ol)
+        __fortranformat('hamiltonian.1', self.parser.fm)
+        #with open('hamiltonian.1', 'wt') as fh:
+        #    self.logger.info('Writing Hamiltonian...')
+        #    i = 0
+        #    for (x,y), value in np.ndenumerate(self.parser.fm):
+        #        print('%s,%s' % (x,y), end='\r')
+        #        if i == 4:
+        #            i = 0
+        #            fh.write('\n')
+        #        if value < 0:
+        #            sp = '   '
+        #        else:
+        #            sp = '    '
+        #        fh.write( str('%s%.12E' % (sp,value) ).replace('E','D'))
+        #        i += 1
+        return
+            #fh.write(lineformat.write(np.nditer(self.parser.ol)))
+        #for (x,y), value in np.ndenumerate(self.parser.fm):
+            #print('%s,%s' % (x,y), end='\r')
+            #fock.append(value)
+        #with open('hamiltonian.1', 'wt') as fh:
+            #self.logger.info('Writing hamiltonian...')
+            #fh.write(lineformat.write(fock))
         with open('hamiltonian.1', 'wt') as fh:
             self.logger.info('Writing hamiltonian...')
-            fh.write(lineformat.write(fock))
+            i = 0
+            for (x,y), value in np.ndenumerate(self.parser.fm):
+                print('%s,%s' % (x,y), end='\r')
+                fock.append(value)
+                #overlap.append(self.parser.ol[x,y])
+                #fock.append(self.parser.fm[x,y])
+                if i == 4:
+                    i = 0
+                    fock = []
+                    fh.write('\n')
+                fh.write(lineformat.write(fock))
         
     def writeOrcatransport(self):
         
