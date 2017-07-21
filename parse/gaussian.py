@@ -18,7 +18,7 @@ class Parser(xyz.Parser):
         while infile:
             line = next(fh)
             if line[1:7] == "******" and (line[8:24] == "Core Hamiltonian" or line[11:27] == "Core Hamiltonian" ):
-                print(line)
+                self.logger.debug(line)
                 hamiltonian = np.zeros((self.ccparsed.nbasis, self.ccparsed.nbasis), "d")
                 base = 0
                 colmNames = next(fh)
@@ -34,6 +34,6 @@ class Parser(xyz.Parser):
                     colmNames = next(fh)
                 hamiltonian = np.array(hamiltonian, "d")
                 infile = False
-        print(hamiltonian)
+        #print(hamiltonian)
         self.fm = hamiltonian
         self.ol = self.ccparsed.aooverlaps

@@ -6,15 +6,7 @@ from output import xyz
 import subprocess
 import numpy as np
 from util import *
-
-#NOTE
-# import fortranformat as ff
-# a = [ ... , ... ]
-# lineformat = ff.FortranRecordWriter('(4D22.12)')
-#
-# 4 Double precision per line, 22-characters wide, 12 digit precision
-# lineformat.write(a)
-# '    0.100000000000D+01    0.123456789000D+22    0.000000000000D+00    0.100000000000D-11\n     0.100000000000D+01...'
+import fortranformat as ff
 
 class Writer(xyz.Writer):
     #TODO Orca is a mess
@@ -32,12 +24,15 @@ class Writer(xyz.Writer):
     def __g09_2unform(self):
         if subprocess.run(['which', 'g09_2unform'],stdout=subprocess.PIPE).returncode != 0:
             self.logger.error("g09_2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
+            self.WriteGaussiantransport()
             return None 
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
         p = subprocess.run(['g09_2unform',self.parser.fn,'1',os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
+
+        
 
     def __writetransport(self):
         if not self.parser.haselectrodes():
@@ -112,6 +107,28 @@ class Writer(xyz.Writer):
         if nb != norb:
             print("Error: mismatch in number of orbtials and fock matrix")
 
+    def WriteGaussiantransport(self):
+        # import fortranformat as ff
+        # a = [ ... , ... ]
+        # lineformat = ff.FortranRecordWriter('(4D22.12)')
+        #
+        # 4 Double precision per line, 22-characters wide, 12 digit precision
+        # lineformat.write(a)
+        # '    0.100000000000D+01    0.123456789000D+22    0.000000000000D+00    0.100000000000D-11\n     0.100000000000D+01...'
+        self.logger.info('Writing transport data using internal parser.')
+        lineformat = ff.FortranRecordWriter('(4D22.12)')
+        overlap, fock = [],[]
+        for (x,y), value in np.ndenumerate(self.parser.ol):
+            print('%s,%s' % (x,y), end='\r')
+            overlap.append(self.parser.ol[x,y])
+            fock.append(self.parser.fm[x,y])
+        with open('overlap', 'wt') as fh:
+            self.logger.info('Writing overlap...')
+            fh.write(lineformat.write(overlap))
+        with open('hamiltonian.1', 'wt') as fh:
+            self.logger.info('Writing hamiltonian...')
+            fh.write(lineformat.write(fock))
+        
     def writeOrcatransport(self):
         
         nb = self.parser.fm.shape[0]
