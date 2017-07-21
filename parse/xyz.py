@@ -6,6 +6,7 @@ from cclib.io import ccread
 class Parser:
   
     zmat = ZMatrix()
+    ccparsed = None
     logger = logging.getLogger('Parser')
     lattice = {'constant':None,
             'vectors':[]}
@@ -120,5 +121,9 @@ class Parser:
         elif self.opts.sortaxis:
             zmat.sort(self.opts.sortaxis)
         self.zmat = zmat
+        self.ccparsed = fh
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
         self.logger.info('HOMO/LUMO (eV): %0.4f/%0.4f' % (fh.moenergies[0][fh.homos[0]],fh.moenergies[0][fh.homos[0]+1]) )
+
+    def __dotransport(self):
+        return None
