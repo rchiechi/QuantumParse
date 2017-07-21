@@ -7,6 +7,15 @@ import subprocess
 import numpy as np
 from util import *
 
+#NOTE
+# import fortranformat as ff
+# a = [ ... , ... ]
+# lineformat = ff.FortranRecordWriter('(4D22.12)')
+#
+# 4 Double precision per line, 22-characters wide, 12 digit precision
+# lineformat.write(a)
+# '    0.100000000000D+01    0.123456789000D+22    0.000000000000D+00    0.100000000000D-11\n     0.100000000000D+01...'
+
 class Writer(xyz.Writer):
     #TODO Orca is a mess
 
