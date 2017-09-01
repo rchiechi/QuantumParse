@@ -58,6 +58,7 @@ class Parser:
 
     def _parsezmat(self):
         self.logger.debug('Building zmatrix...')
+        zmat = None
         if self.fn[-4:].lower() != '.xyz':
             zmat = self._cclibparse()
         if zmat:
