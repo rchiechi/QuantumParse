@@ -59,8 +59,11 @@ class Parser:
     def _parsezmat(self):
         self.logger.debug('Building zmatrix...')
         if self.fn[-4:].lower() != '.xyz':
-            return self._cclibparse()
-        zmat = ZMatrix()
+            zmat = self._cclibparse()
+        if zmat:
+            return zmat
+        else:
+            zmat = ZMatrix()
         if not self.begin:
             in_zmat = True
         else:

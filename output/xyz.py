@@ -69,8 +69,10 @@ class Writer:
             if self.opts.writeelectrodes:
                 self.writeelectrodes()
         self.logger.info('Writing %s.png' % self.jobname)
-        ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
-
+        try:
+            ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
+        except ValueError as msg:
+            self.logger.warn("Error writing png file: %s" % str(msg))
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))
         fh.write('%s\n' % self.jobname)
