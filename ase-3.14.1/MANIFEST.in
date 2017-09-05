@@ -1,0 +1,11 @@
+include MANIFEST.in
+include COPYING* LICENSE README.rst CONTRIBUTING.rst CHANGELOG.rst
+include requirements.txt
+include ase/spacegroup/spacegroup.dat
+include ase/collections/*.json
+include ase/db/static/*
+include ase/db/templates/*
+include ase/gui/po/ag.pot
+include ase/gui/po/Makefile
+include ase/gui/po/??_??/LC_MESSAGES/ag.po
+include ase/gui/po/??/LC_MESSAGES/ag.po
