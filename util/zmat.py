@@ -6,6 +6,8 @@ import numpy as np
 import logging
 from .constants import *
 
+__ALL__ = ['ZMatrix']
+
 class ZMatrix(Atoms):
     
     logger = logging.getLogger('Z-Matrix')

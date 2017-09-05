@@ -3,6 +3,8 @@ from util import *
 from ase import Atom,Atoms
 from cclib.io import ccread
 
+__ALL__ = ['Parser']
+
 class Parser:
   
     zmat = ZMatrix()

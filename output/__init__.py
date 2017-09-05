@@ -1,1 +1,1 @@
-from .xyz import Writer
+from .xyz import *

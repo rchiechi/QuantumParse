@@ -1,1 +1,1 @@
-from .xyz import Parser
+from .xyz import *
