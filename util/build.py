@@ -5,28 +5,30 @@ from pandas import DataFrame
 import logging
 import numpy as np
 
-__all__ = ['buildElectrodes','zmatToAtoms','atomsToZmat','sortZmat','findDistances','onAxis','toZaxis']
+__all__ = ['zmatToAtoms','atomsToZmat','sortZmat','findDistances','onAxis','toZaxis']
 
 logger = logging.getLogger('Builder')
 
-def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1,SAM=False):
-    logger.info('Building %s electrodes.' % atom)
-    c = fcc111(atom,size=size)
-    b = fcc111(atom,size=size)
-    
-    if SAM:
-        for i in range(0,size[0]+1,2):
-            add_adsorbate(b,atoms,distance,position,offset=[0,i])
-            for n in range(2,size[0]+1,2):
-                add_adsorbate(b,atoms,distance,position,offset=[n,i])
-    else:
-        add_adsorbate(b,atoms,distance,position,offset=offset)
-    
-    b.rotate('x',pi)
-    b.translate([0,0,ceil(abs(b[-1].z))])
-    b.rotate('z',(4/3)*pi)
-    add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=-1)
-    return c
+#def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1,SAM=False):
+#    logger.info('Building %s electrodes.' % atom)
+#    c = fcc111(atom,size=size)
+#    b = fcc111(atom,size=size)
+#    
+#    if SAM:
+#        for i in range(0,size[0]+1,2):
+#            add_adsorbate(b,atoms,distance,position,offset=[0,i])
+#            for n in range(2,size[0]+1,2):
+#                add_adsorbate(b,atoms,distance,position,offset=[n,i])
+#    else:
+#        add_adsorbate(b,atoms,distance,position,offset=offset)
+#    
+#    #b.rotate('x',pi)
+#    b.rotate(180,'x')
+#    b.translate([0,0,ceil(abs(b[-1].z))])
+#    #b.rotate('z',(4/3)*pi)
+#    b.rotate(240,'z')
+#    add_adsorbate(c,b,1.5,'hcp',offset=1,mol_index=-1)
+#    return c
 
 def zmatToAtoms(zmat):
     f = ''
@@ -93,10 +95,11 @@ def onAxis(xyz):
 def toZaxis(atoms):
     logger.debug('Rotating zmatrix to Z-axis.')
     axis = onAxis(atoms)
-    if axis == 'x':
-        atoms.rotate('y',pi/2)
-    elif axis == 'y':
-        atoms.rotate('x',pi/2)
+    atoms.rotate(axis,'z')
+    #if axis == 'x':
+    #    atoms.rotate('y',pi/2)
+    #elif axis == 'y':
+    #    atoms.rotate('x',pi/2)
     zc = []
     for _a in atoms:
         zc.append(_a.z)

@@ -1,5 +1,4 @@
 from ase import Atom,Atoms
-#from ase.build import fcc111,add_adsorbate
 import ase.build
 from math import ceil,pi
 from collections import Counter
@@ -72,9 +71,11 @@ class ZMatrix(Atoms):
             offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
             ase.build.add_adsorbate(b,self,distance,position,offset=offset)
         self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
-        b.rotate('x',pi)
+        #b.rotate('x',pi)
+        b.rotate(180,'x')
         b.translate([0,0,ceil(abs(b[-1].z))])
-        b.rotate('z',(4/3)*pi)
+        #b.rotate('z',(4/3)*pi)
+        b.rotate(240,'z')
         ase.build.add_adsorbate(c,b,distance,position,offset=offset,mol_index=-1)
         self.__init__(c)
         self.sort()

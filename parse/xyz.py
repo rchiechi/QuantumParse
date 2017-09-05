@@ -111,7 +111,10 @@ class Parser:
     def _cclibparse(self):
         self.logger.info("Using cclib to parse input; it may take a while...")
         zmat = ZMatrix()
-        fh = ccread(self.fn)
+        try:
+            fh = ccread(self.fn)
+        except NameError:
+            return None
         try:
             for i in range(0, len(fh.atomnos)):
                 zmat += Atom(fh.atomnos[i], fh.atomcoords[-1][i])
