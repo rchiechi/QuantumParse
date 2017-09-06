@@ -12,7 +12,7 @@ prog = os.path.basename(sys.argv[0]).replace('.py','')
 # Need to make this check because ase does not check for dependencies like matplotlib at import
 installed = [package.project_name for package in pip.get_installed_distributions()]
 # Don't check for ase because we have it locally
-required = ['colorama','matplotlib']
+required = ['colorama','matplotlib','h5py']
 for pkg in required:
     if pkg not in installed:
         print('You need to install %s to use %s.' % (pkg,prog))
@@ -120,6 +120,8 @@ if opts.informat == 'guess':
         opts.informat = 'xyz'
     elif ext in ('fdf'):
         opts.informat = 'siesta'
+    elif ext in ('h5mol'):
+        opts.informat = 'h5mol'
     else:
         logger.error("Could not determine input file format")
         sys.exit()
