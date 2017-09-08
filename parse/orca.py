@@ -47,7 +47,7 @@ class Parser(xyz.Parser):
             self.fm = fock(fh)
             self.orbs,self.orbidx = norbs(fh)
             self.ol = overlap(fh)
-        if None in (self.fm, self.orbs, self.orbidx, self.ol):
+        if 0 in (len(self.fm), len(self.orbs), len(self.orbidx), len(self.ol)):
             self.logger.error("Did not parse Orca matrix correctly.")
 
 
@@ -155,7 +155,8 @@ def fock(fh):
     for i in sorted(fockdict.keys()):
         if len(fockdict[i]) != len(fockdict):
             logger.error("Matrix alignment error: {%s} " % i, end='')
-            sys.exit()
+            return fockmatrix
+            #sys.exit()
         else:
             fockmatrix.append(fockdict[i])
     fm = np.array(fockmatrix, np.float)
