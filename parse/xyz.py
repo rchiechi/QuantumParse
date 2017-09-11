@@ -64,6 +64,7 @@ class Parser:
         if zmat:
             return zmat
         else:
+            self.logger.warn('Could not parse with cclib, falling back to internal parser')
             zmat = ZMatrix()
         if not self.begin:
             in_zmat = True
@@ -116,6 +117,8 @@ class Parser:
         try:
             fh = ccread(self.fn)
         except NameError:
+            return None
+        except IndexError:
             return None
         try:
             for i in range(0, len(fh.atomnos)):
