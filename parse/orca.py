@@ -139,13 +139,8 @@ def fock(fh):
                         ditch=True
                         continue
                 else:
-                    try:
-                        n = int(n)
-                        fl.append(n)
-                    except ValueError as msg:
-                        logger.warning('Error parsing fock matrix: %s' %str(msg))
-                        ditch=True
-                        continue
+                    n = int(n)
+                    fl.append(n)
 
             if ditch:
                 continue
