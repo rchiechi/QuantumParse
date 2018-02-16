@@ -123,6 +123,8 @@ def fock(fh):
         if iscf < scfidx:
             continue
         if infock:
+            if l == '<<< The NR Solver signals convergence >>>':
+                continue
             ditch = False
             lsf = l.split()
             fl = []
@@ -137,8 +139,14 @@ def fock(fh):
                         ditch=True
                         continue
                 else:
-                    n = int(n)
-                    fl.append(n)
+                    try:
+                        n = int(n)
+                        fl.append(n)
+                    except ValueError as msg:
+                        logger.warning('Error parsing fock matrix: %s' %str(msg))
+                        ditch=True
+                        continue
+
             if ditch:
                 continue
             if isinstance(fl[-1],float) and isinstance(fl[0],int):
