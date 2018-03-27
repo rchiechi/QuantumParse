@@ -287,6 +287,8 @@ parser.add_argument('-i','--isovalue', type=float, default=rcconfig['VMD'].getfl
     help='Cutoff for isoplots.')
 parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['electrode'].strip(), 
     help='Type of electrode, if present.')
+parser.add_argument('-q','--charge', type=int, default=0, 
+    help='Net charge on molecule.')
 #parser.add_argument('-s','--savedefaults', action='store_true', default=False, 
 #    help='Store these settings as defaults.')
 
@@ -406,7 +408,7 @@ for fn in opts.infiles:
         with open(fn, 'wt') as fh:
             fh.write('! DFT B3LYP/G LANL2DZ MOREAD NOITER\n')
             fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
-            fh.write('* xyzfile 0 1 %s.xyz\n' % gbw[:-4])
+            fh.write('* xyzfile %s 1 %s.xyz\n' % (opts.charge,gbw[:-4]))
             fh.write('%%base "%s-plot"\n' % BN)
             fh.write('%%MoInp "%s"\n' % gbw)
             fh.write('%plots\n')
