@@ -1,5 +1,29 @@
 #!/usr/bin/env python3
+'''
+Version: 1.0
+Copyright (C) 2018 Ryan Chiechi <r.c.chiechi@rug.nl>
+Description:
+        This program parses the outputs of quantum chemistry programs
+        and renders isoplots as cube files using VMD. It is mostly useful
+        for processing ORCA outputs.
 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ORCA eplot: (c) 2013 Marius Retegan
+License: BSD-2-Clause
+
+'''
 import sys,os,re,argparse,subprocess,configparser
 from collections import OrderedDict
 try:
@@ -10,17 +34,38 @@ except ImportError:
 
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 installed = [package.project_name for package in pip.get_installed_distributions()]
-required = ['colorama']
+required = ['numpy','colorama']
 for pkg in required:
     if pkg not in installed:
         print('You need to install %s to use %s.' % (pkg,prog))
         print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
         sys.exit(1)
 
+import numpy as np
 from colorama import init,Fore,Back,Style
 # Setup colors
 init(autoreset=True)
 
+
+ELEMENTS = [None,
+         "H", "He",
+         "Li", "Be",
+         "B", "C", "N", "O", "F", "Ne",
+         "Na", "Mg",
+         "Al", "Si", "P", "S", "Cl", "Ar",
+         "K", "Ca",
+         "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+         "Ga", "Ge", "As", "Se", "Br", "Kr",
+         "Rb", "Sr",
+         "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
+         "In", "Sn", "Sb", "Te", "I", "Xe",
+         "Cs", "Ba",
+         "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb",
+         "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
+         "Tl", "Pb", "Bi", "Po", "At", "Rn",
+         "Fr", "Ra",
+         "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No",
+         "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Uub"]
 
 # # # # # # # # # # # # # # # # FUNCTIONS  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -55,6 +100,7 @@ def FindBins():
 
 def GetOrbsOrca(fn):
     orbs = []
+    dft = ''
     with open(fn, 'r') as fh:
         indef = False
         inorb = False
@@ -67,6 +113,16 @@ def GetOrbsOrca(fn):
                 inorb = True
             elif '------------------' in l:
                 inorb = False
+            
+            if indef:
+                if l.strip()[0] == '|':
+                    for c in l:
+                        if c == '#':
+                            break
+                        if c == '!':
+                            dft = '! '+l.split('!')[-1].strip()
+                            break
+
             if inorb:
                 try:
                     #   NO   OCC          E(Eh)            E(eV)
@@ -74,7 +130,7 @@ def GetOrbsOrca(fn):
                     orbs.append( [int(lo[0])]+list( map(float, lo[1:]) ) )
                 except ValueError as msg:
                     continue
-    return orbs
+    return orbs,dft
 
 
 def FindGBW(fn):
@@ -85,6 +141,98 @@ def FindGBW(fn):
         if fn[:-4] == fs[:-4] and 'gbw' in fs.lower():
             return fs
 
+
+def read_xyz(xyz):
+    atoms = []
+    x = []
+    y = []
+    z = []
+    f = open(xyz, "r")
+    f.next()
+    f.next()
+    for line in f:
+        data = line.split()
+        atoms.append(data[0])
+        x.append(float(data[1]))
+        y.append(float(data[2]))
+        z.append(float(data[3]))
+    f.close()
+    return atoms, np.array(x), np.array(y), np.array(z)
+
+def OrcaEplot(BN,rccconfig,opts):
+
+    orcapath = os.path.split(rcconfig['GENERAL']['ORCApath'])[0]
+
+    npoints = opts.eplotres
+
+    ang_to_au = 1.0 / 0.5291772083
+
+    atoms, x, y, z = read_xyz("%s.xyz" % BN)
+    natoms = len(atoms)
+
+    extent = 7.0
+    xmin = x.min() * ang_to_au - extent
+    xmax = x.max() * ang_to_au + extent
+    ymin = y.min() * ang_to_au - extent
+    ymax = y.max() * ang_to_au + extent
+    zmin = z.min() * ang_to_au - extent
+    zmax = z.max() * ang_to_au + extent
+
+    mep_inp = open(BN + "_eplot.inp", "w")
+    mep_inp.write("{0:d}\n".format(npoints**3))
+    for ix in np.linspace(xmin, xmax, npoints, True):
+        for iy in np.linspace(ymin, ymax, npoints, True):
+            for iz in np.linspace(zmin, zmax, npoints, True):
+                mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
+    mep_inp.close()
+    try:
+        subprocess.check_call([ "%/orca_vpot" % orcapath, "%s.gbw" % BN , "%s.scfp" % BN,
+            "%s_eplot.inp" % BN , "%s_eplot.out" % BN])
+    except subprocess.CalledProcessError:
+        print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
+        return
+    with open("%s_eplot.out" % BN, "r") as fh:
+        _v = []
+        fh.next()
+        for line in fh:
+            _data = line.split()
+            _v.append(float(_data[3]))
+        vpot =  np.array(_v)
+
+        #vpot = read_vpot(basename + "_eplot.out")
+
+    with open("%s_eplot.cube" % BN, "w") as cube:
+        cube.write("Generated with ORCA\n")
+        cube.write("Electrostatic potential for " + BN + "\n")
+        cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
+            len(atoms), xmin, ymin, zmin))
+        cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
+            npoints, (xmax - xmin) / float(npoints - 1), 0.0, 0.0))
+        cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
+            npoints, 0.0, (ymax - ymin) / float(npoints - 1), 0.0))
+        cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
+            npoints, 0.0, 0.0, (zmax - zmin) / float(npoints - 1)))
+        for i, atom in enumerate(atoms):
+            index = elements.index(atom)
+            cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}{4:12.6f}\n".format(
+                index, 0.0, x[i] * ang_to_au, y[i] * ang_to_au, z[i] * ang_to_au))
+
+        m = 0
+        n = 0
+        vpot = np.reshape(vpot, (npoints, npoints, npoints))
+        for ix in range(npoints):
+            for iy in range(npoints):
+                for iz in range(npoints):
+                    cube.write("{0:14.5e}".format(vpot[ix][iy][iz]))
+                    m += 1
+                    n += 1
+                    if (n > 5):
+                        cube.write("\n")
+                        n = 0
+                if n != 0:
+                    cube.write("\n")
+                    n = 0
+    print("Wrote eplot to %s_eplot.cube" % BN)
 
 #def GetOrbsNwchem(fn):
 #    orbs = []
@@ -125,13 +273,19 @@ def FindGBW(fn):
 #
 #    return dplot_homo, dplot_lumo
 
-def writeVMD(fn):
+def writeVMD(fn,opts,BN):
     with open(fn,'wt') as fh:
         mols = -1
         for o in ORBS:
             fh.write('mol new "%s/%s.cube"\n' % (os.getcwd(),ORBS[o][2]))
             mols += 1
             fh.write('mol rename %s %s\n' % (mols,o))
+        if opts.eplot:
+            fh.write('mol new "%s/%s_eplot.cube"\n' % (os.getcwd(),BN))
+            fh.write('mol rename %s eplot\n' % (mols+1))
+        if opts.spindens:
+            fh.write('mol new "%s/%s_spindens.cube"\n' % (os.getcwd(),BN))
+            fh.write('mol rename %s spindens\n' % (mols+2))
         fh.write('rotate y by 90\n')
         fh.write('axes location off\n')
         fh.write('display projection orthographic\n')
@@ -266,7 +420,13 @@ parser = argparse.ArgumentParser(description=desc,
 parser.add_argument('infiles', type=str, nargs='*', default=[], 
     help='Output file to parse.')
 parser.add_argument('-o', '--orbs', type=str, nargs='*', default=rcconfig['GENERAL']['orbs'].replace(' ','').split(','), 
-    help='Orbitals to render (e.g., HOMO-1, LUMO+1.')
+    help='Orbitals to render (e.g., HOMO-1, LUMO+1).')
+parser.add_argument('--eplot', action='store_true', default=False, 
+    help='Generate an electrostatic potential isoplot.')
+parser.add_argument('--spindens', action='store_true', default=False, 
+    help='Generate a spin density plot.')
+parser.add_argument('--eplotres', type=int, default=40, 
+    help='Grid density of eplot (80 will take forever, but give a smooth plot).')
 parser.add_argument('-r','--render', action='store_true',  default=rcconfig['GENERAL'].getboolean('render'), 
     help='If the appropriate programs are found, render the orbitals automatically.')
 parser.add_argument('-g','--gbw', type=str,  default='guess', 
@@ -370,7 +530,7 @@ for fn in opts.infiles:
     
     elif PROG=='orca':
         try:
-            orbs = GetOrbsOrca(fn)
+            orbs,dft = GetOrbsOrca(fn)
             if opts.gbw != 'guess':
                 gbw = opts.gbw
             else:
@@ -397,7 +557,7 @@ for fn in opts.infiles:
                         offset = int(o.split('-')[-1])+1
                         ORBS[o] = (orbs[i-offset][0],orbs[i-offset][3],BN+'_'+o)
                 break
-        if not ORBS:
+        if not ORBS and (not opts.eplot and not opts.spindens):
             print(Fore.RED+"No orbitals selected!")
             continue
         for o in ORBS:
@@ -406,7 +566,8 @@ for fn in opts.infiles:
         RUNORCA=False
         fn = '%s_plot.inp' % BN
         with open(fn, 'wt') as fh:
-            fh.write('! DFT B3LYP/G LANL2DZ MOREAD NOITER\n')
+            fh.write('%s MOREAD NOITER\n' % dft)
+            fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
             fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
             fh.write('* xyzfile %s 1 %s.xyz\n' % (opts.charge,gbw[:-4]))
             fh.write('%%base "%s-plot"\n' % BN)
@@ -416,6 +577,14 @@ for fn in opts.infiles:
             fh.write('dim2  128   # resolution in y-direction\n')
             fh.write('dim3  128   # resolution in z-direction\n')
             fh.write('Format Gaussian_Cube\n')
+            if opts.eplot:
+                fh.write('ElDens("%s_eldens.cube"); # Electron density\n' % BN )
+                if not os.path.exists("%s_eldens.cube" % BN):
+                    RUNORCA=True
+            if opts.spindens:
+                fh.write('SpinDens("%s_spindens.cube"); # Spin density\n' % BN )
+                if not os.path.exists("%s_spindens.cube" % BN):
+                    RUNORCA=True
             for o in ORBS:
                 fh.write('MO("%s.cube",%s,0);  # orbital to plot\n' % (ORBS[o][2],ORBS[o][0]))
                 if not os.path.exists("%s.cube" % ORBS[o][2]):
@@ -423,10 +592,10 @@ for fn in opts.infiles:
             fh.write('end\n')
         print(Fore.GREEN+Style.BRIGHT+"Wrote %s" % fn)
         tclfn = fn[:-4]+'_vmd.tcl'
-        writeVMD(tclfn)
+        writeVMD(tclfn,opts,BN)
         orcasuccess=False
         print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
-        if opts.render and opts.ORCApath and RUNORCA:
+        if ((opts.render and opts.ORCApath) or opts.eplot or opts.spindens) and RUNORCA:
             print(Fore.CYAN+'Starting orca...')
             p = subprocess.run([opts.ORCApath,fn],stdout=subprocess.PIPE)
             if b'****ORCA TERMINATED NORMALLY****' in p.stdout:
@@ -439,6 +608,9 @@ for fn in opts.infiles:
             orcasuccess = True
             print(Fore.BLUE+"Skipping Orca run because cube files already exist.")
         print(Fore.BLUE+Back.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # #')
+
+        if orcasuccess and opts.eplot:
+            OrcaEplot(BN,rcconfig,opts)
 
         if opts.render and opts.VMDpath and orcasuccess:
             subprocess.run([opts.VMDpath, '-e', tclfn])
