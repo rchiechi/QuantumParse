@@ -147,8 +147,10 @@ def read_xyz(xyz):
     x = []
     y = []
     z = []
-    with open(xyz, "r") as f:
-        for line in f:
+    with open(xyz, "r") as fh:
+        next(fh)
+        next(fh)
+        for line in fh:
             data = line.split()
             atoms.append(data[0])
             x.append(float(data[1]))
@@ -190,7 +192,7 @@ def OrcaEplot(BN,rccconfig,opts):
         return
     with open("%s_eplot.out" % BN, "r") as fh:
         _v = []
-        fh.next()
+        next(fh)
         for line in fh:
             _data = line.split()
             _v.append(float(_data[3]))
