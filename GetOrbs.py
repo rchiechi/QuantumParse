@@ -87,7 +87,11 @@ def FindBins():
         p = subprocess.run(['which', b],stdout=subprocess.PIPE)
         if p.returncode == 0:
             orcabin=p.stdout.strip()
-
+    vpotbin=''
+    p = subprocess.run(['which', 'orca_vpot'],stdout=subprocess.PIPE)
+    if p.returncode == 0:
+        vpotbin=p.stdout.strip()
+    
     if os.path.exists(vmdbin):
         print(Fore.YELLOW+"Found VMD: %s" % vmdbin)
     else:
@@ -96,7 +100,7 @@ def FindBins():
         print(Fore.YELLOW+"Found Orca: %s" % orcabin)
     else:
         print(Fore.RED+"Orca was not found, specify the path if you want to generate cube files automatically.")
-    return orcabin,vmdbin
+    return orcabin,vpotbin,vmdbin
 
 def GetOrbsOrca(fn):
     orbs = []
@@ -160,7 +164,7 @@ def read_xyz(xyz):
 
 def OrcaEplot(BN,rccconfig,opts):
 
-    orcapath = os.path.split(rcconfig['GENERAL']['ORCApath'])[0]
+    vpotbin = rcconfig['GENERAL']['ORCAvpot']
 
     npoints = opts.eplotres
 
@@ -185,7 +189,7 @@ def OrcaEplot(BN,rccconfig,opts):
                 mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
     mep_inp.close()
     try:
-        subprocess.check_call([ "%s/orca_vpot" % orcapath, "%s.gbw" % BN , "%s.scfp" % BN,
+        subprocess.check_call([ vpotbin, "%s.gbw" % BN , "%s.scfp" % BN,
             "%s_eplot.inp" % BN , "%s_eplot.out" % BN])
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
@@ -383,8 +387,9 @@ VMDMETHODS=('Lines','Bonds','DynamicBonds','HBonds',
 # Parse config file
 rcconfig = configparser.ConfigParser()
 if not rcconfig.read(RCFILE):
-    orcabin,vmdbin = FindBins()
+    orcabin,vpotbin,vmdbin = FindBins()
     rcconfig['GENERAL'] = {'ORCApath':orcabin,
+                           'ORCAvpot': vpotbin,
                            'VMDpath':vmdbin,
                            'render':'no',
                            'orbs':'HOMO, LUMO'}
