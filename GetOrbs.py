@@ -410,7 +410,7 @@ else:
     print(Fore.GREEN+'Read defaults from %s' % RCFILE)
 
 # Convert binary strings to paths
-for path in ('VMDpath','ORCApath'):
+for path in ('VMDpath','ORCAvpot','ORCApath'):
     if "b'" not in rcconfig['GENERAL'][path]:
             continue
     m = re.match('^b?[\'"](.*)[\'"]', rcconfig['GENERAL'][path])
