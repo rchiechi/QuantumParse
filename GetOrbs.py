@@ -100,6 +100,10 @@ def FindBins():
         print(Fore.YELLOW+"Found Orca: %s" % orcabin)
     else:
         print(Fore.RED+"Orca was not found, specify the path if you want to generate cube files automatically.")
+    if os.path.exists(orcavpot):
+        print(Fore.YELLOW+"Found orca_vpot: %s" % orcavpot)
+    else:
+        print(Fore.RED+"orca_vpot was not found, specify the path if you want to compute eplots.")
     return orcabin,vpotbin,vmdbin
 
 def GetOrbsOrca(fn):
