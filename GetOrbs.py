@@ -220,7 +220,7 @@ def OrcaEplot(BN,rccconfig,opts):
         cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
             npoints, 0.0, 0.0, (zmax - zmin) / float(npoints - 1)))
         for i, atom in enumerate(atoms):
-            index = elements.index(atom)
+            index = ELEMENTS.index(atom)
             cube.write("{0:5d}{1:12.6f}{2:12.6f}{3:12.6f}{4:12.6f}\n".format(
                 index, 0.0, x[i] * ang_to_au, y[i] * ang_to_au, z[i] * ang_to_au))
 
