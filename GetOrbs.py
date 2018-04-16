@@ -130,7 +130,7 @@ def GetOrbsOrca(fn):
                             break
                         if c == '!':
                             dft = '! '+l.split('!')[-1].strip()
-                            if PAL not in dft:
+                            if 'PAL' not in dft:
                                 dft += " PAL%s" % cpu_count()
                             break
 
