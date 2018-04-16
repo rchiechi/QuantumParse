@@ -34,13 +34,14 @@ except ImportError:
 
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 installed = [package.project_name for package in pip.get_installed_distributions()]
-required = ['numpy','colorama']
+required = ['numpy','colorama','psutil']
 for pkg in required:
     if pkg not in installed:
         print('You need to install %s to use %s.' % (pkg,prog))
         print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
         sys.exit(1)
 
+from psutil import cpu_count
 import numpy as np
 from colorama import init,Fore,Back,Style
 # Setup colors
@@ -129,6 +130,8 @@ def GetOrbsOrca(fn):
                             break
                         if c == '!':
                             dft = '! '+l.split('!')[-1].strip()
+                            if PAL not in dft:
+                                dft += " PAL%s" % cpu_count()
                             break
 
             if inorb:
@@ -574,7 +577,7 @@ for fn in opts.infiles:
         RUNORCA=False
         fn = '%s_plot.inp' % BN
         with open(fn, 'wt') as fh:
-            fh.write('%s MOREAD NOITER\n' % dft)
+            fh.write('%s MOREAD NOITER KEEPDENS\n' % dft)
             fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
             fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
             fh.write('* xyzfile %s 1 %s.xyz\n' % (opts.charge,gbw[:-4]))
