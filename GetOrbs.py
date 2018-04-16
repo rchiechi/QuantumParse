@@ -196,7 +196,7 @@ def OrcaEplot(BN,rccconfig,opts):
                 mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
     mep_inp.close()
     try:
-        subprocess.check_call([ vpotbin, "%s.gbw" % BN , "%s.scfp" % BN,
+        subprocess.check_call([ vpotbin, "%s.gbw" % BN , "%s-plot.scfp" % BN,
             "%s_eplot.inp" % BN , "%s_eplot.out" % BN])
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
