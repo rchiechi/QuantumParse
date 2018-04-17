@@ -137,6 +137,7 @@ def GetOrbsOrca(fn,opts):
                         if c == '!':
                             dft = '! '+l.split('!')[-1].strip()
                             if 'PAL' not in dft and not opts.pal:
+                                print("Using PAL")
                                 dft += " PAL%s" % cpu_count()
                             if 'MOREAD' not in dft:
                                 dft += " MOREAD"
