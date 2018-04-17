@@ -26,24 +26,30 @@ License: BSD-2-Clause
 '''
 import sys,os,re,argparse,subprocess,configparser
 from collections import OrderedDict
-try:
-    import pip
-except ImportError:
-    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
-    sys.exit(1)
+#try:
+#    import pip
+#except ImportError:
+#    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
+#    sys.exit(1)
 
 prog = os.path.basename(sys.argv[0]).replace('.py','')
-installed = [package.project_name for package in pip.get_installed_distributions()]
-required = ['numpy','colorama','psutil']
-for pkg in required:
-    if pkg not in installed:
-        print('You need to install %s to use %s.' % (pkg,prog))
-        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
-        sys.exit(1)
 
-from psutil import cpu_count
-import numpy as np
-from colorama import init,Fore,Back,Style
+#installed = [package.project_name for package in pip.get_installed_distributions()]
+#required = ['numpy','colorama','psutil']
+#for pkg in required:
+#    if pkg not in installed:
+#        print('You need to install %s to use %s.' % (pkg,prog))
+#        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
+#        sys.exit(1)
+try:
+    from psutil import cpu_count
+    import numpy as np
+    from colorama import init,Fore,Back,Style
+except ModuleNotFoundError as msg:
+    print('You need to install additional pacakges, e.g., sudo -H pip3 install --upgrade <package>')
+    print(msg)
+    sys.exit(1)
+
 # Setup colors
 init(autoreset=True)
 
