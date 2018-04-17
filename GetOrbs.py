@@ -113,7 +113,7 @@ def FindBins():
         print(Fore.RED+"orca_vpot was not found, specify the path if you want to compute eplots.")
     return orcabin,vpotbin,vmdbin
 
-def GetOrbsOrca(fn):
+def GetOrbsOrca(fn,opts):
     orbs = []
     dft = ''
     with open(fn, 'r') as fh:
@@ -136,7 +136,7 @@ def GetOrbsOrca(fn):
                             break
                         if c == '!':
                             dft = '! '+l.split('!')[-1].strip()
-                            if 'PAL' not in dft:
+                            if 'PAL' not in dft and not opts.pal:
                                 dft += " PAL%s" % cpu_count()
                             if 'MOREAD' not in dft:
                                 dft += " MOREAD"
@@ -455,6 +455,8 @@ parser.add_argument('--eplotres', type=int, default=40,
     help='Grid density of eplot (80 will take forever, but give a smooth plot).')
 parser.add_argument('-r','--render', action='store_true',  default=rcconfig['GENERAL'].getboolean('render'), 
     help='If the appropriate programs are found, render the orbitals automatically.')
+parser.add_argument('--pal', action='store_true', default=False, 
+    help='Use parallel/mpi Orca.')
 parser.add_argument('-g','--gbw', type=str,  default='guess', 
     help='Manually specify a GBW file instead of guessing from output file.')
 parser.add_argument('-O','--ORCApath', type=str, default=rcconfig['GENERAL']['ORCApath'], 
@@ -556,7 +558,7 @@ for fn in opts.infiles:
     
     elif PROG=='orca':
         try:
-            orbs,dft = GetOrbsOrca(fn)
+            orbs,dft = GetOrbsOrca(fn,opts)
             if opts.gbw != 'guess':
                 gbw = opts.gbw
             else:
