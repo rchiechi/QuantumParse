@@ -305,7 +305,14 @@ def writeVMD(fn,opts,BN):
         fh.write('mol modstyle 1 0 %s 1 37\n' % opts.electrodemethod)
         fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
         fh.write('mol modcolor 1 0 Element\n')
-        for m in range(0,mols+1): 
+        
+        _max=1
+        if opts.eplot:
+            _max=2
+        if opts.spindens:
+            _max=3
+
+        for m in range(0,mols+_max): 
             if m == 0: i = 2
             else: i = 0
             fh.write('mol addrep %s\n' % m) 
@@ -317,7 +324,7 @@ def writeVMD(fn,opts,BN):
             fh.write('mol modcolor %s %s ColorID %s\n' % (i+1,m,VMDCOLORS[opts.colors[1]]))
             fh.write('mol modmaterial %s %s %s\n' % (i+1,m,opts.material))
         if mols > 0:
-            for m in range(1,mols+1):
+            for m in range(1,mols+_max):
                 fh.write('mol delrep 2 %s\n' % m)
                 fh.write('mol showrep %s %s off\n' % (m,0))
                 fh.write('mol showrep %s %s off\n' % (m,1))
@@ -621,7 +628,10 @@ for fn in opts.infiles:
         print(Fore.BLUE+Back.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # #')
 
         if orcasuccess and opts.eplot:
-            OrcaEplot(BN,rcconfig,opts)
+            if os.path.exists("%s_eplot.cube" % BN):
+                print(Fore.BLUE+"Skipping vpot run because cube files already exist.")
+            else:
+                OrcaEplot(BN,rcconfig,opts)
 
         if opts.render and opts.VMDpath and orcasuccess:
             subprocess.run([opts.VMDpath, '-e', tclfn])
