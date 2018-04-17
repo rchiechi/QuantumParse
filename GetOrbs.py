@@ -138,6 +138,8 @@ def GetOrbsOrca(fn):
                             dft = '! '+l.split('!')[-1].strip()
                             if 'PAL' not in dft:
                                 dft += " PAL%s" % cpu_count()
+                            if 'MOREAD' not in dft:
+                                dft += " MOREAD"
                             break
 
             if inorb:
@@ -590,7 +592,7 @@ for fn in opts.infiles:
         RUNORCA=False
         fn = '%s_plot.inp' % BN
         with open(fn, 'wt') as fh:
-            fh.write('%s MOREAD NOITER KEEPDENS\n' % dft)
+            fh.write('%s NOITER KEEPDENS\n' % dft)
             fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
             fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
             fh.write('* xyzfile %s 1 %s.xyz\n' % (opts.charge,gbw[:-4]))
