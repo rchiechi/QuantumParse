@@ -11,11 +11,11 @@ class Writer(xyz.Writer):
         with open(fn,'wt') as fh:
             if self.opts.transport:
                 fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv TIGHTSCF\n') 
-                fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 SlowConv\n# # #\n') 
+                fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP LANL2 vdwgrid3 SlowConv\n# # #\n') 
                 fh.write('%scf MaxIter 1000 end\n') 
             else:
                 fh.write('! DFT B3LYP/G Def2-TZVP def2-TZVP\n') 
-                fh.write('# # # ORCA 3\n#! DFT B3LYP/G Def2-TZVP ECP{def2-TZVP}\n# # #\n') 
+                fh.write('# # # ORCA 3\n#! DFT B3LYP/G Def2-TZVP def2-TZVP\n# # #\n') 
             fh.write('#! NRSCF\n') 
             fh.write('#! AHSCF\n') 
             fh.write('#%method SFitInvertType Diag_Q end\n')
@@ -33,7 +33,7 @@ class Writer(xyz.Writer):
             if self.opts.transport:
                 fh.write('\n$new_job\n')
                 fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv TIGHTSCF MOREAD\n') 
-                fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n# # #\n') 
+                fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP LANL2 vdwgrid3 MOREAD\n# # #\n') 
                 fh.write('%scf MaxIter 10 end\n')
                 fh.write('#%method SFitInvertType Diag_Q end\n')
                 fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name) )
