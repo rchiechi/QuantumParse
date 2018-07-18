@@ -379,6 +379,11 @@ def writeCubeVMD(fn,cube):
         fh.write('mol modcolor %s %s ColorID %s\n' % (i+1,m,VMDCOLORS[opts.colors[1]]))
         fh.write('mol modmaterial %s %s %s\n' % (i+1,m,opts.material))
         fh.write('menu graphics on\n')
+        fh.write('color Display Background white\n')
+        fh.write('color Display FPS black\n')
+        fh.write('color Axes Labels black\n')
+
+    
     print(Fore.GREEN+Style.BRIGHT+'Wrote %s' % fn)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
