@@ -44,6 +44,7 @@ class Parser(xyz.Parser):
     def __dotransport(self):
         self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
         with open(self.fn) as fh:
+            #TODO Deal with unrestricted calculations
             self.fm = fock(fh)
             self.orbs,self.orbidx = norbs(fh)
             self.ol = overlap(fh)
@@ -82,9 +83,10 @@ def overlap(fh):
             % (Fore.YELLOW,Fore.GREEN,len(ovdict),Fore.YELLOW,Fore.GREEN,len(ovdict[0]),Style.RESET_ALL) )
     return np.array(list(ovdict.values()),np.float)
 
-def fock(fh):
+def fock(fh, spin=0):
     fh.seek(0)
-    key = 'Fock matrix for operator'
+    key = 'Fock matrix for operator %s' % spin
+    endkey = 'Fock matrix for operator %s' % abs(spin-1)
     fockdict = {}
     norb = [0]
     infock = False
@@ -117,7 +119,7 @@ def fock(fh):
             fockdict = {}
             norb = [0]
             continue
-        elif '*' in l and infock:
+        elif ('*' in l or endkey in l) and infock:
             infock = False
             continue
         if iscf < scfidx:
