@@ -143,7 +143,7 @@ class Writer(xyz.Writer):
         __fortranformat('overlap', self.parser.ol)
         __fortranformat('hamiltonian.1', self.parser.fm)
         if self.opts.unrestricted:
-            __fortranformat('hamiltonian.2', self.parser.fm_beta)
+            __fortranformat('hamiltonian.2', self.parser.fm_beta) # WARNING: NOt implemented!
         #with open('hamiltonian.1', 'wt') as fh:
         #    self.logger.info('Writing Hamiltonian...')
         #    i = 0
@@ -166,21 +166,23 @@ class Writer(xyz.Writer):
         #with open('hamiltonian.1', 'wt') as fh:
             #self.logger.info('Writing hamiltonian...')
             #fh.write(lineformat.write(fock))
-        with open('hamiltonian.1', 'wt') as fh:
-            self.logger.info('Writing hamiltonian...')
-            i = 0
-            for (x,y), value in np.ndenumerate(self.parser.fm):
-                print('%s,%s' % (x,y), end='\r')
-                fock.append(value)
-                #overlap.append(self.parser.ol[x,y])
-                #fock.append(self.parser.fm[x,y])
-                if i == 4:
-                    i = 0
-                    fock = []
-                    fh.write('\n')
-                fh.write(lineformat.write(fock))
+        
+#        with open('hamiltonian.1', 'wt') as fh:
+#            self.logger.info('Writing hamiltonian...')
+#            i = 0
+#            for (x,y), value in np.ndenumerate(self.parser.fm):
+#                print('%s,%s' % (x,y), end='\r')
+#                fock.append(value)
+#                #overlap.append(self.parser.ol[x,y])
+#                #fock.append(self.parser.fm[x,y])
+#                if i == 4:
+#                    i = 0
+#                    fock = []
+#                    fh.write('\n')
+#                fh.write(lineformat.write(fock))
         
     def writeOrcatransport(self):
+        
         
         nb = self.parser.fm.shape[0]
         self.__countiorb(nb)
@@ -193,6 +195,20 @@ class Writer(xyz.Writer):
                     if l >= 4:
                         fh.write("\n")
                         l = 0
+        #TODO FIX THIS
+        if self.opts.unrestricted:
+            nb_beta = self.parser.fm_beta.shape[0]
+            self.__countiorb(nb_beta)
+            with open('hamiltonian.2', 'wt') as fh:
+                l = 0
+                for i in range(0,nb_beta):
+                    for n in range(0,nb_beta):
+                        fh.write("%s\t" % self.parser.fm_beta[i][n])
+                        l += 1
+                        if l >= 4:
+                            fh.write("\n")
+                            l = 0
+
         with open('overlap', 'wt') as fh:
             l = 0
             for i in range(0,nb):
