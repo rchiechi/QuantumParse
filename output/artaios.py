@@ -38,8 +38,8 @@ class Writer(xyz.Writer):
 
     def __writetransport(self):
         if not self.parser.haselectrodes():
-            self.logger.error('Did not parse any electrodes.')
-            return
+            self.logger.warn('Did not parse any electrodes.')
+            #return
         self.logger.info('Writing %s' % self.transport)
         #fp = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
         fp = os.path.join(os.path.split(self.parser.fn)[0],self.transport)
