@@ -52,7 +52,9 @@ parser.add_argument('-o','--outformat', required=True,
     choices = writers,
     help="Output file format.")
 parser.add_argument('--unrestricted', action='store_true', default=False,
-    help="Generate Alpha and Beta fock matrices for Artaios (tested with orca).")
+    help="Generate Alpha and Beta fock matrices for Artaios.")
+parser.add_argument('--nocclib', action='store_true', default=False,
+    help="Do not try cclib parser.")
 parser.add_argument('--overwrite', action='store_true', default=False,
     help="Overwrite output files without asking.")
 parser.add_argument('-s','--sortaxis', default=None,

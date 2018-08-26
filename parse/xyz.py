@@ -60,7 +60,10 @@ class Parser:
 
     def _parsezmat(self):
         self.logger.debug('Building zmatrix...')
-        zmat = self._cclibparse()
+        if self.opts.nocclib:
+            zmat = None
+        else:
+            zmat = self._cclibparse()
         if zmat:
             return zmat
         else:
