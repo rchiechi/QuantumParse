@@ -59,7 +59,10 @@ class Writer(xyz.Writer):
             fh.write('  steps 200\n')
             fh.write('$end\n\n')
             fh.write('$system\n')
-            fh.write('  nspin  %i\n' % xyz.Writer.getMultiplicity(self.parser.zmat))
+            if self.opts.unrestricted:
+                fh.write('  nspin  2\n')
+            else:
+                fh.write('  nspin  %i\n' % xyz.Writer.getMultiplicity(self.parser.zmat))
             fh.write('$end\n\n')
             fh.write('$electrodes\n')
             fh.write('  self_energy wbl\n')
@@ -135,6 +138,8 @@ class Writer(xyz.Writer):
                     fh.write('\n')
         __fortranformat('overlap', self.parser.ol)
         __fortranformat('hamiltonian.1', self.parser.fm)
+        if self.opts.unrestricted:
+            __fortranformat('hamiltonian.2', self.parser.fm_beta)
         #with open('hamiltonian.1', 'wt') as fh:
         #    self.logger.info('Writing Hamiltonian...')
         #    i = 0

@@ -23,7 +23,7 @@ prog = os.path.basename(sys.argv[0]).replace('.py','')
 import argparse
 import logging
 import importlib
-from colorama import init,Fore,Back,Style
+from colorama import init,Fore,Style
 
 # Setup colors
 init(autoreset=True)
@@ -51,6 +51,8 @@ parser.add_argument('-i','--informat', default='guess',
 parser.add_argument('-o','--outformat', required=True,
     choices = writers,
     help="Output file format.")
+parser.add_argument('--unrestricted', action='store_true', default=False,
+    help="Generate Alpha and Beta fock matrices for Artaios (tested with orca).")
 parser.add_argument('--overwrite', action='store_true', default=False,
     help="Overwrite output files without asking.")
 parser.add_argument('-s','--sortaxis', default=None,

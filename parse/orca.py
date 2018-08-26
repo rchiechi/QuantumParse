@@ -46,6 +46,10 @@ class Parser(xyz.Parser):
         with open(self.fn) as fh:
             #TODO Deal with unrestricted calculations
             self.fm = fock(fh)
+            if self.opts.unrestricted:
+                self.fm_beta = fock(fh,1)
+            else:
+                self.fm_beta = None
             self.orbs,self.orbidx = norbs(fh)
             self.ol = overlap(fh)
         if 0 in (len(self.fm), len(self.orbs), len(self.orbidx), len(self.ol)):
