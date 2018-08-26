@@ -25,9 +25,13 @@ class Writer(xyz.Writer):
         if subprocess.run(['which', 'g09_2unform'],stdout=subprocess.PIPE).returncode != 0:
             self.logger.error("g09_2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
             self.WriteGaussiantransport()
-            return None 
+            return None
+        if self.opts.unrestricted:
+            spin=2
+        else:
+            spin=1
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
-        p = subprocess.run(['g09_2unform',self.parser.fn,'1',os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
+        p = subprocess.run(['g09_2unform',self.parser.fn,spin,os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
