@@ -27,9 +27,9 @@ class Writer(xyz.Writer):
             self.WriteGaussiantransport()
             return None
         if self.opts.unrestricted:
-            spin=2
+            spin="2"
         else:
-            spin=1
+            spin="1"
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
         p = subprocess.run(['g09_2unform',self.parser.fn,spin,os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
         for l in str(p.stdout,encoding='utf-8').split('\n'):
