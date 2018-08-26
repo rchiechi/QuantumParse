@@ -12,10 +12,10 @@ class Writer(xyz.Writer):
     #TODO Orca is a mess
 
     def write(self):
-        self.spin = "1"
+        self.spin = 1
         if self.opts.unrestricted:
             self.logger.warn("Unrestricted calculation.")
-            self.spin = "2"
+            self.spin = 2
         self.transport = self.jobname+'.transport.in'
         self.logger.debug('Writing to %s' % self.transport)
         if self.opts.informat == 'gaussian':
@@ -31,7 +31,7 @@ class Writer(xyz.Writer):
             self.WriteGaussiantransport()
             return None
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
-        p = subprocess.run(['g09_2unform',self.parser.fn,self.spin,os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
+        p = subprocess.run(['g09_2unform',self.parser.fn,str(self.spin),os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
