@@ -12,6 +12,8 @@ class Writer(xyz.Writer):
     #TODO Orca is a mess
 
     def write(self):
+        if self.opts.unrestricted:
+            logger.warn("Unrestricted calculation.")
         self.transport = self.jobname+'.transport.in'
         self.logger.debug('Writing to %s' % self.transport)
         if self.opts.informat == 'gaussian':
