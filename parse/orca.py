@@ -47,6 +47,7 @@ class Parser(xyz.Parser):
             #TODO Deal with unrestricted calculations
             self.fm = fock(fh)
             if self.opts.unrestricted:
+                self.logger.debug("Parsing unrestricted calculation")
                 self.fm_beta = fock(fh,1)
             else:
                 self.fm_beta = None

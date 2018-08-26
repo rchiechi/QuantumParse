@@ -12,8 +12,10 @@ class Writer(xyz.Writer):
     #TODO Orca is a mess
 
     def write(self):
+        self.spin = "1"
         if self.opts.unrestricted:
-            logger.warn("Unrestricted calculation.")
+            self.logger.warn("Unrestricted calculation.")
+            self.spin = "2"
         self.transport = self.jobname+'.transport.in'
         self.logger.debug('Writing to %s' % self.transport)
         if self.opts.informat == 'gaussian':
@@ -28,12 +30,8 @@ class Writer(xyz.Writer):
             self.logger.error("g09_2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
             self.WriteGaussiantransport()
             return None
-        if self.opts.unrestricted:
-            spin="2"
-        else:
-            spin="1"
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
-        p = subprocess.run(['g09_2unform',self.parser.fn,spin,os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
+        p = subprocess.run(['g09_2unform',self.parser.fn,self.spin,os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
@@ -65,10 +63,10 @@ class Writer(xyz.Writer):
             fh.write('  steps 200\n')
             fh.write('$end\n\n')
             fh.write('$system\n')
-            if self.opts.unrestricted:
-                fh.write('  nspin  2\n')
-            else:
-                fh.write('  nspin  %i\n' % xyz.Writer.getMultiplicity(self.parser.zmat))
+            #if self.opts.unrestricted:
+            fh.write('  nspin  %i\n' % self.spin)
+            #else:
+            #    fh.write('  nspin  %i\n' % xyz.Writer.getMultiplicity(self.parser.zmat))
             fh.write('$end\n\n')
             fh.write('$electrodes\n')
             fh.write('  self_energy wbl\n')
@@ -240,7 +238,7 @@ class Writer(xyz.Writer):
                     "   centralbas %s-%s #CHECK THIS!" % tuple(guessorbs["M"]), \
                     "   rightbas %s-%s #CHECK THIS!" % tuple(guessorbs["R"]),"$end"])
             self.__wrblock(fh,["$energy_range","  start  -8.0","   end     -1.0", "   steps 200", "$end"])
-            self.__wrblock(fh,["$system","   nspin  1","$end"])
+            self.__wrblock(fh,["$system","   nspin  %i" % self.spin,"$end"])
             self.__wrblock(fh,["$electrodes", "   self_energy wbl","   dos_s 0.036", '   fermi_level -5.0', "$end"])
             self.__wrblock(fh,["$general", '  do_transport', '  unit   eV', '  modelham', '  loewdin_central', \
                                '  qcprog gen', '#  conductance', '$end'])
