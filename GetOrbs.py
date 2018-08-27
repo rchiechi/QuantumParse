@@ -114,20 +114,28 @@ def FindBins():
     return orcabin,vpotbin,vmdbin
 
 def GetOrbsOrca(fn,opts):
-    orbs = []
+    orbs = {'nospin':[], 'alpha':[], 'beta':[]}
     dft = ''
     with open(fn, 'r') as fh:
         indef = False
-        inorb = False
+        inorbs = True
+        inalphaorb = False
+        inbetaorb = False
         for l in fh:
             if 'INPUT FILE' in l:
                 indef = True
             elif '****END OF INPUT****' in l:
                 indef = False
             if 'ORBITAL ENERGIES' in l:
-                inorb = True
-            elif '------------------' in l:
-                inorb = False
+                inorbs = True
+            if 'SPIN UP ORBITALS' in l:
+                inalphaorb = True
+                inbetaorb = False
+            if 'SPIN DOWN ORBITALS' in l:
+                inalphaorb = False
+                inbetaorb = True
+            elif ('------------------' in l) or ('********' in l):
+                inbetaorb, inalphaorb, inorbs = False, False, False
             
             if indef:
                 if l.strip()[0] == '|':
@@ -142,14 +150,59 @@ def GetOrbsOrca(fn,opts):
                                 dft += " MOREAD"
                             break
 
-            if inorb:
+            if inalphaorb or inbetaorb or inorbs:
+                if inalphaorb:
+                    key = 'alpha'
+                elif inbetaorb:
+                    key = 'beta'
+                else:
+                    key = 'nospin'
                 try:
                     #   NO   OCC          E(Eh)            E(eV)
                     lo = re.split('\s+', l.strip())
-                    orbs.append( [int(lo[0])]+list( map(float, lo[1:]) ) )
+                    orbs[key].append( [int(lo[0])]+list( map(float, lo[1:]) ) )
                 except ValueError:
                     continue
+    
     return orbs,dft
+
+#def GetOrbsOrca(fn,opts):
+#    orbs = []
+#    dft = ''
+#    with open(fn, 'r') as fh:
+#        indef = False
+#        inorb = False
+#        for l in fh:
+#            if 'INPUT FILE' in l:
+#                indef = True
+#            elif '****END OF INPUT****' in l:
+#                indef = False
+#            if 'ORBITAL ENERGIES' in l:
+#                inorb = True
+#            elif '------------------' in l:
+#                inorb = False
+#            
+#            if indef:
+#                if l.strip()[0] == '|':
+#                    for c in l:
+#                        if c == '#':
+#                            break
+#                        if c == '!':
+#                            dft = '! '+l.split('!')[-1].strip()
+#                            if 'PAL' not in dft and opts.pal:
+#                                dft += " PAL%s" % cpu_count()
+#                            if 'MOREAD' not in dft:
+#                                dft += " MOREAD"
+#                            break
+#
+#            if inorb:
+#                try:
+#                    #   NO   OCC          E(Eh)            E(eV)
+#                    lo = re.split('\s+', l.strip())
+#                    orbs.append( [int(lo[0])]+list( map(float, lo[1:]) ) )
+#                except ValueError:
+#                    continue
+#    return orbs,dft
 
 
 def FindGBW(fn):
@@ -186,7 +239,7 @@ def OrcaEplot(BN,rccconfig,opts):
     ang_to_au = 1.0 / 0.5291772083
 
     atoms, x, y, z = read_xyz("%s.xyz" % BN)
-    natoms = len(atoms)
+#    natoms = len(atoms)
 
     extent = 7.0
     xmin = x.min() * ang_to_au - extent
@@ -568,6 +621,29 @@ for fn in opts.infiles:
 
     
     elif PROG=='orca':
+        
+        def _printorbs(key):
+            __orbs = orbs[key]
+            for i in range(0,len(__orbs)):
+                if __orbs[i][1] == 0:
+                    for o in opts.orbs:
+                        if o.upper() == 'LUMO':
+                            ORBS[o] = (__orbs[i][0],__orbs[i][3],BN+'_'+o)
+                        if 'LUMO+' in o.upper():
+                            offset = int(o.split('+')[-1])
+                            ORBS[o] = (__orbs[i+offset][0],__orbs[i+offset][3],BN+'_'+o)
+                        if o.upper() == 'HOMO':
+                            ORBS[o] = (__orbs[i-1][0],__orbs[i-1][3],BN+'_'+o)
+                        if 'HOMO-' in o.upper():
+                            offset = int(o.split('-')[-1])+1
+                            ORBS[o] = (__orbs[i-offset][0],__orbs[i-offset][3],BN+'_'+o)
+                    break
+            if not ORBS and (not opts.eplot and not opts.spindens):
+                print(Fore.RED+"No orbitals selected!")
+                return
+            for o in ORBS:
+                print(Style.BRIGHT+'%s: (%0.4f eV)' % (o,ORBS[o][1]))
+        
         try:
             orbs,dft = GetOrbsOrca(fn,opts)
             if opts.gbw != 'guess':
@@ -582,25 +658,14 @@ for fn in opts.infiles:
         except FileNotFoundError:
             print(Fore.RED+"%s does not exist." % fn)
             continue
-        for i in range(0,len(orbs)):
-            if orbs[i][1] == 0:
-                for o in opts.orbs:
-                    if o.upper() == 'LUMO':
-                        ORBS[o] = (orbs[i][0],orbs[i][3],BN+'_'+o)
-                    if 'LUMO+' in o.upper():
-                        offset = int(o.split('+')[-1])
-                        ORBS[o] = (orbs[i+offset][0],orbs[i+offset][3],BN+'_'+o)
-                    if o.upper() == 'HOMO':
-                        ORBS[o] = (orbs[i-1][0],orbs[i-1][3],BN+'_'+o)
-                    if 'HOMO-' in o.upper():
-                        offset = int(o.split('-')[-1])+1
-                        ORBS[o] = (orbs[i-offset][0],orbs[i-offset][3],BN+'_'+o)
-                break
-        if not ORBS and (not opts.eplot and not opts.spindens):
-            print(Fore.RED+"No orbitals selected!")
-            continue
-        for o in ORBS:
-            print(Style.BRIGHT+'%s: (%0.4f eV)' % (o,ORBS[o][1]))
+        if orbs['alpha']:
+            print('--- Alpha Spin ---')
+            _printorbs('alpha')
+            print('--- Beta Spin ---')
+            _printorbs('beta')
+        else:
+            _printorbs('nospin')
+
         print(Back.BLUE+Fore.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # # # # # #')
         RUNORCA=False
         fn = '%s_plot.inp' % BN
