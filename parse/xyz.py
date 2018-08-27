@@ -1,5 +1,5 @@
 import logging
-from util import *
+from util import ZMatrix,elements
 from ase import Atom,Atoms
 from cclib.io import ccread
 
