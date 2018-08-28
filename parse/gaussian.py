@@ -1,5 +1,5 @@
 from parse import xyz
-import logging
+#import logging
 import cclib
 import numpy as np
 
@@ -22,7 +22,7 @@ class Parser(xyz.Parser):
                 self.logger.debug(line.strip())
                 hamiltonian = np.zeros((self.ccparsed.nbasis, self.ccparsed.nbasis), "d")
                 base = 0
-                colmNames = next(fh)
+#                colmNames = next(fh)
                 while base < self.ccparsed.nbasis:
                     for i in range(self.ccparsed.nbasis-base):  # Fewer lines this time
                         line = next(fh)
@@ -32,7 +32,7 @@ class Parser(xyz.Parser):
                             hamiltonian[base+j, i+base] = k
                             hamiltonian[i+base, base+j] = k
                     base += 5
-                    colmNames = next(fh)
+#                    colmNames = next(fh)
                 hamiltonian = np.array(hamiltonian, "d")
                 infile = False
         #print(hamiltonian)
