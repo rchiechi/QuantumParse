@@ -8,22 +8,34 @@ import os,sys
 #    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
 #    sys.exit(1)
 
+import subprocess
+
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
+
 
 # Need to make this check because ase does not check for dependencies like matplotlib at import
 #installed = [package.project_name for package in pip.get_installed_distributions()]
 # Don't check for ase because we have it locally
-#required = ['colorama','matplotlib']
-#for pkg in required:
-    #if pkg not in installed:
-    #    print('You need to install %s to use %s.' % (pkg,prog))
-    #    print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
-    #    sys.exit(1)
+    
+required = ['colorama','matplotlib','cclib']
+for pkg in required:
+    if pkg not in installed_packages:
+        print('You need to install %s to use %s.' % (pkg,prog))
+        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
+        sys.exit(1)
 
 import argparse
 import logging
 import importlib
-from colorama import init,Fore,Style
+
+try:
+    from colorama import init,Fore,Style
+except ModuleNotFoundError:
+    print("Plese install colorama (e.g., pip install colorama)")
+    sys.exit()
+    
 
 # Setup colors
 init(autoreset=True)
@@ -93,6 +105,8 @@ parser.add_argument('-S', '--SAM', action='store_true', default=False,
 
 
 opts=parser.parse_args()
+
+ 
 
 rootlogger = logging.getLogger()
 loghandler = logging.StreamHandler()
