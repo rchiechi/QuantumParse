@@ -32,7 +32,7 @@ from collections import OrderedDict
 #    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
 #    sys.exit(1)
 
-prog = os.path.basename(sys.argv[0]).replace('.py','')
+#prog = os.path.basename(sys.argv[0]).replace('.py','')
 
 #installed = [package.project_name for package in pip.get_installed_distributions()]
 #required = ['numpy','colorama','psutil']
@@ -41,6 +41,19 @@ prog = os.path.basename(sys.argv[0]).replace('.py','')
 #        print('You need to install %s to use %s.' % (pkg,prog))
 #        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
 #        sys.exit(1)
+
+
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+prog = os.path.basename(sys.argv[0]).replace('.py','')
+    
+required = ['numpy','colorama','psutil']
+for pkg in required:
+    if pkg not in installed_packages:
+        print('You need to install %s to use %s.' % (pkg,prog))
+        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
+        sys.exit(1)
+
 try:
     from psutil import cpu_count
     import numpy as np
