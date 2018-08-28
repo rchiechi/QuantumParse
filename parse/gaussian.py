@@ -4,7 +4,8 @@ import cclib
 import numpy as np
 
 class Parser(xyz.Parser):
-    breaks = ('--link1--','natoms=','stoichiometry')
+    begin = ('Symbolic Z-matrix:','Normal termination of Gaussian')
+    breaks = ('--link1--','natoms=','stoichiometry','Stoichiometry','Standard orientation:')
 
     def __dotransport(self):
         '''Returns overlap, hamiltonian'''

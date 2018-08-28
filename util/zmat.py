@@ -1,10 +1,10 @@
 from ase import Atom,Atoms
 import ase.build
-from math import ceil,pi
+from math import ceil
 from collections import Counter
 import numpy as np
 import logging
-from .constants import *
+from .constants import EATOMS,TAGS
 
 __ALL__ = ['ZMatrix']
 
@@ -21,6 +21,7 @@ class ZMatrix(Atoms):
         self.logger.debug('Searching for %s electrodes.' % e)
         _l,_m,_r = [],[],[] 
         for _a in self:
+            self.logger.debug(str(_a))
             if _a.symbol == e:
                 if not _m:
                     _l.append(_a.index)
@@ -136,6 +137,7 @@ class ZMatrix(Atoms):
             else:
                 return '-z'
         else:
+            self.logger.debug('Error determining projection axis.')
             return None
 
     def toZaxis(self):
