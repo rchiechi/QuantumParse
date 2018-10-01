@@ -63,8 +63,7 @@ class Parser:
         if self.opts.nocclib or not self._cclibparse():
             self.logger.warn('Could not parse with cclib, falling back to internal parser')
             zmat = ZMatrix()
-        
-            if not self.begin:
+            if not self.begin or ( self.fn[-4:].lower() in ('.com') ):
                 in_zmat = True
             else:
                 in_zmat = False
@@ -125,6 +124,8 @@ class Parser:
         except NameError:
             return None
         except IndexError:
+            return None
+        if not fh:
             return None
         try:
             for i in range(0, len(fh.atomnos)):
