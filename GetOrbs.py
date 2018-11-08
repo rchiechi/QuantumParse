@@ -174,7 +174,8 @@ def GetOrbsOrca(fn,opts):
                     #   NO   OCC          E(Eh)            E(eV)
                     lo = re.split('\s+', l.strip())
                     orbs[key].append( [int(lo[0])]+list( map(float, lo[1:]) ) )
-                except ValueError:
+                except ValueError as msg:
+                    #print(msg)
                     continue
     
     return orbs,dft
