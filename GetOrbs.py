@@ -553,6 +553,8 @@ parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['elect
     help='Type of electrode, if present.')
 parser.add_argument('-q','--charge', type=int, default=0, 
     help='Net charge on molecule.')
+parser.add_argument('-s','--spin', type=int, default=1, 
+    help='Spin multiplicity of molecule.')
 #parser.add_argument('-s','--savedefaults', action='store_true', default=False, 
 #    help='Store these settings as defaults.')
 
@@ -691,7 +693,7 @@ for fn in opts.infiles:
             fh.write('%s NOITER KEEPDENS\n' % dft)
             fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
             fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
-            fh.write('* xyzfile %s 1 %s.xyz\n' % (opts.charge,gbw[:-4]))
+            fh.write('* xyzfile %s %s %s.xyz\n' % (opts.charge,opts.spin,gbw[:-4]))
             fh.write('%%base "%s-plot"\n' % BN)
             fh.write('%%MoInp "%s"\n' % gbw)
             fh.write('%plots\n')
