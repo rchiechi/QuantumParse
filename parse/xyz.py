@@ -2,11 +2,11 @@ import logging
 from util import ZMatrix,elements
 from ase import Atom,Atoms
 from cclib.io import ccread
-    
+
 __ALL__ = ['Parser']
 
 class Parser:
-  
+
     zmat = ZMatrix()
     ccparsed = None
     logger = logging.getLogger('Parser')
@@ -42,7 +42,7 @@ class Parser:
 
     def setZmat(self,zmat):
         self.zmat = zmat
-    
+
     def setAtoms(self,atoms):
         self.atoms = atoms
 
@@ -50,7 +50,7 @@ class Parser:
         return self.zmat
     def getAtoms(self):
         return self.atoms
-    
+
     def parseZmatrix(self):
         self._parsezmat()
         if self.opts.build:
@@ -84,7 +84,7 @@ class Parser:
                     row = []
                     for _l in l.split():
                         if _l.strip() and in_zmat: row.append(_l.strip())
-                    if not row: 
+                    if not row:
                         continue
                     #elif row[0].lower() in self.breaks:
                     #elif " ".join(row) in self.breaks:
@@ -106,16 +106,16 @@ class Parser:
                             self.logger.debug("Error parsing atom name in Z-matrix in %s" % self.fn)
                             self.logger.debug(' '.join(row))
                 self.zmat = zmat
-                
+
         if self.opts.project:
             self.zmat.toZaxis()
         elif self.opts.sortaxis:
             self.zmat.sort(self.opts.sortaxis)
         if self.opts.transport:
             self.__dotransport()
-        
+
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
-    
+
     def _cclibparse(self):
         self.logger.info("Using cclib to parse input; it may take a while...")
         zmat = ZMatrix()
@@ -124,6 +124,9 @@ class Parser:
         except NameError:
             return None
         except IndexError:
+            return None
+        except AttributeError:
+            self.logger.warn("There is a bug in cclib preventing it from functionging with pybel.")
             return None
         if not fh:
             return None
