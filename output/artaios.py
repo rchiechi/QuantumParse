@@ -44,7 +44,7 @@ class Writer(xyz.Writer):
             self.logger.error("adf2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
             return None
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
-        p = subprocess.run(['adf2unform',self.parser.fn, str(self.spin), '2014', stdout=subprocess.PIPE)
+        p = subprocess.run(['adf2unform',self.parser.fn, str(self.spin), '2014'], stdout=subprocess.PIPE)
         # ADF version 2014 parsing works at least up to ADF 2019.304
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
