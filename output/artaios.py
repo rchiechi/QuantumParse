@@ -21,6 +21,9 @@ class Writer(xyz.Writer):
         if self.opts.informat == 'gaussian':
             self.__g09_2unform()
             self.__writetransport()
+        elif self.opts.informat == 'adf':
+            self.__adf_2unform()
+            self.__writetransport()
         elif self.opts.informat == 'orca':
             #self.parser.parseMatrix()
             self.writeOrcatransport()
@@ -31,7 +34,18 @@ class Writer(xyz.Writer):
             self.WriteGaussiantransport()
             return None
         self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
-        p = subprocess.run(['g09_2unform',self.parser.fn,str(self.spin),os.path.split(self.parser.fn)[0]],stdout=subprocess.PIPE)
+        p = subprocess.run(['g09_2unform',self.parser.fn, str(self.spin), os.path.split(self.parser.fn)[0]], stdout=subprocess.PIPE)
+        for l in str(p.stdout,encoding='utf-8').split('\n'):
+            if 'reading' in l:
+                self.logger.info(l)
+
+    def __adf_2unform(self):
+        if subprocess.run(['which', 'adf2unform'],stdout=subprocess.PIPE).returncode != 0:
+            self.logger.error("adf2unform needs to be in your PATH to convert gaussian outputs to artaios inputs.")
+            return None
+        self.logger.info('Writing hamiltonian/overlap: %s' % os.path.split(self.parser.fn)[0] )
+        p = subprocess.run(['adf2unform',self.parser.fn, str(self.spin), '2014', stdout=subprocess.PIPE)
+        # ADF version 2014 parsing works at least up to ADF 2019.304
         for l in str(p.stdout,encoding='utf-8').split('\n'):
             if 'reading' in l:
                 self.logger.info(l)
@@ -43,19 +57,19 @@ class Writer(xyz.Writer):
         self.logger.info('Writing %s' % self.transport)
         #fp = os.path.join(os.path.split(self.parser.fn)[0],'transport.in')
         fp = os.path.join(os.path.split(self.parser.fn)[0],self.transport)
-        
+
         if os.path.exists(fp) and not self.opts.overwrite:
             self.logger.error('Not overwriting %s' %fp)
             return
-            
+
         with open(fp, 'w') as fh:
             fh.write('# Total atoms: %i\n' % len(self.parser.zmat))
             fh.write('# Guessed electrodes as %s\n' % self.parser.zmat.electrodes['atom'])
             fh.write('# Check partitioning for accuracy!\n')
             fh.write('$partitioning\n')
-            fh.write('  leftatoms %i-%i\n' % tuple(np.array(self.parser.zmat.electrodes['L'])+1)) 
-            fh.write('  centralatoms %i-%i\n' % tuple(np.array(self.parser.zmat.electrodes['M'])+1)) 
-            fh.write('  rightatoms %i-%i\n' % tuple(np.array(self.parser.zmat.electrodes['R'])+1)) 
+            fh.write('  leftatoms %i-%i\n' % tuple(np.array(self.parser.zmat.electrodes['L'])+1))
+            fh.write('  centralatoms %i-%i\n' % tuple(np.array(self.parser.zmat.electrodes['M'])+1))
+            fh.write('  rightatoms %i-%i\n' % tuple(np.array(self.parser.zmat.electrodes['R'])+1))
             fh.write('$end\n\n')
             fh.write('$energy_range\n')
             fh.write('  start  -8.0\n')
@@ -79,7 +93,10 @@ class Writer(xyz.Writer):
             fh.write('#  conductance\n')
             fh.write('  loewdin_central\n')
             fh.write('  rbas\n')
-            fh.write('  qcprog g09\n')
+            if self.opts.informat == 'gaussian':
+                fh.write('  qcprog g09\n')
+            elif self.opts.informat == 'adf':
+                fh.write('  qcprog adf\n')
             fh.write('  mosfile %s\n' % os.path.basename(self.parser.fn))
             fh.write('$end\n\n')
             fh.write('#Uncomment below to enable local bondflux. Check fluxdir!\n')
@@ -121,7 +138,7 @@ class Writer(xyz.Writer):
         # lineformat.write(a)
         # '    0.100000000000D+01    0.123456789000D+22    0.000000000000D+00    0.100000000000D-11\n     0.100000000000D+01...'
         self.logger.info('Writing transport data using internal parser.')
-        
+
         def __fortranformat(fn, ar):
             with open(fn, 'wt') as fh:
                 self.logger.info('Writing %s...' % fn)
@@ -166,7 +183,7 @@ class Writer(xyz.Writer):
         #with open('hamiltonian.1', 'wt') as fh:
             #self.logger.info('Writing hamiltonian...')
             #fh.write(lineformat.write(fock))
-        
+
 #        with open('hamiltonian.1', 'wt') as fh:
 #            self.logger.info('Writing hamiltonian...')
 #            i = 0
@@ -180,10 +197,10 @@ class Writer(xyz.Writer):
 #                    fock = []
 #                    fh.write('\n')
 #                fh.write(lineformat.write(fock))
-        
+
     def writeOrcatransport(self):
-        
-        
+
+
         nb = self.parser.fm.shape[0]
         self.__countiorb(nb)
         with open('hamiltonian.1', 'wt') as fh:
@@ -275,4 +292,3 @@ class Writer(xyz.Writer):
             fh.write('  do_diag_central T\n')
             fh.write('  moldeninfile %s.molden.input\n' % os.path.splitext(os.path.basename(self.parser.fn))[0])
             fh.write('$end\n\n')
-

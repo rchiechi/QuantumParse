@@ -18,7 +18,7 @@ prog = os.path.basename(sys.argv[0]).replace('.py','')
 # Need to make this check because ase does not check for dependencies like matplotlib at import
 #installed = [package.project_name for package in pip.get_installed_distributions()]
 # Don't check for ase because we have it locally
-    
+
 required = ['colorama','matplotlib','cclib']
 for pkg in required:
     if pkg not in installed_packages:
@@ -35,7 +35,7 @@ try:
 except ModuleNotFoundError:
     print("Plese install colorama (e.g., pip install colorama)")
     sys.exit()
-    
+
 
 # Setup colors
 init(autoreset=True)
@@ -55,7 +55,7 @@ for f in os.listdir(os.path.join(absdir,'parse')):
 
 parser = argparse.ArgumentParser(description=desc,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('infiles', type=str, nargs='*', default=[], 
+parser.add_argument('infiles', type=str, nargs='*', default=[],
     help='Datafiles to parse.')
 parser.add_argument('-i','--informat', default='guess',
     choices = parsers,
@@ -72,7 +72,7 @@ parser.add_argument('--overwrite', action='store_true', default=False,
 parser.add_argument('-s','--sortaxis', default=None,
     choices=('x','y','z'),
     help="Sort output zmatrix by given axis.")
-parser.add_argument('-l','--loglevel', default='info', 
+parser.add_argument('-l','--loglevel', default='info',
     choices=('info','warn','error','debug'),
     help="Set the logging level.")
 parser.add_argument('-T', '--transport', action='store_true', default=False,
@@ -106,7 +106,7 @@ parser.add_argument('-S', '--SAM', action='store_true', default=False,
 
 opts=parser.parse_args()
 
- 
+
 
 rootlogger = logging.getLogger()
 loghandler = logging.StreamHandler()
@@ -139,6 +139,8 @@ if opts.informat == 'guess':
         opts.informat = 'xyz'
     elif ext in ('fdf'):
         opts.informat = 'siesta'
+    elif ext in ('adf'):
+        opts.informat = 'adf'
     else:
         logger.error("Could not determine input file format")
         sys.exit()
