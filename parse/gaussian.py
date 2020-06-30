@@ -29,8 +29,12 @@ class Parser(xyz.Parser):
                         parts = line.split()
                         for j in range(len(parts)-1):  # Some lines are longer than others
                             k = float(parts[j+1].replace("D", "E"))
-                            hamiltonian[base+j, i+base] = k
-                            hamiltonian[i+base, base+j] = k
+                            try:
+                                hamiltonian[base+j, i+base] = k
+                                hamiltonian[i+base, base+j] = k
+                            except IndexError as msg:
+                                self.logger.error("Error parsing Hamltonian: %s" % str(msg))
+                                self.logger.warn("If you are outputting for Artaios and have g09_2unform installed, everything should be ok.")
                     base += 5
 #                    colmNames = next(fh)
                 hamiltonian = np.array(hamiltonian, "d")
