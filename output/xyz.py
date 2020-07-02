@@ -9,7 +9,7 @@ __ALL__ = ['Writer']
 #TODO Files are written in CWD instead of input (at least for siesta)
 
 class Writer:
-    
+
     ext = '.xyz'
     logger = logging.getLogger('Writer')
 
@@ -48,7 +48,7 @@ class Writer:
             parser.setZmat(self.parser.getZmat()[s[0]:s[1]+1])
             writer = importlib.import_module('output.%s' % opts.outformat).Writer(parser)
             writer.write()
-    
+
     @classmethod
     def trimElectrodes(cls, zmat, e, size):
         if e == 'L':
@@ -75,13 +75,15 @@ class Writer:
             ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
         except ValueError as msg:
             self.logger.warn("Error writing png file: %s" % str(msg))
+        except TypeError as msg:
+            self.logger.warn("Error writing png file %s" % str(msg))
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))
         fh.write('%s\n' % self.jobname)
 
     def _writezmat(self,fh):
         self.parser.zmat.write(fh)
-        #, sep='\t', 
+        #, sep='\t',
         #        header=False, index=False,
         #        float_format='%.8f')
 
