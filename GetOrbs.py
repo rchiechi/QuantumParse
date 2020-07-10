@@ -46,7 +46,7 @@ from collections import OrderedDict
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
-    
+
 required = ['numpy','colorama','psutil']
 for pkg in required:
     if pkg not in installed_packages:
@@ -91,7 +91,7 @@ ELEMENTS = [None,
 
 
 def FindBins():
-    # Find paths to binaries      
+    # Find paths to binaries
     if OSNAME == 'Darwin':
         p = subprocess.run(['find', '/Applications', '-maxdepth', '3', '-type', 'd', '-name', 'VMD*app'],stdout=subprocess.PIPE)
         vmdbin=os.path.join(p.stdout.strip().split(b'\n')[-1],b'Contents/MacOS/startup.command')
@@ -111,7 +111,7 @@ def FindBins():
     p = subprocess.run(['which', 'orca_vpot'],stdout=subprocess.PIPE)
     if p.returncode == 0:
         vpotbin=p.stdout.strip()
-    
+
     if os.path.exists(vmdbin):
         print(Fore.YELLOW+"Found VMD: %s" % vmdbin)
     else:
@@ -149,7 +149,7 @@ def GetOrbsOrca(fn,opts):
                 inbetaorb = True
             elif ('------------------' in l) or ('********' in l):
                 inbetaorb, inalphaorb, inorbs = False, False, False
-            
+
             if indef:
                 if l.strip()[0] == '|':
                     for c in l:
@@ -177,7 +177,7 @@ def GetOrbsOrca(fn,opts):
                 except ValueError as msg:
                     #print(msg)
                     continue
-    
+
     return orbs,dft
 
 
@@ -199,7 +199,7 @@ def GetOrbsOrca(fn,opts):
 #                inorb = True
 #            elif '------------------' in l:
 #                inorb = False
-#            
+#
 #            if indef:
 #                if l.strip()[0] == '|':
 #                    for c in l:
@@ -350,9 +350,9 @@ def OrcaEplot(BN,rccconfig,opts):
 #    def gen(title, orb, eng):
 #        dplot = ['dplot' ,'  title "%s (%0.4f eV)"' % (title,eng*27.207), '  gaussian',
 #             '  spin total',
-#                 '  orbitals view; 1; %s' % orb, 
+#                 '  orbitals view; 1; %s' % orb,
 #             '  output "%s_%s_%s.cube"' % (bn, title, orb),
-#             '  limitXYZ', '  -20.0 20.0 200', 
+#             '  limitXYZ', '  -20.0 20.0 200',
 #             '  -20.0 20.0 200', '  -20.0 20.0 200',
 #             'end\n']
 #        return "\n".join(dplot)
@@ -384,21 +384,21 @@ def writeVMD(fn,opts,BN):
         fh.write('mol modstyle 1 0 %s 1 37\n' % opts.electrodemethod)
         fh.write('mol modselect 1 0 all name %s\n' % opts.electrode)
         fh.write('mol modcolor 1 0 Element\n')
-        
+
         _max=1
         if opts.eplot:
             _max=2
         if opts.spindens:
             _max=3
 
-        for m in range(0,mols+_max): 
+        for m in range(0,mols+_max):
             if m == 0: i = 2
             else: i = 0
-            fh.write('mol addrep %s\n' % m) 
+            fh.write('mol addrep %s\n' % m)
             fh.write('mol modstyle %s %s Isosurface %s 0 0 0\n' % (i,m,opts.isovalue))
             fh.write('mol modcolor %s %s ColorID %s\n' % (i,m,VMDCOLORS[opts.colors[0]]))
             fh.write('mol modmaterial %s %s %s\n' % (i,m,opts.material))
-            fh.write('mol addrep %s\n' % m) 
+            fh.write('mol addrep %s\n' % m)
             fh.write('mol modstyle %s %s Isosurface -%s 0 0 0\n' % (i+1,m,opts.isovalue))
             fh.write('mol modcolor %s %s ColorID %s\n' % (i+1,m,VMDCOLORS[opts.colors[1]]))
             fh.write('mol modmaterial %s %s %s\n' % (i+1,m,opts.material))
@@ -441,11 +441,11 @@ def writeCubeVMD(fn,cube):
         fh.write('mol modcolor 1 0 Element\n')
         m = 0
         i = 2
-        fh.write('mol addrep %s\n' % m) 
+        fh.write('mol addrep %s\n' % m)
         fh.write('mol modstyle %s %s Isosurface %s 0 0 0\n' % (i,m,opts.isovalue))
         fh.write('mol modcolor %s %s ColorID %s\n' % (i,m,VMDCOLORS[opts.colors[0]]))
         fh.write('mol modmaterial %s %s %s\n' % (i,m,opts.material))
-        fh.write('mol addrep %s\n' % m) 
+        fh.write('mol addrep %s\n' % m)
         fh.write('mol modstyle %s %s Isosurface -%s 0 0 0\n' % (i+1,m,opts.isovalue))
         fh.write('mol modcolor %s %s ColorID %s\n' % (i+1,m,VMDCOLORS[opts.colors[1]]))
         fh.write('mol modmaterial %s %s %s\n' % (i+1,m,opts.material))
@@ -454,7 +454,7 @@ def writeCubeVMD(fn,cube):
         fh.write('color Display FPS black\n')
         fh.write('color Axes Labels black\n')
 
-    
+
     print(Fore.GREEN+Style.BRIGHT+'Wrote %s' % fn)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -514,48 +514,48 @@ for path in ('VMDpath','ORCAvpot','ORCApath'):
         rcconfig['GENERAL'][path] = m.groups()[0].strip()
 
 # Parse command line arguments
-desc='Find and render orbitals in Orca outputs using VMD.\
+desc='Find and render orbitals in Orca outputs and cube files using VMD.\
         Default values are stored in %s. Edit this file to change them' % RCFILE
 parser = argparse.ArgumentParser(description=desc,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('infiles', type=str, nargs='*', default=[], 
+parser.add_argument('infiles', type=str, nargs='*', default=[],
     help='Output file to parse.')
-parser.add_argument('-o', '--orbs', type=str, nargs='*', default=rcconfig['GENERAL']['orbs'].replace(' ','').split(','), 
+parser.add_argument('-o', '--orbs', type=str, nargs='*', default=rcconfig['GENERAL']['orbs'].replace(' ','').split(','),
     help='Orbitals to render (e.g., HOMO-1, LUMO+1).')
-parser.add_argument('--eplot', action='store_true', default=False, 
+parser.add_argument('--eplot', action='store_true', default=False,
     help='Generate an electrostatic potential isoplot.')
-parser.add_argument('--spindens', action='store_true', default=False, 
+parser.add_argument('--spindens', action='store_true', default=False,
     help='Generate a spin density plot.')
-parser.add_argument('--eplotres', type=int, default=40, 
+parser.add_argument('--eplotres', type=int, default=40,
     help='Grid density of eplot (80 will take forever, but give a smooth plot).')
-parser.add_argument('-r','--render', action='store_true',  default=rcconfig['GENERAL'].getboolean('render'), 
+parser.add_argument('-r','--render', action='store_true',  default=rcconfig['GENERAL'].getboolean('render'),
     help='If the appropriate programs are found, render the orbitals automatically.')
-parser.add_argument('--pal', action='store_true', default=False, 
+parser.add_argument('--pal', action='store_true', default=False,
     help='Use parallel/mpi Orca.')
-parser.add_argument('-g','--gbw', type=str,  default='guess', 
+parser.add_argument('-g','--gbw', type=str,  default='guess',
     help='Manually specify a GBW file instead of guessing from output file.')
-parser.add_argument('-O','--ORCApath', type=str, default=rcconfig['GENERAL']['ORCApath'], 
+parser.add_argument('-O','--ORCApath', type=str, default=rcconfig['GENERAL']['ORCApath'],
     help='Specify the location of the orca binary.')
-parser.add_argument('-V','--VMDpath', type=str, default=rcconfig['GENERAL']['VMDpath'], 
+parser.add_argument('-V','--VMDpath', type=str, default=rcconfig['GENERAL']['VMDpath'],
     help='Specify the location of the vmd binary.')
-parser.add_argument('-c','--colors', nargs=2, default=rcconfig['VMD']['colors'].replace(' ','').split(','),  choices=tuple(VMDCOLORS.keys()), 
+parser.add_argument('-c','--colors', nargs=2, default=rcconfig['VMD']['colors'].replace(' ','').split(','),  choices=tuple(VMDCOLORS.keys()),
     help='Colors for +/- orbital coefficients.')
-parser.add_argument('-m','--material', type=str, default=rcconfig['VMD']['material'].strip(),  choices=VMDMATERIALS, 
+parser.add_argument('-m','--material', type=str, default=rcconfig['VMD']['material'].strip(),  choices=VMDMATERIALS,
     help='Material to use for isosurfaces.')
-parser.add_argument('-M','--molmethod', type=str, default=rcconfig['VMD']['molmethod'].strip(),  choices=VMDMETHODS, 
+parser.add_argument('-M','--molmethod', type=str, default=rcconfig['VMD']['molmethod'].strip(),  choices=VMDMETHODS,
     help='Method used to render the molecule.')
-parser.add_argument('-E','--electrodemethod', type=str, default=rcconfig['VMD']['electrodemethod'].strip(),  choices=VMDMETHODS, 
+parser.add_argument('-E','--electrodemethod', type=str, default=rcconfig['VMD']['electrodemethod'].strip(),  choices=VMDMETHODS,
     help='Material to use for isosurfaces.')
-parser.add_argument('-i','--isovalue', type=float, default=rcconfig['VMD'].getfloat('isovalue'), 
+parser.add_argument('-i','--isovalue', type=float, default=rcconfig['VMD'].getfloat('isovalue'),
     help='Cutoff for isoplots.')
-parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['electrode'].strip(), 
+parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['electrode'].strip(),
     help='Type of electrode, if present.')
-parser.add_argument('-q','--charge', type=int, default=0, 
+parser.add_argument('-q','--charge', type=int, default=0,
     help='Net charge on molecule.')
-parser.add_argument('-s','--spin', type=int, default=1, 
+parser.add_argument('-s','--spin', type=int, default=1,
     help='Spin multiplicity of molecule.')
-#parser.add_argument('-s','--savedefaults', action='store_true', default=False, 
+#parser.add_argument('-s','--savedefaults', action='store_true', default=False,
 #    help='Store these settings as defaults.')
 
 
@@ -612,7 +612,7 @@ for fn in opts.infiles:
                 PROG = 'xyz'
             except ValueError:
                 pass
-        elif fn[-4:].lower() == 'cube' or fn[-5:].lower() == 'gcube':
+        elif fn[-3:].lower() == 'cub' or fn[-5:].lower() == 'gcube':
             print(Fore.YELLOW+"Parsing cube file")
             try:
                 int(h[0])
@@ -630,18 +630,18 @@ for fn in opts.infiles:
             print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
             subprocess.run([opts.VMDpath, '-e', tclfn])
 
- 
+
     elif PROG == 'cube':
         tclfn = fn[:-5]+'_vmd.tcl'
         writeCubeVMD(tclfn, os.path.basename(fn))
 
         if opts.render and opts.VMDpath:
             subprocess.run([opts.VMDpath, '-e', tclfn])
-    
 
-    
+
+
     elif PROG=='orca':
-        
+
         def _printorbs(key):
             __orbs = orbs[key]
             for i in range(0,len(__orbs)):
@@ -663,7 +663,7 @@ for fn in opts.infiles:
                 return
             for o in ORBS:
                 print(Style.BRIGHT+'%s: (%0.4f eV)' % (o,ORBS[o][1]))
-        
+
         try:
             orbs,dft = GetOrbsOrca(fn,opts)
             if opts.gbw != 'guess':
@@ -741,7 +741,7 @@ for fn in opts.infiles:
 
         if opts.render and opts.VMDpath and orcasuccess:
             subprocess.run([opts.VMDpath, '-e', tclfn])
-   
+
 #    elif PROG == 'nwchem':
 #       HOMO,LUMO=0,0
 #       heng,leng=0,0
