@@ -47,7 +47,7 @@ reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 
-required = ['numpy','colorama','psutil']
+required = ['numpy','colorama']
 for pkg in required:
     if pkg not in installed_packages:
         print('You need to install %s to use %s.' % (pkg,prog))
@@ -55,7 +55,7 @@ for pkg in required:
         sys.exit(1)
 
 try:
-    from psutil import cpu_count
+    #from psutil import cpu_count
     import numpy as np
     from colorama import init,Fore,Back,Style
 except ModuleNotFoundError as msg:
@@ -158,7 +158,7 @@ def GetOrbsOrca(fn,opts):
                         if c == '!':
                             dft = '! '+l.split('!')[-1].strip()
                             if 'PAL' not in dft and opts.pal:
-                                dft += " PAL%s" % cpu_count()
+                                dft += " PAL%s" 
                             if 'MOREAD' not in dft:
                                 dft += " MOREAD"
                             break
