@@ -382,6 +382,7 @@ def writeCubeVMD(fn,cube):
 
 def getprog(fn):
     PROG = None
+    ext = fn.split('.')[-1]
     with open(fn, 'rt') as fh:
         h = fh.read(2048)
         if 'O   R   C   A' in h:
@@ -394,7 +395,7 @@ def getprog(fn):
                 PROG = 'xyz'
             except ValueError:
                 pass
-        elif fn[-3:].lower() == 'cub' or fn[-5:].lower() == 'gcube':
+        elif ext.lower() in ('cub', 'cgube', 'cube'):
             print(Fore.YELLOW+"Parsing cube file")
             try:
                 int(h[0])
