@@ -597,7 +597,7 @@ parser.add_argument('-m','--material', type=str, default=rcconfig['VMD']['materi
 parser.add_argument('-M','--molmethod', type=str, default=rcconfig['VMD']['molmethod'].strip(), choices=VMDMETHODS,
                     help='Method used to render the molecule.')
 parser.add_argument('-E','--electrodemethod', type=str, default=rcconfig['VMD']['electrodemethod'].strip(), choices=VMDMETHODS,
-                    help='Material to use for isosurfaces.')
+                    help='Material to use for electrode.')
 parser.add_argument('-i','--isovalue', type=float, default=rcconfig['VMD'].getfloat('isovalue'),
                     help='Cutoff for isoplots.')
 parser.add_argument('-e','--electrode', type=str, default=rcconfig['VMD']['electrode'].strip(),
