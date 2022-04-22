@@ -287,14 +287,17 @@ def writeVMD(fn,opts,BN):
     with open(fn,'wt') as fh:
         mols = -1
         for o in ORBS:
-            fh.write('mol new "%s/%s.cube"\n' % (os.getcwd(),ORBS[o][2]))
+            # fh.write('mol new "%s/%s.cube"\n' % (os.getcwd(),ORBS[o][2]))
+            fh.write('mol new "%s.cube"\n' % ORBS[o][2])
             mols += 1
             fh.write('mol rename %s %s\n' % (mols,o))
         if opts.eplot:
-            fh.write('mol new "%s/%s_eplot.cube"\n' % (os.getcwd(),BN))
+            # fh.write('mol new "%s/%s_eplot.cube"\n' % (os.getcwd(),BN))
+            fh.write('mol new "%s_eplot.cube"\n' % BN)
             fh.write('mol rename %s eplot\n' % (mols+1))
         if opts.spindens:
-            fh.write('mol new "%s/%s_spindens.cube"\n' % (os.getcwd(),BN))
+            # fh.write('mol new "%s/%s_spindens.cube"\n' % (os.getcwd(),BN))
+            fh.write('mol new "%s_spindens.cube"\n' % BN)
             fh.write('mol rename %s spindens\n' % (mols+2))
         fh.write('rotate y by 90\n')
         fh.write('axes location off\n')
