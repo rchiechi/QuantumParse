@@ -425,7 +425,7 @@ def printorcaorbs(key):
     for o in ORBS:
         print(Style.BRIGHT+'%s: (%0.4f eV)' % (o,ORBS[o][1]))
 
-def doorcaproc(opts, fn, runorca):
+def doorcaproc(opts, fn, tclfn, runorca):
     orcasuccess = False
     print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
     if ((opts.render and opts.ORCApath) or opts.eplot or opts.spindens) and runorca:
@@ -505,7 +505,7 @@ def doorcaprog(fn, opts):
     print(Fore.GREEN+Style.BRIGHT+"Wrote %s" % fn)
     tclfn = fn[:-4]+'_vmd.tcl'
     writeVMD(tclfn,opts,BN)
-    doorcaproc(opts, fn, RUNORCA)
+    doorcaproc(opts, fn, tclfn, RUNORCA)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
