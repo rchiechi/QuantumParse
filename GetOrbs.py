@@ -472,7 +472,7 @@ def doorcaprog(fn, opts):
         print('--- Beta Spin ---')
         printorcaorbs(orbs['beta'])
     else:
-        printorcaorbs('nospin')
+        printorcaorbs(orbs['nospin'])
 
     print(Back.BLUE+Fore.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # # # # # #')
     RUNORCA = False
