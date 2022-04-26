@@ -1,12 +1,12 @@
 import os
-import pandas as pd
+# import pandas as pd
 import logging
 import importlib
 from ase.io import write as ase_write
 
 __ALL__ = ['Writer']
 
-#TODO Files are written in CWD instead of input (at least for siesta)
+# TODO Files are written in CWD instead of input (at least for siesta)
 
 class Writer:
 
@@ -20,7 +20,7 @@ class Writer:
             self.jobname = self.opts.jobname
             self.logger.debug('Setting jobname to %s' % self.jobname)
         else:
-            #self.jobname = ''.join(self.parser.fn.split('.')[0:-1])
+            # self.jobname = ''.join(self.parser.fn.split('.')[0:-1])
             self.jobname = ''.join(os.path.basename(self.parser.fn).split('.')[0:-1])
         self.fn = self.jobname+self.ext
 
@@ -28,17 +28,17 @@ class Writer:
         if not self.parser.haselectrodes():
             self.logger.warn('Not writing non-existant electrodes.')
             return
-        #TODO Hackish way to avoid recursive loop
+        # TODO Hackish way to avoid recursive loop
         opts = self.opts
         opts.writeelectrodes = False
         for e in ('L','R'):
             if self.opts.build and self.opts.size[2] > 2:
                 self.logger.debug('Removing two layers of atoms for Siesta leads')
                 s = Writer.trimElectrodes(self.parser.zmat, e, self.opts.size)
-                #if e == 'L':
+                # if e == 'L':
                 #    s = (self.parser.zmat.electrodes[e][0],
                 #     self.parser.zmat.electrodes[e][1]-int(self.opts.size[0]*self.opts.size[1]*2))
-                #elif e == 'R':
+                # elif e == 'R':
                 #    s = (self.parser.zmat.electrodes[e][0]+int(self.opts.size[0]*self.opts.size[1]*2),
                 #     self.parser.zmat.electrodes[e][1])
             else:
@@ -53,10 +53,10 @@ class Writer:
     def trimElectrodes(cls, zmat, e, size):
         if e == 'L':
             s = (zmat.electrodes[e][0],
-             zmat.electrodes[e][1]-int(size[0]*size[1]*2))
+                 zmat.electrodes[e][1] - int(size[0]*size[1]*2))
         elif e == 'R':
             s = (zmat.electrodes[e][0]+int(size[0]*size[1]*2),
-             zmat.electrodes[e][1])
+                 zmat.electrodes[e][1])
         return s
 
     def write(self):
@@ -87,7 +87,7 @@ class Writer:
 
     def _writezmat(self,fh):
         self.parser.zmat.write(fh)
-        #, sep='\t',
+        # , sep='\t',
         #        header=False, index=False,
         #        float_format='%.8f')
 
@@ -99,4 +99,4 @@ class Writer:
         n = 0
         for atom in zmat:
             n += atom.number
-        return n%2 + 1
+        return n % 2 + 1

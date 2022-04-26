@@ -1,6 +1,6 @@
 import logging
 from util import ZMatrix,elements
-from ase import Atom,Atoms
+from ase import Atom
 from cclib.io import ccread
 
 __ALL__ = ['Parser']
@@ -11,11 +11,11 @@ class Parser:
     ccparsed = None
     logger = logging.getLogger('Parser')
     lattice = {'constant':None,
-            'vectors':[]}
+               'vectors':[]}
 
-    #When parsing large files set lowercase strings
-    #that terminate the z-matrix to avoid looping
-    #over the entire file
+    # When parsing large files set lowercase strings
+    # that terminate the z-matrix to avoid looping
+    # over the entire file
     breaks = ()
     # Optionally set a starting point to search for
     # coordinates (helpful with orca outputs)
@@ -48,6 +48,7 @@ class Parser:
 
     def getZmat(self):
         return self.zmat
+
     def getAtoms(self):
         return self.atoms
 
@@ -55,15 +56,17 @@ class Parser:
         self._parsezmat()
         if self.opts.build:
             self.zmat.buildElectrodes(self.opts.build,self.opts.size,
-                    self.opts.distance,self.opts.binding,self.opts.surface,self.opts.adatom,self.opts.SAM)
+                                      self.opts.distance,self.opts.binding,
+                                      self.opts.surface,self.opts.adatom,self.opts.SAM)
         self.zmat.findElectrodes()
+
 
     def _parsezmat(self):
         self.logger.debug('Building zmatrix...')
         if self.opts.nocclib or not self._cclibparse():
             self.logger.warn('Could not parse with cclib, falling back to internal parser')
             zmat = ZMatrix()
-            if not self.begin or ( self.fn[-4:].lower() in ('.com') ):
+            if not self.begin or (self.fn[-4:].lower() in ('.com')):
                 in_zmat = True
             else:
                 in_zmat = False
@@ -83,12 +86,13 @@ class Parser:
                         continue
                     row = []
                     for _l in l.split():
-                        if _l.strip() and in_zmat: row.append(_l.strip())
+                        if _l.strip() and in_zmat:
+                            row.append(_l.strip())
                     if not row:
                         continue
-                    #elif row[0].lower() in self.breaks:
-                    #elif " ".join(row) in self.breaks:
-                    #elif not in_zmat:
+                    # elif row[0].lower() in self.breaks:
+                    # elif " ".join(row) in self.breaks:
+                    # elif not in_zmat:
                     #    break
                     elif row[0] not in elements:
                         continue
@@ -144,7 +148,8 @@ class Parser:
         self.ccparsed = fh
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
         if hasattr(fh, 'homos') and hasattr(fh, 'moenergies'):
-            self.logger.info('HOMO/LUMO (eV): %0.4f/%0.4f' % (fh.moenergies[0][fh.homos[0]],fh.moenergies[0][fh.homos[0]+1]) )
+            self.logger.info('HOMO/LUMO (eV): %0.4f/%0.4f' % (fh.moenergies[0][fh.homos[0]],
+                                                              fh.moenergies[0][fh.homos[0]+1]))
         return True
 
     def __dotransport(self):

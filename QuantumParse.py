@@ -1,34 +1,25 @@
 #!/usr/bin/env python3
-
-import os,sys
-
-#try:
-#    import pip
-#except ImportError:
-#    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
-#    sys.exit(1)
-
+import os
+import sys
 import subprocess
+import argparse
+import logging
+import importlib
 
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 
-
 # Need to make this check because ase does not check for dependencies like matplotlib at import
-#installed = [package.project_name for package in pip.get_installed_distributions()]
+# installed = [package.project_name for package in pip.get_installed_distributions()]
 # Don't check for ase because we have it locally
 
 required = ['colorama','matplotlib','cclib']
 for pkg in required:
     if pkg not in installed_packages:
         print('You need to install %s to use %s.' % (pkg,prog))
-        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
+        print('e.g., python3 -m pip install --upgrade %s' % pkg)
         sys.exit(1)
-
-import argparse
-import logging
-import importlib
 
 try:
     from colorama import init,Fore,Style
@@ -47,70 +38,66 @@ desc = 'Convert between quantum chemistry software file formats.'
 writers,parsers = [],[]
 absdir = os.path.dirname(os.path.realpath(__file__))
 for f in os.listdir(os.path.join(absdir,'output')):
-    if f[0] in ('.','_'): continue
+    if f[0] in ('.','_'):
+        continue
     writers.append(f[:-3])
 for f in os.listdir(os.path.join(absdir,'parse')):
-    if f[0] in ('.','_'): continue
+    if f[0] in ('.','_'):
+        continue
     parsers.append(f[:-3])
 
 parser = argparse.ArgumentParser(description=desc,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('infiles', type=str, nargs='*', default=[],
-    help='Datafiles to parse.')
+                    help='Datafiles to parse.')
 parser.add_argument('-i','--informat', default='guess',
-    choices = parsers,
-    help="Input file format.")
+                    choices=parsers,
+                    help="Input file format.")
 parser.add_argument('-o','--outformat', required=True,
-    choices = writers,
-    help="Output file format.")
+                    choices=writers,
+                    help="Output file format.")
 parser.add_argument('--unrestricted', action='store_true', default=False,
-    help="Generate Alpha and Beta fock matrices for Artaios.")
+                    help="Generate Alpha and Beta fock matrices for Artaios.")
 parser.add_argument('--nocclib', action='store_true', default=False,
-    help="Do not try cclib parser.")
+                    help="Do not try cclib parser.")
 parser.add_argument('--overwrite', action='store_true', default=False,
-    help="Overwrite output files without asking.")
+                    help="Overwrite output files without asking.")
 parser.add_argument('-s','--sortaxis', default=None,
-    choices=('x','y','z'),
-    help="Sort output zmatrix by given axis.")
+                    choices=('x','y','z'),
+                    help="Sort output zmatrix by given axis.")
 parser.add_argument('-l','--loglevel', default='info',
-    choices=('info','warn','error','debug'),
-    help="Set the logging level.")
+                    choices=('info','warn','error','debug'),
+                    help="Set the logging level.")
 parser.add_argument('-T', '--transport', action='store_true', default=False,
-    help="Format orca/gaussian output for transport calculations.")
+                    help="Format orca/gaussian output for transport calculations.")
 parser.add_argument('-c', '--ncpus', type=int, default=24,
-    help="Number of parallel cpus in output.")
+                    help="Number of parallel cpus in output.")
 parser.add_argument('--jobname', type=str, default='',
-    help="Specify a jobname (and output file name) instead of taking it from the input file name.")
+                    help="Specify a jobname (and output file name) instead of taking it from the input file name.")
 parser.add_argument('--writeelectrodes', action='store_true', default=False,
-    help="Write copies of the electrodes to separate files.")
+                    help="Write copies of the electrodes to separate files.")
 parser.add_argument('--project', action='store_true', default=False,
-    help="Project the molecule along the z-axis.")
+                    help="Project the molecule along the z-axis.")
 parser.add_argument('-b','--build', default=None, choices=('Au','Ag'),
-    help="Build electrodes comprising this atom onto the ends of the input molecule.")
+                    help="Build electrodes comprising this atom onto the ends of the input molecule.")
 parser.add_argument('--size', type=str, default='4,4,3',
-    help="Size of electrodes (x,y,z).")
+                    help="Size of electrodes (x,y,z).")
 parser.add_argument('--binding', default='hcp', choices=('ontop','hollow','fcc','hcp','bridge'),
-    help="Binding geometry to electrode.")
+                    help="Binding geometry to electrode.")
 parser.add_argument('--distance', type=float, default=1.75,
-    help="Distance from electrode.")
+                    help="Distance from electrode.")
 parser.add_argument('--surface', default='fcc111', choices=('fcc111','fcc110','fcc100'),
-    help="Electrode surface.")
+                    help="Electrode surface.")
 parser.add_argument('--adatom', action='store_true', default=False,
-    help="Add an adatom to the fcc site of the bottom electrode.")
+                    help="Add an adatom to the fcc site of the bottom electrode.")
 parser.add_argument('-S', '--SAM', action='store_true', default=False,
-    help="Create a molecular ensemble instead of a single-molecule junction.")
+                    help="Create a molecular ensemble instead of a single-molecule junction.")
 
-
-
-
-
-opts=parser.parse_args()
-
-
+opts = parser.parse_args()
 
 rootlogger = logging.getLogger()
 loghandler = logging.StreamHandler()
-loghandler.setFormatter(logging.Formatter(\
+loghandler.setFormatter(logging.Formatter(
     fmt=Fore.GREEN+'%(name)s'+Fore.CYAN+' %(levelname)s '+Fore.YELLOW+'%(message)s'+Style.RESET_ALL))
 rootlogger.addHandler(loghandler)
 rootlogger.setLevel(getattr(logging,opts.loglevel.upper()))
