@@ -72,7 +72,7 @@ parser.add_argument('-T', '--transport', action='store_true', default=False,
                     help="Format orca/gaussian output for transport calculations.")
 parser.add_argument('-c', '--ncpus', type=int, default=24,
                     help="Number of parallel cpus in output.")
-parser.add_argument('--jobname', type=str, default='',
+parser.add_argument('-j', '--jobname', type=str, default='',
                     help="Specify a jobname (and output file name) instead of taking it from the input file name.")
 parser.add_argument('--writeelectrodes', action='store_true', default=False,
                     help="Write copies of the electrodes to separate files.")
@@ -92,6 +92,8 @@ parser.add_argument('--adatom', action='store_true', default=False,
                     help="Add an adatom to the fcc site of the bottom electrode.")
 parser.add_argument('-S', '--SAM', action='store_true', default=False,
                     help="Create a molecular ensemble instead of a single-molecule junction.")
+parser.add_argument('--png', action='store_true', default=False,
+                    help="Write a PNG file of the resulting output.")
 
 opts = parser.parse_args()
 
