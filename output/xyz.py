@@ -70,16 +70,17 @@ class Writer:
                 self._writetail(fh)
             if self.opts.writeelectrodes:
                 self.writeelectrodes()
-        self.logger.info('Writing %s.png' % self.jobname)
-        try:
-            # pass
-            ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
-        except ValueError as msg:
-            self.logger.warn("Error writing png file: %s" % str(msg))
-        except TypeError as msg:
-            self.logger.warn("Error writing png file %s" % str(msg))
-        except ImportError as msg:
-            self.logger.error("Error importing _png module %s", str(msg))
+        if self.opts.png:
+            self.logger.info('Writing %s.png' % self.jobname)
+            try:
+                # pass
+                ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
+            except ValueError as msg:
+                self.logger.warn("Error writing png file: %s" % str(msg))
+            except TypeError as msg:
+                self.logger.warn("Error writing png file %s" % str(msg))
+            except ImportError as msg:
+                self.logger.error("Error importing _png module %s", str(msg))
 
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))
