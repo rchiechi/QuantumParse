@@ -53,74 +53,66 @@ class Parser:
         return self.atoms
 
     def parseZmatrix(self):
-        self._parsezmat()
-        if self.opts.build:
-            self.zmat.buildElectrodes(self.opts.build,self.opts.size,
-                                      self.opts.distance,self.opts.binding,
-                                      self.opts.surface,self.opts.adatom,self.opts.SAM)
-        self.zmat.findElectrodes()
-
-
-    def _parsezmat(self):
         self.logger.debug('Building zmatrix...')
-        if self.opts.nocclib or not self._cclibparse():
-            self.logger.warn('Could not parse with cclib, falling back to internal parser')
-            zmat = ZMatrix()
-            if not self.begin or (self.fn[-4:].lower() in ('.com')):
-                in_zmat = True
-            else:
-                in_zmat = False
-            with open(self.fn) as fh:
-                for l in fh:
-                    if not l.strip():
-                        continue
-                    if l.strip() in self.begin:
-                        self.logger.debug("Hit start in Z-matrix (%s)" % l.strip())
-                        in_zmat = True
-                        if len(zmat):
-                            self.logger.warn("It looks like I am about to parse another z-matrices, dumping the last one!")
-                            zmat = ZMatrix()
-                    if l.strip() in self.breaks:
-                        self.logger.debug("Hit break in Z-matrix (%s)" % l.strip())
-                        in_zmat = False
-                        continue
-                    row = []
-                    for _l in l.split():
-                        if _l.strip() and in_zmat:
-                            row.append(_l.strip())
-                    if not row:
-                        continue
-                    # elif row[0].lower() in self.breaks:
-                    # elif " ".join(row) in self.breaks:
-                    # elif not in_zmat:
-                    #    break
-                    elif row[0] not in elements:
-                        continue
-    #                elif row[0] not in elements and len(zmat):
-    #                    self.logger.warn("It looks like I am about to parse two z-matrices, dumping the first!")
-    #                    zmat = ZMatrix()
-                    if len(row) >= 4:
-                        try:
-                            x,y,z = map(float,row[1:4])
-                            zmat += Atom(row[0],[x,y,z])
-                        except ValueError:
-                            self.logger.debug("Error parsing coordinates in Z-matrix in %s" % self.fn)
-                            self.logger.debug(' '.join(row))
-                        except KeyError:
-                            self.logger.debug("Error parsing atom name in Z-matrix in %s" % self.fn)
-                            self.logger.debug(' '.join(row))
-                self.zmat = zmat
-
+        if self.opts.nocclib or not self.__cclibparse():
+            self.__internalparse()
         if self.opts.project:
             self.zmat.toZaxis()
         elif self.opts.sortaxis:
             self.zmat.sort(self.opts.sortaxis)
         if self.opts.transport:
             self.__dotransport()
-
+        if self.opts.build:
+            if self.zmat.findElectrodes():
+                self.logger.warn("This zmatrix already appears to have electrodes!")
+            self.zmat.buildElectrodes(self.opts.build,self.opts.size,
+                                      self.opts.distance,self.opts.binding,
+                                      self.opts.surface,
+                                      adatom=self.opts.adatom,
+                                      SAM=self.opts.SAM,
+                                      reverse=self.opts.reverse)
+        self.zmat.findElectrodes()
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
 
-    def _cclibparse(self):
+    def __internalparse(self):
+        self.logger.warn('Could not parse with cclib, falling back to internal parser')
+        zmat = ZMatrix()
+        in_zmat = False
+        if not self.begin or (self.fn[-4:].lower() in ('.com')):
+            in_zmat = True
+        with open(self.fn) as fh:
+            for _l in fh:
+                if not _l.strip():
+                    continue
+                if _l.strip() in self.begin:
+                    self.logger.debug("Hit start in Z-matrix (%s)", _l.strip())
+                    in_zmat = True
+                    if len(zmat):
+                        self.logger.warn("It looks like I am about to parse another z-matrices, dumping the last one!")
+                        zmat = ZMatrix()
+                if _l.strip() in self.breaks:
+                    self.logger.debug("Hit break in Z-matrix (%s)", _l.strip())
+                    in_zmat = False
+                    continue
+                row = []
+                for _ls in _l.split():
+                    if _ls.strip() and in_zmat:
+                        row.append(_ls.strip())
+                if not row or (row[0] not in elements):
+                    continue
+                if len(row) >= 4:
+                    try:
+                        x,y,z = map(float,row[1:4])
+                        zmat += Atom(row[0],[x,y,z])
+                    except ValueError:
+                        self.logger.debug("Error parsing coordinates in Z-matrix in %s", self.fn)
+                        self.logger.debug(' '.join(row))
+                    except KeyError:
+                        self.logger.debug("Error parsing atom name in Z-matrix in %s", self.fn)
+                        self.logger.debug(' '.join(row))
+            self.zmat = zmat
+
+    def __cclibparse(self):
         self.logger.info("Using cclib to parse input; it may take a while...")
         zmat = ZMatrix()
         try:

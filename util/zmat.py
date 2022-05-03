@@ -9,7 +9,7 @@ from .constants import EATOMS,TAGS
 __ALL__ = ['ZMatrix']
 
 class ZMatrix(Atoms):
-    
+
     logger = logging.getLogger('Z-Matrix')
     electrodes = {'L':(0,0),'M':(0,0),'R':(0,0),'atom':None}
 
@@ -19,7 +19,7 @@ class ZMatrix(Atoms):
             if e in self.get_chemical_symbols():
                 break
         self.logger.debug('Searching for %s electrodes.' % e)
-        _l,_m,_r = [],[],[] 
+        _l,_m,_r = [],[],[]
         for _a in self:
             self.logger.debug(str(_a))
             if _a.symbol == e:
@@ -42,48 +42,57 @@ class ZMatrix(Atoms):
             return
         elif not _l or not _r:
             self.logger.debug('No electrodes found.')
-            return
+            return False
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
         self.logger.debug(self.electrodes)
+        return True
 
-    def buildElectrodes(self,atom,size,distance,position,surface,adatom=False,SAM=False):
+    def buildElectrodes(self,atom,size,distance,position,surface,**kwargs):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
-        if self.onAxis() != 'z':
-            self.toZaxis()
-            if self.onAxis() != 'z':
-                self.logger.warn('Molecule is not projected along Z-axis!')
-        #if self[0].symbol != 'S' or self[-1].symbol != 'S':
+
+        for _kw in ('adatom', 'SAM', 'reverse'):
+            if _kw not in kwargs:
+                kwargs[_kw] = False
+
+        # if kwargs['reverse']:
+        #     mol_index = 0
+        # else:
+        #     mol_index = -1
+        self.sort('z')
+        if 'z' not in self.toZaxis(kwargs['reverse']):
+            self.logger.warn('Molecule is not projected along Z-axis!')
+        # if self[0].symbol != 'S' or self[-1].symbol != 'S':
         if self[0].symbol != 'S' and self[-1].symbol != 'S':
             self.logger.warn('Molecule is not terminated with at least one S atom!')
         self.logger.info('Building %s electrodes.' % atom)
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
-        if adatom:
+        if kwargs['adatom']:
             self.logger.debug('Adding %s adatom' % atom)
             Spos = self[-1].position
             self += Atom(atom,position=[Spos[0],Spos[1],Spos[2]+2.5])
-        if SAM:
+        if kwargs['SAM']:
             offset = 0
-            self.logger.debug('Building an n x n SAM (%s)' % str(size[0]/2) )
+            self.logger.debug('Building an n x n SAM (%s)' % str(size[0]/2))
             for i in range(0,size[0],2):
                 ase.build.add_adsorbate(b,self,distance,position,offset=[0,i])
                 for n in range(2,size[0],2):
                     ase.build.add_adsorbate(b,self,distance,position,offset=[n,i])
         else:
-            offset = ( ceil(size[0]/2-1), ceil(size[1]/2-1) )
+            offset = (ceil(size[0]/2-1), ceil(size[1]/2-1))
             ase.build.add_adsorbate(b,self,distance,position,offset=offset)
         self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
-        #b.rotate('x',pi)
+        # b.rotate('x',pi)
         b.rotate(180,'x')
         b.translate([0,0,ceil(abs(b[-1].z))])
-        #b.rotate('z',(4/3)*pi)
+        # b.rotate('z',(4/3)*pi)
         b.rotate(240,'z')
         ase.build.add_adsorbate(c,b,distance,position,offset=offset,mol_index=-1)
         self.__init__(c)
         self.sort()
         self.findElectrodes()
-    
+
     def GetnpArray(self):
         a = []
         for _a in self:
@@ -93,7 +102,7 @@ class ZMatrix(Atoms):
             b[2] = _a.z
             b[3] = _a.number
             b[4] = _a.symbol
-            a.append(tuple(b)) #must be tuples for dt to work!
+            a.append(tuple(b))  # NOTE: must be tuples for dt to work!
 
         dt = np.dtype([('x','float64'),('y','float64'),('z','float64'),
                        ('n','int8'),('atom',np.str_,2)])
@@ -101,16 +110,19 @@ class ZMatrix(Atoms):
 
     def sort(self,axis='z'):
         '''Sort zmatrix along given axis.'''
-        self.logger.debug('Sorting along %s-axis' % axis)
+        self.logger.info('Sorting along %s-axis' % axis)
         am = {'x':0,'y':1,'z':2}
         self.__init__(sorted(self, key=lambda self: self.position[am[axis]]))
-        
+        for _a in self:
+            self.logger.debug(str(_a))
+
     def write(self,fh):
         for _a in self:
-            fh.write('%s\t%.8f\t%.8f\t%.8f\n' % (_a.symbol,_a.x,_a.y,_a.z) )
+            fh.write('%s\t%.8f\t%.8f\t%.8f\n' % (_a.symbol,_a.x,_a.y,_a.z))
 
     def getAtomCounts(self):
         return Counter(self.get_chemical_symbols())
+
     def unique(self):
         return tuple(self.getAtomCounts().keys())
 
@@ -123,10 +135,10 @@ class ZMatrix(Atoms):
 
     def onAxis(self):
         distances = self.findDistances()
-        maxd = distances[ max(list(distances.keys())) ]
-        f = np.array([self[maxd[0]].x,self[maxd[0]].y,self[maxd[0]].z])
-        l = np.array([self[maxd[1]].x,self[maxd[1]].y,self[maxd[1]].z])
-        diff = abs(f-l)
+        maxd = distances[max(list(distances.keys()))]
+        _f = np.array([self[maxd[0]].x,self[maxd[0]].y,self[maxd[0]].z])
+        _l = np.array([self[maxd[1]].x,self[maxd[1]].y,self[maxd[1]].z])
+        diff = abs(_f-_l)
         if diff.max() == diff[0]:
             return 'x'
         elif diff.max() == diff[1]:
@@ -140,18 +152,25 @@ class ZMatrix(Atoms):
             self.logger.debug('Error determining projection axis.')
             return None
 
-    def toZaxis(self):
+    def toZaxis(self, reverse=False):
+        if reverse:
+            return self.toAxis('-z')
+        else:
+            return self.toAxis('z')
+
+    def toAxis(self, target_axis):
         axis = self.onAxis()
-        if axis == 'z':
-            self.logger.debug('Already on z-axis, skipping rotation.')
-            return
-        self.logger.debug('Rotating from %s to z-axis.' % axis)
-        self.rotate(axis,'z')
-        #if axis == 'x':
+        if axis == target_axis:
+            self.logger.debug('Already on %s-axis, skipping rotation.', target_axis)
+            return axis
+        self.logger.debug('Rotating from %s-axis to %s-axis.', axis, target_axis)
+        self.rotate(axis, target_axis)
+        # if axis == 'x':
         #    self.rotate('x','z')
-        #elif axis == 'y':
+        # elif axis == 'y':
         #    self.rotate('x',pi/2)
         self.__moveAfterRotate()
+        return self.onAxis()
 
     def __moveAfterRotate(self):
         zc = {}
