@@ -55,11 +55,6 @@ class ZMatrix(Atoms):
             if _kw not in kwargs:
                 kwargs[_kw] = False
 
-        # if kwargs['reverse']:
-        #     mol_index = 0
-        # else:
-        #     mol_index = -1
-        self.sort('z')
         if 'z' not in self.toZaxis(kwargs['reverse']):
             self.logger.warn('Molecule is not projected along Z-axis!')
         # if self[0].symbol != 'S' or self[-1].symbol != 'S':
