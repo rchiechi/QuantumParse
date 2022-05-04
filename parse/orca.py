@@ -21,22 +21,22 @@ class Parser(xyz.Parser):
     breaks = ('CARTESIAN COORDINATES (A.U.)')
     begin = ('CARTESIAN COORDINATES (ANGSTROEM)')
 
-    def parseZmatrix(self):
-        self.logger.debug('Building zmatrix...')
-        if self.opts.nocclib or not self.__cclibparse():
-            self.__internalparse()
-        if self.opts.project:
-            self.zmat.toZaxis()
-        elif self.opts.sortaxis:
-            self.zmat.sort(self.opts.sortaxis)
-        if self.fn[-4:].lower() == '.out':
-            self.__dotransport()
-        else:
-            if self.opts.build:
-                self.zmat.buildElectrodes(self.opts.build,self.opts.size,
-                                          self.opts.distance,self.opts.binding,
-                                          self.opts.surface,self.opts.adatom,self.opts.SAM)
-        self.zmat.findElectrodes()
+    # def parseZmatrix(self):
+    #     self.logger.debug('Building zmatrix...')
+    #     if self.opts.nocclib or not self.__cclibparse():
+    #         self.__internalparse()
+    #     if self.opts.project:
+    #         self.zmat.toZaxis()
+    #     elif self.opts.sortaxis:
+    #         self.zmat.sort(self.opts.sortaxis)
+    #     if self.fn[-4:].lower() == '.out':
+    #         self.__dotransport()
+    #     else:
+    #         if self.opts.build:
+    #             self.zmat.buildElectrodes(self.opts.build,self.opts.size,
+    #                                       self.opts.distance,self.opts.binding,
+    #                                       self.opts.surface,self.opts.adatom,self.opts.SAM)
+    #     self.zmat.findElectrodes()
 
     def __dotransport(self):
         self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
