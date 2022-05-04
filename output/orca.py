@@ -10,17 +10,17 @@ class Writer(xyz.Writer):
         mult = xyz.Writer.getMultiplicity(self.parser.zmat)
         with open(fn,'wt') as fh:
             if self.opts.transport:
-                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv TIGHTSCF\n') 
-                #fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 SlowConv\n# # #\n') 
-                fh.write('%scf MaxIter 1000 end\n') 
+                fh.write('! DFT B3LYP/G Def2-SVP vdwgrid3 SlowConv TIGHTSCF\n')
+                # fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 SlowConv\n# # #\n')
+                fh.write('%scf MaxIter 1000 end\n')
             else:
-                fh.write('! DFT B3LYP/G Def2-TZVP def2-TZVP\n') 
-                #fh.write('# # # ORCA 3\n#! DFT B3LYP/G Def2-TZVP ECP{def2-TZVP}\n# # #\n') 
-            fh.write('#! NRSCF\n') 
-            fh.write('#! AHSCF\n') 
+                fh.write('! DFT B3LYP/G Def2-TZVP\n')
+                # fh.write('# # # ORCA 3\n#! DFT B3LYP/G Def2-TZVP ECP{def2-TZVP}\n# # #\n')
+            fh.write('#! NRSCF\n')
+            fh.write('#! AHSCF\n')
             fh.write('#%method SFitInvertType Diag_Q end\n')
-            fh.write('* xyzfile 0 %s %s\n'% (mult,xyzfh.name) )
-            fh.write('%pal nprocs 48 end\n')
+            fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name))
+            fh.write('%pal nprocs 24 end\n')
             fh.write('%maxcore 2048\n')
             fh.write('#%plots\n')
             fh.write('#dim1  128\n')
@@ -32,11 +32,11 @@ class Writer(xyz.Writer):
             fh.write('#end\n')
             if self.opts.transport:
                 fh.write('\n$new_job\n')
-                fh.write('! DFT B3LYP/G LANL2DZ vdwgrid3 SlowConv TIGHTSCF MOREAD\n') 
-                #fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n# # #\n') 
+                fh.write('! DFT B3LYP/G Def2-SVP SlowConv TIGHTSCF MOREAD\n')
+                # fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n# # #\n')
                 fh.write('%scf MaxIter 10 end\n')
                 fh.write('#%method SFitInvertType Diag_Q end\n')
-                fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name) )
+                fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name))
                 fh.write('%%MoInp "%s.gbw"\n' % bn)
                 fh.write('%%base "%s_T"\n' % bn)
                 fh.write('%output\n')
@@ -45,4 +45,4 @@ class Writer(xyz.Writer):
                 fh.write('  Print[P_Mos] 1\n')
                 fh.write('  Print[P_InputFile] 1\n')
                 fh.write('end\n')
-            
+
