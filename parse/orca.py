@@ -22,7 +22,13 @@ class Parser(xyz.Parser):
     begin = ('CARTESIAN COORDINATES (ANGSTROEM)')
 
     def parseZmatrix(self):
-        self.parseZmatrix()
+        self.logger.debug('Building zmatrix...')
+        if self.opts.nocclib or not self.__cclibparse():
+            self.__internalparse()
+        if self.opts.project:
+            self.zmat.toZaxis()
+        elif self.opts.sortaxis:
+            self.zmat.sort(self.opts.sortaxis)
         if self.fn[-4:].lower() == '.out':
             self.__dotransport()
         else:
