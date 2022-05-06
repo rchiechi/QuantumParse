@@ -92,6 +92,9 @@ parser.add_argument('--reverse', default=False, action='store_true',
                     help="Reverse the molecule in the junction (e.g., to get the adatom on the correct side.")
 parser.add_argument('--adatom', action='store_true', default=False,
                     help="Add an adatom to the fcc site of the bottom electrode.")
+parser.add_argument('-a','--anchor', default='S',
+                    choices=('S','Au','Ag'),
+                    help="Terminal atom to anchor to the surface.")
 parser.add_argument('-S', '--SAM', action='store_true', default=False,
                     help="Create a molecular ensemble instead of a single-molecule junction.")
 parser.add_argument('--png', action='store_true', default=False,

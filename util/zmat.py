@@ -54,12 +54,14 @@ class ZMatrix(Atoms):
         for _kw in ('adatom', 'SAM', 'reverse'):
             if _kw not in kwargs:
                 kwargs[_kw] = False
+        if 'anchor' not in kwargs:
+            kwargs['anchor'] == 'S'
 
         if 'z' not in self.toZaxis(kwargs['reverse']):
             self.logger.warn('Molecule is not projected along Z-axis!')
         # if self[0].symbol != 'S' or self[-1].symbol != 'S':
-        if self[0].symbol != 'S' and self[-1].symbol != 'S':
-            self.logger.warn('Molecule is not terminated with at least one S atom!')
+        if self[0].symbol != kwargs['anchor'] and self[-1].symbol != kwargs['anchor']:
+            self.logger.warn('Molecule is not terminated with at least one %s atom!' % kwargs['anchor'])
         self.logger.info('Building %s electrodes.' % atom)
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
