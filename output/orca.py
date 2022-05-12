@@ -18,7 +18,7 @@ class Writer(xyz.Writer):
                 # fh.write('# # # ORCA 3\n#! DFT B3LYP/G Def2-TZVP ECP{def2-TZVP}\n# # #\n')
             fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name))
-            fh.write('#%%base "%s_E"\n' % xyzfh.name)
+            fh.write('#%%base "%s"\n' % xyzfh.name.replace('.xyz', '_E'))
             fh.write('%pal nprocs 24 end\n')
             fh.write('%%maxcore %s\n' % self.opts.memory)
             fh.write('#%plots\n')
