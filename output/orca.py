@@ -21,7 +21,7 @@ class Writer(xyz.Writer):
             fh.write('#%method SFitInvertType Diag_Q end\n')
             fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name))
             fh.write('%pal nprocs 24 end\n')
-            fh.write('%maxcore 2048\n')
+            fh.write('%%maxcore %s\n' % self.opts.memory)
             fh.write('#%plots\n')
             fh.write('#dim1  128\n')
             fh.write('#dim2  128\n')

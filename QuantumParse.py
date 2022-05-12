@@ -72,6 +72,8 @@ parser.add_argument('-T', '--transport', action='store_true', default=False,
                     help="Format orca/gaussian output for transport calculations.")
 parser.add_argument('-c', '--ncpus', type=int, default=24,
                     help="Number of parallel cpus in output.")
+parser.add_argument('-m', '--memory', type=int, default=1024,
+                    help="Max memory to allocate in GB.")
 parser.add_argument('-j', '--jobname', type=str, default='',
                     help="Specify a jobname (and output file name) instead of taking it from the input file name.")
 parser.add_argument('--writeelectrodes', action='store_true', default=False,

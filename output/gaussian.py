@@ -18,7 +18,7 @@ class Writer(xyz.Writer):
             fh.write('--Link1--\n')
             fh.write('%%chk=%s.chk\n' % self.jobname)
             fh.write('%%nprocshared=%s\n' % self.opts.ncpus)
-            fh.write('%%mem=%sGB\n' % str(self.opts.ncpus*4))
+            fh.write('%%mem=%sGB\n' % str(self.opts.memory))
             fh.write('# b3lyp/lanl2dz guess=read\n')
             fh.write('# iop(5/33=3)\n')
             fh.write('# iop(3/33=1)\n\n')
