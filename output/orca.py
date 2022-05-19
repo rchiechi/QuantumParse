@@ -2,11 +2,11 @@ from output import xyz
 
 class Writer(xyz.Writer):
 
-    def _writetail(self,xyzfh):
-        bn = xyzfh.name[:-4]
-        self.logger.debug('Base filname: %s' % bn)
+    def _writetail(self,fh):
+        bn = fh.name[:-4]
+        self.logger.debug('Base filname: %s', bn)
         fn = bn+'.inp'
-        self.logger.info('Writing to %s' % fn)
+        self.logger.info('Writing to %s', fn)
         mult = xyz.Writer.getMultiplicity(self.parser.zmat)
         with open(fn,'wt') as fh:
             if self.opts.transport:
@@ -17,8 +17,8 @@ class Writer(xyz.Writer):
                 fh.write('! DFT B3LYP/G Def2-TZVP\n')
                 # fh.write('# # # ORCA 3\n#! DFT B3LYP/G Def2-TZVP ECP{def2-TZVP}\n# # #\n')
             fh.write('#%method SFitInvertType Diag_Q end\n')
-            fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name))
-            fh.write('#%%base "%s"\n' % xyzfh.name.replace('.xyz', '_E'))
+            fh.write('* xyzfile 0 %s %s\n' % (mult,fh.name))
+            fh.write('#%%base "%s"\n' % fh.name.replace('.xyz', '_E'))
             fh.write('%pal nprocs 24 end\n')
             fh.write('%%maxcore %s\n' % self.opts.memory)
             fh.write('#%plots\n')
@@ -35,7 +35,7 @@ class Writer(xyz.Writer):
                 # fh.write('# # # ORCA 3\n#! DFT B3LYP/G DUNNING-DZP ECP{LANL2,LANLDZ} vdwgrid3 MOREAD\n# # #\n')
                 fh.write('%scf MaxIter 10 end\n')
                 fh.write('#%method SFitInvertType Diag_Q end\n')
-                fh.write('* xyzfile 0 %s %s\n' % (mult,xyzfh.name))
+                fh.write('* xyzfile 0 %s %s\n' % (mult,fh.name))
                 fh.write('%%MoInp "%s.gbw"\n' % bn)
                 fh.write('%%base "%s_T"\n' % bn)
                 fh.write('%output\n')
