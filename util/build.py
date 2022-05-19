@@ -42,7 +42,7 @@ def zmatToAtoms(zmat):
             tag.append(2)
         else:
             tag.append(0)
-        f+=a
+        f += a
         pos.append((row[1]['x'],row[1]['y'],row[1]['z']))
     atoms = Atoms(f,positions=pos,tags=tag)
     return atoms
@@ -66,11 +66,11 @@ def sortZmat(zmat,axis='z'):
 
 def findDistances(xyz):
     distances = {}
-    if type(xyz) == type(Atoms()):
+    if isinstance(xyz, Atoms):
         for _a in xyz:
             for _b in xyz:
                 distances[xyz.get_distance(_a.index,_b.index)] = (_a.index,_b.index)
-    elif type(xyz) == type(DataFrame()):
+    elif isinstance(xyz, DataFrame):
         for _a in xyz.iterrows():
             for _b in xyz.iterrows():
                 c,d = np.array([_a[1].x,_a[1].y[1],_a.z]), np.array([_b[1].x,_b[1].y,_b[1].z])
@@ -79,18 +79,17 @@ def findDistances(xyz):
 
 def onAxis(xyz):
     distances = findDistances(xyz)
-    maxd = distances[ max(list(distances.keys())) ]
-    f = np.array([xyz[maxd[0]].x,xyz[maxd[0]].y,xyz[maxd[0]].z])
-    l = np.array([xyz[maxd[1]].x,xyz[maxd[1]].y,xyz[maxd[1]].z])
-    diff = abs(f-l)
+    maxd = distances[max(list(distances.keys()))]
+    _f = np.array([xyz[maxd[0]].x,xyz[maxd[0]].y,xyz[maxd[0]].z])
+    _l = np.array([xyz[maxd[1]].x,xyz[maxd[1]].y,xyz[maxd[1]].z])
+    diff = abs(_f-_l)
     if diff.max() == diff[0]:
         return 'x'
-    elif diff.max() == diff[1]:
+    if diff.max() == diff[1]:
         return 'y'
-    elif diff.max() == diff[2]:
+    if diff.max() == diff[2]:
         return 'z'
-    else:
-        return None
+    return None
 
 def toZaxis(atoms):
     logger.debug('Rotating zmatrix to Z-axis.')
