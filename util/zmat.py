@@ -18,7 +18,7 @@ class ZMatrix(Atoms):
         for e in EATOMS:
             if e in self.get_chemical_symbols():
                 break
-        self.logger.debug('Searching for %s electrodes.' % e)
+        self.logger.debug('Searching for %s electrodes.', e)
         _l,_m,_r = [],[],[]
         for _a in self:
             self.logger.debug(str(_a))
@@ -39,8 +39,8 @@ class ZMatrix(Atoms):
                 self.logger.debug(_r)
             else:
                 self.logger.debug('No electrodes found.')
-            return
-        elif not _l or not _r:
+            return None
+        if not _l or not _r:
             self.logger.debug('No electrodes found.')
             return False
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
@@ -55,31 +55,33 @@ class ZMatrix(Atoms):
             if _kw not in kwargs:
                 kwargs[_kw] = False
         if 'anchor' not in kwargs:
-            kwargs['anchor'] == 'S'
+            kwargs['anchor'] = 'S'
 
         if 'z' not in self.toZaxis(kwargs['reverse']):
-            self.logger.warn('Molecule is not projected along Z-axis!')
+            self.logger.warning('Molecule is not projected along Z-axis!')
         # if self[0].symbol != 'S' or self[-1].symbol != 'S':
         if self[0].symbol != kwargs['anchor'] and self[-1].symbol != kwargs['anchor']:
-            self.logger.warn('Molecule is not terminated with at least one %s atom!' % kwargs['anchor'])
-        self.logger.info('Building %s electrodes.' % atom)
+            self.logger.warning(
+                'Molecule is not terminated with at least one %s atom!', kwargs['anchor'])
+        self.logger.info('Building %s electrodes.', atom)
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
         if kwargs['adatom']:
-            self.logger.debug('Adding %s adatom' % atom)
+            self.logger.debug('Adding %s adatom', atom)
             Spos = self[-1].position
             self += Atom(atom,position=[Spos[0],Spos[1],Spos[2]+2.5])
         if kwargs['SAM']:
             offset = 0
-            self.logger.debug('Building an n x n SAM (%s)' % str(size[0]/2))
+            self.logger.debug('Building an n x n SAM (%s)', str(size[0]/2))
             for i in range(0,size[0],2):
                 ase.build.add_adsorbate(b,self,distance,position,offset=[0,i])
-                for n in range(2,size[0],2):
-                    ase.build.add_adsorbate(b,self,distance,position,offset=[n,i])
+                for j in range(2,size[0],2):
+                    ase.build.add_adsorbate(b,self,distance,position,offset=[j,i])
         else:
             offset = (ceil(size[0]/2-1), ceil(size[1]/2-1))
             ase.build.add_adsorbate(b,self,distance,position,offset=offset)
-        self.logger.debug('Electrode size: %s offset: %s distance:%s' % (str(size),str(offset),str(distance)))
+        self.logger.debug('Electrode size: %s offset: %s distance:%s',
+                          str(size),str(offset),str(distance))
         # b.rotate('x',pi)
         b.rotate(180,'x')
         b.translate([0,0,ceil(abs(b[-1].z))])
@@ -107,7 +109,7 @@ class ZMatrix(Atoms):
 
     def sort(self,axis='z'):
         '''Sort zmatrix along given axis.'''
-        self.logger.info('Sorting along %s-axis' % axis)
+        self.logger.info('Sorting along %s-axis', axis)
         am = {'x':0,'y':1,'z':2}
         self.__init__(sorted(self, key=lambda self: self.position[am[axis]]))
         for _a in self:
