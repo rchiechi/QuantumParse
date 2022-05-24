@@ -161,6 +161,10 @@ if opts.outformat == 'artaios':
 
 parsers = []
 for fn in opts.infiles:
+    if opts.outformat == 'dftbplus':
+        if '.xyz' not in fn.lower() or '.gen' in fn.lower():
+            logger.error('dftbplus requires an xyz or gen file.')
+            sys.exit()
     parsers.append(importlib.import_module('parse.%s' % opts.informat).Parser(opts,fn))
 
 for p in parsers:

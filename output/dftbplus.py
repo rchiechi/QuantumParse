@@ -16,8 +16,11 @@ class Writer(xyz.Writer):
         fn = 'dftb_in.hsd'
         self.logger.info('Writing to %s', fn)
         with open(fn,'wt') as hsd:
-            hsd.write('Geometry = xyzFormat {\n')
-            hsd.write(f'<<< {fh.name}.xyz\n')
+            if '.xyz' in fh.name.lower():
+                hsd.write('Geometry = xyzFormat {\n')
+            elif '.gen' in fh.name.lower():
+                hsd.write('Geometry = GenFormat\n')
+            hsd.write(f'<<< {fh.name}\n')
             hsd.write('}\n')
             hsd.write('Driver = ConjugateGradient {\n')
             hsd.write(f'  MaxSteps = 10000\n  MovedAtoms = 1:-1\n  OutputPrefix = "{fh.name}_opt"\n')
