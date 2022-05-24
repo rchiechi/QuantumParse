@@ -26,7 +26,7 @@ class Writer(xyz.Writer):
             hsd.write('  #ReadInitialCharges = Yes\n  SCCTolerance = 1E-7\n')
             hsd.write('  Scc = Yes\n  MaxSccIterations = 100\n')
             hsd.write('  SlaterKosterFiles = Type2FileNames { # File names with two atom type names\n')
-            hsd.write(f'    Prefix = "{os.path.expanduser("~")}/.dftbplus/slakos/3ob-3-1/"    # Prefix before first type name\n')
+            hsd.write(f'    Prefix = "{os.path.expanduser("~")}/.dftbplus/slakos/mio-ext/"    # Prefix before first type name\n')
             hsd.write('    Separator = "-" # Dash between type names\n')
             hsd.write('    Suffix = ".skf" # Suffix after second type name\n')
             hsd.write('  }\n')
