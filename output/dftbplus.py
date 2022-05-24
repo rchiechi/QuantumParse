@@ -31,7 +31,7 @@ class Writer(xyz.Writer):
             hsd.write('    Suffix = ".skf" # Suffix after second type name\n')
             hsd.write('  }\n')
             hsd.write('  MaxAngularMomentum {\n')
-            for _atom in self.opts.zmat.unique():
+            for _atom in self.parser.zmat.unique():
                 hsd.write(f'    {_atom} = "{get_angular_momentum(_atom)}"\n')
             hsd.write('  }\n}\n')
             hsd.write('Options {\n  WriteDetailedXml = Yes\n}\n')
