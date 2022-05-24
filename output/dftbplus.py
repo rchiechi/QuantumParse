@@ -24,7 +24,7 @@ class Writer(xyz.Writer):
             hsd.write('}\n')
             hsd.write('Driver = ConjugateGradient {\n')
             hsd.write(f'  MaxSteps = 10000\n  MovedAtoms = 1:-1\n  OutputPrefix = "{fh.name}_opt"\n')
-            hsd.write('  #MaxForceComponent = 1.0e-4      # Stop if maximal force below 1.0e-4\n')
+            hsd.write('  #MaxForceComponent = 1.0e-4      # Stop if maximal force below 1.0e-4\n}\n')
             hsd.write('Hamiltonian = DFTB {\n')
             hsd.write('  #ReadInitialCharges = Yes\n  SCCTolerance = 1E-7\n')
             hsd.write('  Scc = Yes\n  MaxSccIterations = 100\n')
