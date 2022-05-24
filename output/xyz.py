@@ -23,6 +23,8 @@ class Writer:
             # self.jobname = ''.join(self.parser.fn.split('.')[0:-1])
             self.jobname = ''.join(os.path.basename(self.parser.fn).split('.')[0:-1])
         self.fn = self.jobname+self.ext
+        if self.opts.optimize:
+            self.parser.zmat.optimize()
 
     def writeelectrodes(self):
         if not self.parser.haselectrodes():
@@ -87,7 +89,10 @@ class Writer:
         fh.write('%s\n' % self.jobname)
 
     def _writezmat(self,fh):
-        self.parser.zmat.write(fh)
+        if self.parser.zmat.optimized is not None:
+            self.parser.zmat.optimized.write(fh)
+        else:
+            self.parser.zmat.write(fh)
         # , sep='\t',
         #        header=False, index=False,
         #        float_format='%.8f')

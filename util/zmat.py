@@ -1,5 +1,7 @@
 from ase import Atom,Atoms
 import ase.build
+from ase.optimize import BFGS
+from ase.calculators.emt import EMT
 from math import ceil
 from collections import Counter
 import numpy as np
@@ -12,6 +14,7 @@ class ZMatrix(Atoms):
 
     logger = logging.getLogger('Z-Matrix')
     electrodes = {'L':(0,0),'M':(0,0),'R':(0,0),'atom':None}
+    optimized = None
 
     def findElectrodes(self):
         '''Guess indices of electrode atoms.'''
@@ -131,6 +134,14 @@ class ZMatrix(Atoms):
             for _b in self:
                 distances[self.get_distance(_a.index,_b.index)] = (_a.index,_b.index)
         return distances
+
+    def optimize(self):
+        self.calc = EMT()
+        dyn = BFGS(self)
+        dyn.run(fmax=0.05)
+        self.optimized = ZMatrix()
+        for _atom in dyn.atoms:
+            self.optimized += _atom
 
     def onAxis(self):
         distances = self.findDistances()

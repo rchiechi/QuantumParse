@@ -101,6 +101,8 @@ parser.add_argument('-S', '--SAM', action='store_true', default=False,
                     help="Create a molecular ensemble instead of a single-molecule junction.")
 parser.add_argument('--png', action='store_true', default=False,
                     help="Write a PNG file of the resulting output.")
+parser.add_argument('-O', '--optimize', action='store_true', default=False,
+                    help="Perform a quick-and-dirty geometry optimization.")
 
 opts = parser.parse_args()
 
