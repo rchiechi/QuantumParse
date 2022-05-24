@@ -20,7 +20,7 @@ class Writer(xyz.Writer):
                 hsd.write('Geometry = xyzFormat {\n')
             elif '.gen' in fh.name.lower():
                 hsd.write('Geometry = GenFormat\n')
-            hsd.write(f'<<< {fh.name}\n')
+            hsd.write(f'<<< "{fh.name}"\n')
             hsd.write('}\n')
             hsd.write('Driver = ConjugateGradient {\n')
             hsd.write(f'  MaxSteps = 10000\n  MovedAtoms = 1:-1\n  OutputPrefix = "{fh.name}_opt"\n')
