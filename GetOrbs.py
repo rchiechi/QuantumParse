@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Version: 1.0
-Copyright (C) 2018 Ryan Chiechi <r.c.chiechi@rug.nl>
+Copyright (C) 2022 Ryan Chiechi <ryan.chiechi@ncsu.edu>
 Description:
         This program parses the outputs of quantum chemistry programs
         and renders isoplots as cube files using VMD. It is mostly useful
@@ -27,6 +27,7 @@ License: BSD-2-Clause
 import sys
 import os
 import re
+import json
 import argparse
 import subprocess
 import configparser
@@ -238,7 +239,7 @@ def OrcaEplot(BN,rccconfig,opts):
     mep_inp.close()
     try:
         subprocess.check_call([vpotbin, "%s.gbw" % BN, "%s-plot.scfp" % BN,
-                               "%s_eplot.inp" % BN, "%s_eplot.out" % BN])
+                               "%s_eplot.inp" % BN, "%s_eplot.out" % BN], env=ENV)
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
         return
@@ -433,7 +434,7 @@ def doorcaproc(opts, fn, tclfn, runorca):
     print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
     if ((opts.render and opts.ORCApath) or opts.eplot or opts.spindens) and runorca:
         print(Fore.CYAN+'Starting orca...')
-        p = subprocess.run([opts.ORCApath,fn],stdout=subprocess.PIPE)
+        p = subprocess.run([opts.ORCApath,fn],stdout=subprocess.PIPE, env=ENV)
         if b'****ORCA TERMINATED NORMALLY****' in p.stdout:
             print(Fore.GREEN+'Successfully generated cube files with Orca.')
             orcasuccess = True
@@ -452,7 +453,7 @@ def doorcaproc(opts, fn, tclfn, runorca):
             OrcaEplot(BN,rcconfig,opts)
 
     if opts.render and opts.VMDpath and orcasuccess:
-        subprocess.run([opts.VMDpath, '-e', tclfn])
+        subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
 
 def doorcaprog(fn, opts):
     try:
@@ -543,6 +544,7 @@ if not rcconfig.read(RCFILE):
     rcconfig['GENERAL'] = {'ORCApath':orcabin,
                            'ORCAvpot': vpotbin,
                            'VMDpath':vmdbin,
+                           'ENV':'',
                            'render':'no',
                            'orbs':'HOMO, LUMO'}
     rcconfig['VMD'] = {'colors':'blue, red',
@@ -593,6 +595,8 @@ parser.add_argument('-O','--ORCApath', type=str, default=rcconfig['GENERAL']['OR
                     help='Specify the location of the orca binary.')
 parser.add_argument('-V','--VMDpath', type=str, default=rcconfig['GENERAL']['VMDpath'],
                     help='Specify the location of the vmd binary.')
+parser.add_argument('--env', type=str, default=rcconfig['GENERAL']['ENV'],
+                    help='Environmental variables to load when calling binaries in JSON format, e.g. \'{"LD_LIBRARY_PATH": "/opt/orca/"}\'.')
 parser.add_argument('-c','--colors', nargs=2, default=rcconfig['VMD']['colors'].replace(' ','').split(','), choices=tuple(VMDCOLORS.keys()),
                     help='Colors for +/- orbital coefficients.')
 parser.add_argument('-m','--material', type=str, default=rcconfig['VMD']['material'].strip(), choices=VMDMATERIALS,
@@ -611,6 +615,7 @@ parser.add_argument('-s','--spin', type=int, default=1,
                     help='Spin multiplicity of molecule.')
 
 opts = parser.parse_args()
+ENV = json.loads(opts.env)
 
 # Check that options were parsed correctly
 if not opts.infiles:
@@ -655,14 +660,14 @@ for fn in opts.infiles:
         writeSimpleVMD(tclfn, os.path.basename(fn))
         if opts.render and opts.VMDpath:
             print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
-            subprocess.run([opts.VMDpath, '-e', tclfn])
+            subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
 
     elif PROG == 'cube':
         tclfn = fn[:-5]+'_vmd.tcl'
         writeCubeVMD(tclfn, os.path.basename(fn))
 
         if opts.render and opts.VMDpath:
-            subprocess.run([opts.VMDpath, '-e', tclfn])
+            subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
 
     elif PROG == 'orca':
         doorcaprog(fn, opts)
