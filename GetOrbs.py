@@ -501,8 +501,8 @@ def doorcaprog(fn, opts):
 
     print(Back.BLUE+Fore.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # # # # # #')
     RUNORCA = False
-    fn = '%s_plot.inp' % BN
-    xyz = f'{fn[:-4]}.xyz'
+    fn_plot = '{BN}_plot.inp'
+    xyz = f'{BN}.xyz'
     if not os.path.exists(xyz):
         if os.path.exists(f'{gbw[:-4]}.xyz'):
             print(f'{Fore.YELLOW}Using {gbw[:-4]}.xyz as the XYZ file.')
@@ -512,7 +512,7 @@ def doorcaprog(fn, opts):
         else:
             print(f'{Fore.RED}{Style.BRIGHT}Did not find {xyz}')
             sys.exit()
-    with open(fn, 'wt') as fh:
+    with open(fn_plot, 'wt') as fh:
         fh.write('%s NOITER KEEPDENS\n' % dft)
         fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
         fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
@@ -541,10 +541,10 @@ def doorcaprog(fn, opts):
             if not os.path.exists("%s.cube" % ORBS[o][2]):
                 RUNORCA = True
         fh.write('end\n')
-    print(Fore.GREEN+Style.BRIGHT+"Wrote %s" % fn)
-    tclfn = fn[:-4]+'_vmd.tcl'
+    print(Fore.GREEN+Style.BRIGHT+"Wrote %s" % fn_plot)
+    tclfn = fn_plot[:-4]+'_vmd.tcl'
     writeVMD(tclfn, opts, BN)
-    doorcaproc(opts, gbw, fn, tclfn, RUNORCA)
+    doorcaproc(opts, gbw, fn_plot, tclfn, RUNORCA)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
