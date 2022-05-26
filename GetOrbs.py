@@ -244,11 +244,18 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
         mep_inp.write(f'{BN}_eplot.out  # Output File\n')
         # mep_inp.write(f'{BN}-plot   # BaseName of DensityContainer\n')
 
-    try:
-        subprocess.check_call([vpotbin, f"{BN}_eplot.inp"])
-    except subprocess.CalledProcessError:
-        print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
-        return
+    # try:
+    #     subprocess.check_call([vpotbin, f"{BN}_eplot.inp"])
+    print(Fore.CYAN+'Starting vpot...')
+    p = subprocess.run([vpotbin, f"{BN}_eplot.inp"], stdout=subprocess.PIPE, env=ENV)
+    if b'Wrote eplot' in p.stdout:
+        print(f'{Fore.GREEN} Done!')
+    else:
+        print(f'{Fore.RED}{Style.BRIGHT}vpot job may have failed.')
+        print(f'{Fore.RED}{p.stdout}')
+    # except subprocess.CalledProcessError:
+        # print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
+        # return
     if not os.path.exists(f'{BN}_eplot.out'):
         print(f'{Fore.RED}{Style.BRIGHT}Failed to generate {BN}_eplot.out')
         return
@@ -291,7 +298,7 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
                 if n != 0:
                     cube.write("\n")
                     n = 0
-    print("Wrote eplot to %s_eplot.cube" % BN)
+    print(f"{Fore.GREEN}Wrote eplot to %s_eplot.cube" % BN)
 
 def writeVMD(fn,opts,BN):
     with open(fn,'wt') as fh:
