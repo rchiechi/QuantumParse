@@ -508,6 +508,8 @@ def doorcaprog(fn, opts):
             fh.write('ElDens("%s_eldens.cube"); # Electron density\n' % BN)
             if not os.path.exists("%s_eldens.cube" % BN):
                 RUNORCA = True
+            if not os.path.exists(f"{BN}_eplot.cube"):
+                RUNORCA = True
         if opts.spindens:
             fh.write('SpinDens("%s_spindens.cube"); # Spin density\n' % BN)
             if not os.path.exists("%s_spindens.cube" % BN):
