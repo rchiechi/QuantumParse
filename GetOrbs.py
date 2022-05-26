@@ -163,8 +163,8 @@ def GetOrbsOrca(fn,opts):
                             break
                         if c == '!':
                             dft = '! '+_l.split('!')[-1].strip()
-                            if 'PAL' not in dft and opts.pal:
-                                dft += f" PAL{opts.pal}"
+                            # if 'PAL' not in dft and opts.pal:
+                            #     dft += f" PAL{opts.pal}"
                             if 'MOREAD' not in dft:
                                 dft += " MOREAD"
                             break
@@ -491,6 +491,8 @@ def doorcaprog(fn, opts):
         fh.write('%s NOITER KEEPDENS\n' % dft)
         fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
         fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
+        if opts.pal > 1:
+            fh.write(f'%pal nprocs {opts.pal}\nend\n')
         fh.write('* xyzfile %s %s %s.xyz\n' % (opts.charge,opts.spin,gbw[:-4]))
         fh.write('%%base "%s-plot"\n' % BN)
         fh.write('%%MoInp "%s"\n' % gbw)
