@@ -504,7 +504,7 @@ def doorcaprog(fn, opts):
     fn = '%s_plot.inp' % BN
     xyz = f'{fn[:-4]}.xyz'
     if not os.path.exists(xyz):
-        if os.path.exists('{gbw[:-4]}.xyz'):
+        if os.path.exists(f'{gbw[:-4]}.xyz'):
             print(f'{Fore.YELLOW}Using {gbw[:-4]}.xyz as the XYZ file.')
             with open(f'{gbw[:-4]}.xyz', 'r') as fh:
                 with open(xyz, 'w') as xyz_fh:
