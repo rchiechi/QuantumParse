@@ -502,13 +502,23 @@ def doorcaprog(fn, opts):
     print(Back.BLUE+Fore.WHITE+'# # # # # # # # # # # # # # # # # # # # # # # # # # # #')
     RUNORCA = False
     fn = '%s_plot.inp' % BN
+    xyz = f'{fn[:-4]}.xyz'
+    if not os.path.exists(xyz):
+        if os.path.exists('{gbw[:-4]}.xyz'):
+            print(f'{Fore.YELLOW}Using {gbw[:-4]}.xyz as the XYZ file.')
+            with open(f'{gbw[:-4]}.xyz', 'r') as fh:
+                with open(xyz, 'w') as xyz_fh:
+                    xyz_fh.write(fh.read())
+        else:
+            print(f'{Fore.RED}{Style.BRIGHT}Did not find {xyz}')
+            sys.exit()
     with open(fn, 'wt') as fh:
         fh.write('%s NOITER KEEPDENS\n' % dft)
         fh.write('#! DFT B3LYP/G LANL2DZ MOREAD NOITER PAL8\n')
         fh.write('# orca 3 ! Quick-DFT ECP{LANL2,LANLDZ} MOREAD NOITER\n')
         if opts.pal > 1:
             fh.write(f'%pal nprocs {opts.pal}\nend\n')
-        fh.write('* xyzfile %s %s %s.xyz\n' % (opts.charge,opts.spin,gbw[:-4]))
+        fh.write('* xyzfile %s %s %s\n' % (opts.charge,opts.spin,xyz))
         fh.write('%%base "%s-plot"\n' % BN)
         fh.write('%%MoInp "%s"\n' % gbw)
         fh.write('%plots\n')
