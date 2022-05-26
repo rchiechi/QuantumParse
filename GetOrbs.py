@@ -248,11 +248,12 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
     #     subprocess.check_call([vpotbin, f"{BN}_eplot.inp"])
     print(Fore.CYAN+'Starting vpot...')
     p = subprocess.run([vpotbin, f"{BN}_eplot.inp"], stdout=subprocess.PIPE, env=ENV)
-    if b'Wrote eplot' in p.stdout:
+    if p.returncode == 0:
         print(f'{Fore.GREEN} Done!')
     else:
         print(f'{Fore.RED}{Style.BRIGHT}vpot job may have failed.')
-        print(f'{Fore.RED}{p.stdout}')
+        _lines = str(p.stdout, encoding='utf8')
+        print(f'{Fore.RED}{_lines}')
     # except subprocess.CalledProcessError:
         # print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
         # return
