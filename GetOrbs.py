@@ -211,7 +211,7 @@ def read_xyz(xyz):
             z.append(float(data[3]))
     return atoms, np.array(x), np.array(y), np.array(z)
 
-def OrcaEplot(BN,rccconfig,opts):
+def OrcaEplot(BN, gbw, rccconfig, opts):
 
     vpotbin = rcconfig['GENERAL']['ORCAvpot']
 
@@ -238,12 +238,12 @@ def OrcaEplot(BN,rccconfig,opts):
                 mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
     mep_inp.close()
     try:
-        subprocess.check_call([vpotbin, "%s.gbw" % BN, "%s-plot.scfp" % BN,
-                               "%s_eplot.inp" % BN, "%s_eplot.out" % BN], env=ENV)
+        subprocess.check_call([vpotbin, gbw, f"{BN}-plot.scfp",
+                               f"{BN}_eplot.inp", f"{BN}_eplot.out"], env=ENV)
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
         return
-    with open("%s_eplot.out" % BN, "r") as fh:
+    with open(f"{BN}_eplot.out", "r") as fh:
         _v = []
         next(fh)
         for line in fh:
@@ -429,7 +429,7 @@ def printorcaorbs(key):
     for o in ORBS:
         print(Style.BRIGHT+'%s: (%0.4f eV)' % (o,ORBS[o][1]))
 
-def doorcaproc(opts, fn, tclfn, runorca):
+def doorcaproc(opts, gbw, fn, tclfn, runorca):
     orcasuccess = False
     print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render Cube  # # # # # # # # # # # #')
     if ((opts.render and opts.ORCApath) or opts.eplot or opts.spindens) and runorca:
@@ -446,7 +446,6 @@ def doorcaproc(opts, fn, tclfn, runorca):
             else:
                 _err = "\n".join(_lines)
             print(f'{Fore.RED}{_err}')
-            #subprocess.run(['tail','-n','15',fn[:-4]+'.out'])
     elif opts.ORCApath and opts.render:
         orcasuccess = True
         print(Fore.BLUE+"Skipping Orca run because cube files already exist.")
@@ -456,7 +455,7 @@ def doorcaproc(opts, fn, tclfn, runorca):
         if os.path.exists("%s_eplot.cube" % BN):
             print(Fore.BLUE+"Skipping vpot run because cube files already exist.")
         else:
-            OrcaEplot(BN,rcconfig,opts)
+            OrcaEplot(BN, gbw, rcconfig, opts)
 
     if opts.render and opts.VMDpath and orcasuccess:
         subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
@@ -516,8 +515,8 @@ def doorcaprog(fn, opts):
         fh.write('end\n')
     print(Fore.GREEN+Style.BRIGHT+"Wrote %s" % fn)
     tclfn = fn[:-4]+'_vmd.tcl'
-    writeVMD(tclfn,opts,BN)
-    doorcaproc(opts, fn, tclfn, RUNORCA)
+    writeVMD(tclfn, opts, BN)
+    doorcaproc(opts, gbw, fn, tclfn, RUNORCA)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
