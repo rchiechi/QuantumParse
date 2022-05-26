@@ -624,8 +624,10 @@ parser.add_argument('-s','--spin', type=int, default=1,
                     help='Spin multiplicity of molecule.')
 
 opts = parser.parse_args()
-ENV = json.loads(opts.env)
-print(f'{Fore.YELLOW}Loaded environment: {ENV}')
+ENV = os.environ
+_env = json.loads(opts.env)
+print(f'{Fore.YELLOW}Loaded environment: {_env}')
+ENV.update(_env)
 
 # Check that options were parsed correctly
 if not opts.infiles:
