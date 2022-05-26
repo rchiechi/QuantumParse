@@ -230,22 +230,25 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
     zmin = z.min() * ang_to_au - extent
     zmax = z.max() * ang_to_au + extent
 
-    mep_inp = open(BN + "_eplot.inp", "w")
-    mep_inp.write("{0:d}\n".format(npoints**3))
-    for ix in np.linspace(xmin, xmax, npoints, True):
-        for iy in np.linspace(ymin, ymax, npoints, True):
-            for iz in np.linspace(zmin, zmax, npoints, True):
-                mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
-    mep_inp.close()
+    with open(BN + "_eplot.inp", "w") as mep_inp:
+        mep_inp.write("{0:d}\n".format(npoints**3))
+        for ix in np.linspace(xmin, xmax, npoints, True):
+            for iy in np.linspace(ymin, ymax, npoints, True):
+                for iz in np.linspace(zmin, zmax, npoints, True):
+                    mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
     if opts.pal > 1:
         cmd = ['mpirun', '-np', str(opts.pal), f'{vpotbin}_mpi']
     else:
         cmd = [vpotbin]
     try:
-        subprocess.check_call(cmd+[gbw, f"{BN}-plot.scfp",
-                              f"{BN}_eplot.inp", f"{BN}_eplot.out"], env=ENV)
+        subprocess.check_call(cmd+[gbw, f"{BN}-plot.desnities",
+                              f"{BN}_eplot.inp", f"{BN}_eplot.out"],
+                              env=ENV)
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
+        return
+    if not os.path.exists(f'{BN}_eplot.out'):
+        print(f'{Fore.RED}{Style.BRIGHT}Failed to generate {BN}_eplot.out')
         return
     with open(f"{BN}_eplot.out", "r") as fh:
         _v = []
