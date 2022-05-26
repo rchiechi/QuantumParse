@@ -238,7 +238,7 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
                 mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
     mep_inp.close()
     if opts.pal > 1:
-        cmd = [f'mpirun -np {opts.pal} {vpotbin}_mpi']
+        cmd = ['mpirun', '-np', str(opts.pal), f'{vpotbin}_mpi']
     else:
         cmd = [vpotbin]
     try:
