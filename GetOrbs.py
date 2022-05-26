@@ -230,20 +230,33 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
     zmin = z.min() * ang_to_au - extent
     zmax = z.max() * ang_to_au + extent
 
-    with open(BN + "_eplot.inp", "w") as mep_inp:
-        mep_inp.write("{0:d}\n".format(npoints**3))
+    with open(f"{BN}_eplot.xyz", "w") as mep_xyz:
+        mep_xyz.write("{0:d}\n".format(npoints**3))
         for ix in np.linspace(xmin, xmax, npoints, True):
             for iy in np.linspace(ymin, ymax, npoints, True):
                 for iz in np.linspace(zmin, zmax, npoints, True):
-                    mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
-    if opts.pal > 1:
-        cmd = ['mpirun', '-np', str(opts.pal), f'{vpotbin}_mpi']
-    else:
-        cmd = [vpotbin]
+                    mep_xyz.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
+    with open(f"{BN}_eplot.inp", "w") as mep_inp:
+        mep_inp.write(f'{str(opts.pal)}  # Number of parallel processes\n')
+        mep_inp.write(f'{gbw}  # GBW File\n')
+        mep_inp.write(f'{BN}-plot.scfp  # Density\n')
+        mep_inp.write(f'{BN}_eplot.xyz  # Coordinates\n')
+        mep_inp.write(f'{BN}_eplot.out  # Output File\n')
+        mep_inp.write(f'{BN}-plot   # BaseName of DensityContainer\n')
+#           mytest.gbw        # GBW File
+#           mytest.scfp       # Density
+#           mytest.xyz        # Coordinates
+#           myvpot.out        # Output File
+#           mytest2           # BaseName of DensityContainer (if different from 'mytest')
+    # if opts.pal > 1:
+    #     cmd = ['mpirun', '-np', str(opts.pal), f'{vpotbin}_mpi']
+    # else:
+    #     cmd = [vpotbin]
     try:
-        subprocess.check_call(cmd+[gbw, f"{BN}-plot.desnities",
-                              f"{BN}_eplot.inp", f"{BN}_eplot.out"],
-                              env=ENV)
+        # subprocess.check_call(cmd+[gbw, f"{BN}-plot.desnities",
+        #                       f"{BN}_eplot.inp", f"{BN}_eplot.out"],
+        #                       env=ENV)
+        subprocess.check_call([vpotbin, f"{BN}_eplot.inp"])
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
         return
