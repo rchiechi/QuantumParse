@@ -237,9 +237,13 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
             for iz in np.linspace(zmin, zmax, npoints, True):
                 mep_inp.write("{0:12.6f} {1:12.6f} {2:12.6f}\n".format(ix, iy, iz))
     mep_inp.close()
+    if opts.pal > 1:
+        cmd = [f'mpirun -np {opts.pal} {vpotbin}_mpi']
+    else:
+        cmd = [vpotbin]
     try:
-        subprocess.check_call([vpotbin, gbw, f"{BN}-plot.scfp",
-                               f"{BN}_eplot.inp", f"{BN}_eplot.out"], env=ENV)
+        subprocess.check_call(cmd+[gbw, f"{BN}-plot.scfp",
+                              f"{BN}_eplot.inp", f"{BN}_eplot.out"], env=ENV)
     except subprocess.CalledProcessError:
         print(Fore.RED+Style.BRIGHT+"orca_vpot returned an error, cannot generate eplot cube.")
         return
