@@ -164,7 +164,7 @@ def GetOrbsOrca(fn,opts):
                         if c == '!':
                             dft = '! '+_l.split('!')[-1].strip()
                             if 'PAL' not in dft and opts.pal:
-                                dft += " PAL%s"
+                                dft += f" PAL{opts.pal}"
                             if 'MOREAD' not in dft:
                                 dft += " MOREAD"
                             break
@@ -431,7 +431,7 @@ def printorcaorbs(key):
 
 def doorcaproc(opts, fn, tclfn, runorca):
     orcasuccess = False
-    print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
+    print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render Cube  # # # # # # # # # # # #')
     if ((opts.render and opts.ORCApath) or opts.eplot or opts.spindens) and runorca:
         print(Fore.CYAN+'Starting orca...')
         p = subprocess.run([opts.ORCApath,fn],stdout=subprocess.PIPE, env=ENV)
@@ -440,7 +440,13 @@ def doorcaproc(opts, fn, tclfn, runorca):
             orcasuccess = True
         else:
             print(Back.RED+'Something may have gone wrong with Orca, check the output:')
-            subprocess.run(['tail','-n','15',fn[:-4]+'.out'])
+            _lines = str(p.stdout, encoding='utf8').split('\n')
+            if len(_lines) > 15:
+                _err = "\n".join(_lines[-15:])
+            else:
+                _err = "\n".join(_lines)
+            print(f'{Fore.RED}{_err}')
+            #subprocess.run(['tail','-n','15',fn[:-4]+'.out'])
     elif opts.ORCApath and opts.render:
         orcasuccess = True
         print(Fore.BLUE+"Skipping Orca run because cube files already exist.")
@@ -545,6 +551,7 @@ if not rcconfig.read(RCFILE):
                            'ORCAvpot': vpotbin,
                            'VMDpath':vmdbin,
                            'ENV':'',
+                           'pal':'1',
                            'render':'no',
                            'orbs':'HOMO, LUMO'}
     rcconfig['VMD'] = {'colors':'blue, red',
@@ -587,8 +594,8 @@ parser.add_argument('--eplotres', type=int, default=40,
                     help='Grid density of eplot (80 will take forever, but give a smooth plot).')
 parser.add_argument('-r','--render', action='store_true', default=rcconfig['GENERAL'].getboolean('render'),
                     help='If the appropriate programs are found, render the orbitals automatically.')
-parser.add_argument('--pal', action='store_true', default=False,
-                    help='Use parallel/mpi Orca.')
+parser.add_argument('--pal', type=int, default=rcconfig['GENERAL']['pal'],
+                    help='Use parallel/mpi Orca with n CPUs.')
 parser.add_argument('-g','--gbw', type=str, default='guess',
                     help='Manually specify a GBW file instead of guessing from output file.')
 parser.add_argument('-O','--ORCApath', type=str, default=rcconfig['GENERAL']['ORCApath'],
@@ -616,6 +623,7 @@ parser.add_argument('-s','--spin', type=int, default=1,
 
 opts = parser.parse_args()
 ENV = json.loads(opts.env)
+print(f'{Fore.YELLOW}Loaded environment: {ENV}')
 
 # Check that options were parsed correctly
 if not opts.infiles:
