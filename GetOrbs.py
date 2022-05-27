@@ -344,10 +344,19 @@ disable LUMO_volume
 volume eplot_volume, eplot, eplot
 disable eplot_volume
 isosurface HOMO_iso, HOMO, 0.005
+set surface_color, tv_red, HOMO_iso
+set surface_negative_color, tv_blue, HOMO_iso
+set surface_negative_visible, on, HOMO_iso
 disable HOMO_iso
 isosurface LUMO_iso, LUMO, 0.005
+set surface_color, cyan, LUMO_iso
+set surface_negative_color, tv_orange, LUMO_iso
+set surface_negative_visible, on, LUMO_iso
 disable LUMO_iso
 isosurface eplot_iso, eplot, 0.01
+set surface_color, lime, eplot_iso
+set surface_negative_color, ruby, eplot_iso
+set surface_negative_visible, on, eplot_iso
 disable eplot_iso
 set transparency, 0.2
         ''')
