@@ -330,7 +330,7 @@ cmd.volume_ramp_new('homo', [\\
 0.01, 0.00, 0.00, 1.00, 0.30, \\
 ])
 cmd.volume_ramp_new('lumo', [\\
--0.00, 1.00, 1.00, 0.00, 0.31, \\
+-0.01, 1.00, 1.00, 0.00, 0.31, \\
 -0.00, 0.00, 1.00, 0.00, 0.00, \\
 0.00, 0.00, 0.00, 1.00, 0.00, \\
 0.00, 0.00, 1.00, 1.00, 0.30, \\
@@ -347,6 +347,8 @@ isosurface HOMO_iso, HOMO, 0.005
 disable HOMO_iso
 isosurface LUMO_iso, LUMO, 0.005
 disable LUMO_iso
+isosurface eplot_iso, eplot, 0.01
+disable eplot_iso
 set transparency, 0.2
         ''')
 
