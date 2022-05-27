@@ -303,7 +303,7 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
 
 def writePymol(BN):
     with open('makeorbs.pml', 'wt') as fh:
-        fh.write(f'"load {BN}.xyz",XYZ\n')
+        fh.write(f'load "{BN}.xyz",XYZ\n')
         fh.write('as sticks, XYZ\n')
         fh.write('util.cbaw\n')
         fh.write(f'load "{BN}_HOMO.cube",HOMO\n')
