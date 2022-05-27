@@ -629,7 +629,7 @@ if not rcconfig.read(RCFILE):
     rcconfig['GENERAL'] = {'ORCApath':orcabin,
                            'ORCAvpot': vpotbin,
                            'VMDpath':vmdbin,
-                           'ENV':'',
+                           'ENV':'{}',
                            'pal':'1',
                            'render':'no',
                            'orbs':'HOMO, LUMO'}
