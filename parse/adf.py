@@ -1,11 +1,13 @@
 from parse import xyz
 #import logging
+import sys
 import cclib
 import numpy as np
 
 class Parser(xyz.Parser):
-    self.logger.info("Parsing ADF files is not supported yet.")
-    sys.exit()
+    def __internalparse(self):
+        self.logger.info("Parsing ADF files without cclib is not supported yet.")
+        sys.exit()
 #     begin = ('Symbolic Z-matrix:','Normal termination of Gaussian')
 #     breaks = ('--link1--','natoms=','stoichiometry','Stoichiometry','Standard orientation:')
 #

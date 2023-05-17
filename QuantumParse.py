@@ -14,7 +14,7 @@ prog = os.path.basename(sys.argv[0]).replace('.py','')
 # installed = [package.project_name for package in pip.get_installed_distributions()]
 # Don't check for ase because we have it locally
 
-required = ['colorama','matplotlib','cclib', 'ase']
+required = ['colorama','matplotlib','cclib', 'ase', 'pandas']
 for pkg in required:
     if pkg not in installed_packages:
         print('You need to install %s to use %s.' % (pkg,prog))
