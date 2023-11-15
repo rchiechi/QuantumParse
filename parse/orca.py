@@ -95,7 +95,7 @@ def overlap(fh):
                                                         Fore.GREEN,
                                                         len(ovdict[0]),
                                                         Style.RESET_ALL))
-    return np.array(list(ovdict.values()),np.float)
+    return np.array(list(ovdict.values()), float)
 
 
 def fock(fh, spin=0):
@@ -180,7 +180,7 @@ def fock(fh, spin=0):
             return fockmatrix
         else:
             fockmatrix.append(fockdict[i])
-    fm = np.array(fockmatrix, np.float)
+    fm = np.array(fockmatrix, float)
     if 0 in fm.shape:
         logger.error("Empty Fock Matrix! Shape: %s", str(fm.shape))
         sys.exit()
