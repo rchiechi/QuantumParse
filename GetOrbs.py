@@ -32,28 +32,13 @@ import argparse
 import subprocess
 import configparser
 from collections import OrderedDict
-# try:
-#    import pip
-# except ImportError:
-#    print('You don\'t have pip installed. You will need pip to istall other dependencies.')
-#    sys.exit(1)
-
-# prog = os.path.basename(sys.argv[0]).replace('.py','')
-
-# installed = [package.project_name for package in pip.get_installed_distributions()]
-# required = ['numpy','colorama','psutil']
-# for pkg in required:
-#    if pkg not in installed:
-#        print('You need to install %s to use %s.' % (pkg,prog))
-#        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
-#        sys.exit(1)
-
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 
-required = ['numpy','colorama']
+required = ['numpy','colorama', 'jina2']
 for pkg in required:
     if pkg not in installed_packages:
         print('You need to install %s to use %s.' % (pkg,prog))
@@ -69,9 +54,16 @@ except ModuleNotFoundError as msg:
     print(msg)
     sys.exit(1)
 
+absdir = os.path.dirname(os.path.realpath(__file__))
+
 # Setup colors
 init(autoreset=True)
 
+# Setup jina2
+jenv = Environment(
+    loader=PackageLoader("GetOrbs"),
+    autoescape=select_autoescape()
+)
 
 ELEMENTS = [None,
             "H", "He",
@@ -302,64 +294,68 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
     print(f"{Fore.GREEN}Wrote eplot to %s_eplot.cube" % BN)
 
 def writePymol(BN):
+    template = jenv.get_template(os.path.join(absdir, 'templates', 'pymol', 'orbitals_with_density.pml'))
     with open('makeorbs.pml', 'wt') as fh:
-        fh.write(f'load "{BN}.xyz",XYZ\n')
-        fh.write('as sticks, XYZ\n')
-        fh.write('util.cbaw\n')
-        fh.write(f'load "{BN}_HOMO.cube",HOMO\n')
-        fh.write(f'load "{BN}_LUMO.cube",LUMO\n')
-        fh.write(f'load "{BN}_eplot.cube",eplot\n')
-        fh.write('''
-cmd.volume_ramp_new('eldens', [\\
-0.02, 0.00, 0.00, 1.00, 0.00, \\
-0.03, 0.00, 1.00, 1.00, 0.20, \\
-0.06, 0.00, 0.00, 1.00, 0.00, \\
-])
-cmd.volume_ramp_new('eplot', [\\
--0.04, 0.00, 0.00, 1.00, 0.12, \\
--0.01, 0.00, 1.00, 1.00, 0.00, \\
-0.14, 0.00, 1.00, 0.00, 0.02, \\
-0.53, 1.00, 1.00, 0.00, 0.06, \\
-1.00, 1.00, 0.50, 0.00, 0.01, \\
-1.82, 1.00, 0.00, 0.00, 0.09, \\
-])
-cmd.volume_ramp_new('homo', [\\
--0.005, 1.00, 0.00, 0.00, 0.050, \\
-0.00, 0.96, 0.12, 0.80, 0.00, \\
-0.00, 0.00, 0.98, 0.93, 0.00, \\
-0.005, 0.00, 0.00, 1.00, 0.050, \\
-])
-cmd.volume_ramp_new('lumo', [\\
--0.005, 1.00, 1.00, 0.00, 0.050, \\
-0.00, 0.00, 1.00, 0.00, 0.00, \\
-0.00, 0.00, 0.00, 1.00, 0.00, \\
-0.005, 0.00, 1.00, 1.00, 0.050, \\
-    ])
-as sticks,XYZ
-util.cbaw
-volume HOMO_volume, HOMO, homo
-disable HOMO_volume
-volume LUMO_volume, LUMO, lumo
-disable LUMO_volume
-volume eplot_volume, eplot, eplot
-disable eplot_volume
-isosurface HOMO_iso, HOMO, 0.005
-set surface_color, tv_red, HOMO_iso
-set surface_negative_color, tv_blue, HOMO_iso
-set surface_negative_visible, on, HOMO_iso
-disable HOMO_iso
-isosurface LUMO_iso, LUMO, 0.005
-set surface_color, cyan, LUMO_iso
-set surface_negative_color, tv_orange, LUMO_iso
-set surface_negative_visible, on, LUMO_iso
-disable LUMO_iso
-isosurface eplot_iso, eplot, 0.01
-set surface_color, lime, eplot_iso
-set surface_negative_color, ruby, eplot_iso
-set surface_negative_visible, on, eplot_iso
-disable eplot_iso
-set transparency, 0.2
-        ''')
+        fh.write(template.render(BN=BN))
+# def writePymol(BN):
+#     with open('makeorbs.pml', 'wt') as fh:
+#         fh.write(f'load "{BN}.xyz",XYZ\n')
+#         fh.write('as sticks, XYZ\n')
+#         fh.write('util.cbaw\n')
+#         fh.write(f'load "{BN}_HOMO.cube",HOMO\n')
+#         fh.write(f'load "{BN}_LUMO.cube",LUMO\n')
+#         fh.write(f'load "{BN}_eplot.cube",eplot\n')
+#         fh.write('''
+# cmd.volume_ramp_new('eldens', [\\
+# 0.02, 0.00, 0.00, 1.00, 0.00, \\
+# 0.03, 0.00, 1.00, 1.00, 0.20, \\
+# 0.06, 0.00, 0.00, 1.00, 0.00, \\
+# ])
+# cmd.volume_ramp_new('eplot', [\\
+# -0.04, 0.00, 0.00, 1.00, 0.12, \\
+# -0.01, 0.00, 1.00, 1.00, 0.00, \\
+# 0.14, 0.00, 1.00, 0.00, 0.02, \\
+# 0.53, 1.00, 1.00, 0.00, 0.06, \\
+# 1.00, 1.00, 0.50, 0.00, 0.01, \\
+# 1.82, 1.00, 0.00, 0.00, 0.09, \\
+# ])
+# cmd.volume_ramp_new('homo', [\\
+# -0.005, 1.00, 0.00, 0.00, 0.050, \\
+# 0.00, 0.96, 0.12, 0.80, 0.00, \\
+# 0.00, 0.00, 0.98, 0.93, 0.00, \\
+# 0.005, 0.00, 0.00, 1.00, 0.050, \\
+# ])
+# cmd.volume_ramp_new('lumo', [\\
+# -0.005, 1.00, 1.00, 0.00, 0.050, \\
+# 0.00, 0.00, 1.00, 0.00, 0.00, \\
+# 0.00, 0.00, 0.00, 1.00, 0.00, \\
+# 0.005, 0.00, 1.00, 1.00, 0.050, \\
+#     ])
+# as sticks,XYZ
+# util.cbaw
+# volume HOMO_volume, HOMO, homo
+# disable HOMO_volume
+# volume LUMO_volume, LUMO, lumo
+# disable LUMO_volume
+# volume eplot_volume, eplot, eplot
+# disable eplot_volume
+# isosurface HOMO_iso, HOMO, 0.005
+# set surface_color, tv_red, HOMO_iso
+# set surface_negative_color, tv_blue, HOMO_iso
+# set surface_negative_visible, on, HOMO_iso
+# disable HOMO_iso
+# isosurface LUMO_iso, LUMO, 0.005
+# set surface_color, cyan, LUMO_iso
+# set surface_negative_color, tv_orange, LUMO_iso
+# set surface_negative_visible, on, LUMO_iso
+# disable LUMO_iso
+# isosurface eplot_iso, eplot, 0.01
+# set surface_color, lime, eplot_iso
+# set surface_negative_color, ruby, eplot_iso
+# set surface_negative_visible, on, eplot_iso
+# disable eplot_iso
+# set transparency, 0.2
+#         ''')
 
 def writeVMD(fn,opts,BN):
     with open(fn,'wt') as fh:
