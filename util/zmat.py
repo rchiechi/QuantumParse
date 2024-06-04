@@ -54,35 +54,38 @@ class ZMatrix(Atoms):
         '''Try to build electrodes around a molecule
            projected along the Z axis.'''
 
-        for _kw in ('adatom', 'SAM', 'reverse'):
-            if _kw not in kwargs:
-                kwargs[_kw] = False
         if 'anchor' not in kwargs:
             kwargs['anchor'] = 'S'
 
-        if 'z' not in self.toZaxis(kwargs['reverse']):
+        if 'z' not in self.toZaxis(kwargs.get('reverse', False)):
             self.logger.warning('Molecule is not projected along Z-axis!')
-        # if self[0].symbol != 'S' or self[-1].symbol != 'S':
-        if self[0].symbol != kwargs['anchor'] and self[-1].symbol != kwargs['anchor']:
-            self.logger.warning(
-                'Molecule is not terminated with at least one %s atom!', kwargs['anchor'])
-        self.logger.info('Building %s electrodes.', atom)
+        anchorpos = 0
+        toppos = -1
+        if self[0].symbol == kwargs['anchor']:
+            anchorpos = 0
+            toppos = -1
+        elif self[-1].symbol != kwargs['anchor']:
+            anchorpos = -1
+            toppos = 0
+        else:
+            self.logger.warning('Anchoring to terminal %s instead of %s!', self[0].symbol, kwargs['anchor'])
+        self.logger.info('Building first %s electrode.', atom)
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
-        if kwargs['adatom']:
+        if kwargs.get('adatom', False):
             self.logger.debug('Adding %s adatom', atom)
-            Spos = self[-1].position
-            self += Atom(atom,position=[Spos[0],Spos[1],Spos[2]+2.5])
-        if kwargs['SAM']:
+            Spos = self[anchorpos].position
+            self += Atom(atom, position=[Spos[0],Spos[1],Spos[2]+2.5])
+        if kwargs.get('SAM', False):
             offset = 0
             self.logger.debug('Building an n x n SAM (%s)', str(size[0]/2))
             for i in range(0,size[0],2):
-                ase.build.add_adsorbate(b,self,distance,position,offset=[0,i])
+                ase.build.add_adsorbate(b, self, distance, position, offset=[0,i], mol_index=anchorpos)
                 for j in range(2,size[0],2):
-                    ase.build.add_adsorbate(b,self,distance,position,offset=[j,i])
+                    ase.build.add_adsorbate(b, self, distance, position, offset=[j,i], mol_index=anchorpos)
         else:
             offset = (ceil(size[0]/2-1), ceil(size[1]/2-1))
-            ase.build.add_adsorbate(b,self,distance,position,offset=offset)
+            ase.build.add_adsorbate(b, self, distance, position, offset=offset)
         self.logger.debug('Electrode size: %s offset: %s distance:%s',
                           str(size),str(offset),str(distance))
         # b.rotate('x',pi)
@@ -90,8 +93,13 @@ class ZMatrix(Atoms):
         b.translate([0,0,ceil(abs(b[-1].z))])
         # b.rotate('z',(4/3)*pi)
         b.rotate(240,'z')
-        ase.build.add_adsorbate(c,b,distance,position,offset=offset,mol_index=-1)
-        self.__init__(c)
+        if kwargs.get('onlybottom', False):
+            self.logger.info("Built one electrode")
+            self.__init__(b)
+        else:
+            self.logger.info("Building second electrode")
+            ase.build.add_adsorbate(c, b, distance, position, offset=offset, mol_index=toppos)
+            self.__init__(c)
         self.sort()
         self.findElectrodes()
 

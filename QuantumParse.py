@@ -82,6 +82,8 @@ parser.add_argument('--project', action='store_true', default=False,
                     help="Project the molecule along the z-axis.")
 parser.add_argument('-b','--build', default=None, choices=('Au','Ag'),
                     help="Build electrodes comprising this atom onto the ends of the input molecule.")
+parser.add_argument('--onlybottom', action='store_true', default=False,
+                    help="Only build the bottom electrode.")
 parser.add_argument('--size', type=str, default='4,4,3',
                     help="Size of electrodes (x,y,z).")
 parser.add_argument('--binding', default='hcp', choices=('ontop','hollow','fcc','hcp','bridge'),
@@ -95,7 +97,7 @@ parser.add_argument('--reverse', default=False, action='store_true',
 parser.add_argument('--adatom', action='store_true', default=False,
                     help="Add an adatom to the fcc site of the bottom electrode.")
 parser.add_argument('-a','--anchor', default='S',
-                    choices=('S','Au','Ag'),
+                    choices=('S','Au','Ag', 'C'),
                     help="Terminal atom to anchor to the surface.")
 parser.add_argument('-S', '--SAM', action='store_true', default=False,
                     help="Create a molecular ensemble instead of a single-molecule junction.")
