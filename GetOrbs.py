@@ -90,6 +90,7 @@ ELEMENTS = [None,
 
 def FindBins():
     # Find paths to binaries
+    orcabin, vpotbin, vmdbin, xtbbin = None, None, None, None
     if OSNAME == 'Darwin':
         p = subprocess.run(['find', '/Applications', '-maxdepth', '3', '-type', 'd', '-name', 'VMD*app'],stdout=subprocess.PIPE)
         vmdbin = os.path.join(p.stdout.strip().split(b'\n')[-1],b'Contents/MacOS/startup.command')
@@ -100,8 +101,12 @@ def FindBins():
     else:
         vmdbin = None
 
+    p = subprocess.run(['which','xtb'],stdout=subprocess.PIPE)
+    if p.returncode == 0:
+        xtbbin = p.stdout.strip()
+
     orcabin = ''
-    for b in ('orca', 'orca.sh'):
+    for b in ('orca.sh', 'orca'):
         p = subprocess.run(['which', b],stdout=subprocess.PIPE)
         if p.returncode == 0:
             orcabin = p.stdout.strip()
@@ -122,7 +127,7 @@ def FindBins():
         print(Fore.YELLOW+"Found orca_vpot: %s" % vpotbin)
     else:
         print(Fore.RED+"orca_vpot was not found, specify the path if you want to compute eplots.")
-    return orcabin,vpotbin,vmdbin
+    return orcabin, vpotbin, vmdbin, xtbbin
 
 def checkorbs(_l, indef, inorbs, inalphaorb, inbetaorb):
     if 'INPUT FILE' in _l:
@@ -533,6 +538,7 @@ def doorcaproc(opts, gbw, fn, tclfn, runorca):
     if opts.render and opts.VMDpath and orcasuccess:
         subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
 
+
 def doorcaprog(fn, opts):
     try:
         orbs,dft = GetOrbsOrca(fn,opts)
@@ -578,6 +584,10 @@ def doorcaprog(fn, opts):
         fh.write('* xyzfile %s %s %s\n' % (opts.charge,opts.spin,xyz))
         fh.write('%%base "%s-plot"\n' % BN)
         fh.write('%%MoInp "%s"\n' % gbw)
+        fh.write('%%scf\n')
+        fh.write('SmearTemp %s\n' % opts.etemp)  # ‘‘temperature’’ in Kelvin
+        fh.write('FracOcc true\n')
+        fh.write('end\n')
         fh.write('%plots\n')
         fh.write('dim1  128   # resolution in x-direction\n')
         fh.write('dim2  128   # resolution in y-direction\n')
@@ -587,7 +597,9 @@ def doorcaprog(fn, opts):
             fh.write('ElDens("%s_eldens.cube"); # Electron density\n' % BN)
             if not os.path.exists("%s_eldens.cube" % BN):
                 RUNORCA = True
-            if not os.path.exists(f"{BN}_eplot.cube"):
+        if opts.fod:
+            fh.write('ElDens("%s_scfp.fod.cube"); # FOD\n' % BN)
+            if not os.path.exists("%s_scfp.fod.cube" % BN):
                 RUNORCA = True
         if opts.spindens:
             fh.write('SpinDens("%s_spindens.cube"); # Spin density\n' % BN)
@@ -632,10 +644,11 @@ VMDMETHODS = ('Lines','Bonds','DynamicBonds','HBonds',
 # Parse config file
 rcconfig = configparser.ConfigParser()
 if not rcconfig.read(RCFILE):
-    orcabin,vpotbin,vmdbin = FindBins()
+    orcabin, vpotbin, vmdbin, xtbbin = FindBins()
     rcconfig['GENERAL'] = {'ORCApath':orcabin,
                            'ORCAvpot': vpotbin,
                            'VMDpath':vmdbin,
+                           'xtb': xtbbin,
                            'ENV':'{}',
                            'pal':'1',
                            'render':'no',
@@ -674,6 +687,10 @@ parser.add_argument('-o', '--orbs', type=str, nargs='*', default=rcconfig['GENER
                     help='Orbitals to render (e.g., HOMO-1, LUMO+1).')
 parser.add_argument('--eplot', action='store_true', default=False,
                     help='Generate an electrostatic potential isoplot.')
+parser.add_argument('--fod', action='store_true', default=False,
+                    help='Generate a FOD isoplot.')
+parser.add_argument('--etemp', type=int, default=5000,
+                    help='Set electron temperature for FOD.')
 parser.add_argument('--spindens', action='store_true', default=False,
                     help='Generate a spin density plot.')
 parser.add_argument('--eplotres', type=int, default=40,
@@ -688,6 +705,8 @@ parser.add_argument('-O','--ORCApath', type=str, default=rcconfig['GENERAL']['OR
                     help='Specify the location of the orca binary.')
 parser.add_argument('-V','--VMDpath', type=str, default=rcconfig['GENERAL']['VMDpath'],
                     help='Specify the location of the vmd binary.')
+parser.add_argument('-X','--xtb', type=str, default=rcconfig['GENERAL']['xtb'],
+                    help='Specify the location of the xtb binary.')
 parser.add_argument('--env', type=str, default=rcconfig['GENERAL']['ENV'],
                     help='Environmental variables to load when calling binaries in JSON format, e.g. \'{"LD_LIBRARY_PATH": "/opt/orca/"}\'.')
 parser.add_argument('-c','--colors', nargs=2, default=rcconfig['VMD']['colors'].replace(' ','').split(','), choices=tuple(VMDCOLORS.keys()),
