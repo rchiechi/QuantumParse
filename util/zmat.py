@@ -79,9 +79,9 @@ class ZMatrix(Atoms):
         if kwargs.get('SAM', False):
             offset = 0
             self.logger.debug('Building an n x n SAM (%s)', str(size[0]/2))
-            for i in range(0,size[0],2):
+            for i in range(0, size[0], kwargs.get('spacing', 2)):
                 ase.build.add_adsorbate(b, self, distance, position, offset=[0,i], mol_index=anchorpos)
-                for j in range(2,size[0],2):
+                for j in range(kwargs.get('spacing', 2), size[0], kwargs.get('spacing', 2)):
                     ase.build.add_adsorbate(b, self, distance, position, offset=[j,i], mol_index=anchorpos)
         else:
             offset = (ceil(size[0]/2-1), ceil(size[1]/2-1))

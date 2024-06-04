@@ -72,7 +72,8 @@ class Parser:
                                       SAM=self.opts.SAM,
                                       reverse=self.opts.reverse,
                                       anchor=self.opts.anchor,
-                                      onlybottom=self.opts.onlybottom)
+                                      onlybottom=self.opts.onlybottom,
+                                      spacing=self.opts.spacing)
         self.zmat.findElectrodes()
         self.logger.info('Found: %s' % self.zmat.get_chemical_formula())
 

@@ -101,6 +101,8 @@ parser.add_argument('-a','--anchor', default='S',
                     help="Terminal atom to anchor to the surface.")
 parser.add_argument('-S', '--SAM', action='store_true', default=False,
                     help="Create a molecular ensemble instead of a single-molecule junction.")
+parser.add_argument('--spacing', type=int, default=2,
+                    help="Spacing between molecules in SAM.")
 parser.add_argument('--png', action='store_true', default=False,
                     help="Write a PNG file of the resulting output.")
 parser.add_argument('-O', '--optimize', action='store_true', default=False,
