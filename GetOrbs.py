@@ -35,7 +35,7 @@ from collections import OrderedDict
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
-installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+installed_packages = [r.decode().split('==')[0].lower()for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 
 required = ['numpy','colorama', 'jinja2']
@@ -175,7 +175,7 @@ def GetOrbsOrca(fn,opts):
                     key = 'nospin'
                 try:
                     #   NO   OCC          E(Eh)            E(eV)
-                    lo = re.split('\s+', _l.strip())  # noqa
+                    lo = re.split(r'\s+', _l.strip())  # noqa
                     orbs[key].append([int(lo[0])]+list(map(float, lo[1:])))
                 except ValueError:
                     continue
