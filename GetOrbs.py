@@ -299,7 +299,7 @@ def OrcaEplot(BN, gbw, rccconfig, opts):
     print(f"{Fore.GREEN}Wrote eplot to %s_eplot.cube" % BN)
 
 def writePymol(BN):
-    template = jenv.get_template(os.path.join(absdir, 'templates', 'pymol', 'orbitals_with_density.pml'))
+    template = jenv.get_template(os.path.join('pymol', 'orbitals_with_density.pml'))
     with open('makeorbs.pml', 'wt') as fh:
         fh.write(template.render(BN=BN))
 
