@@ -38,7 +38,7 @@ reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 
-required = ['numpy','colorama', 'jina2']
+required = ['numpy','colorama', 'jinja2']
 for pkg in required:
     if pkg not in installed_packages:
         print('You need to install %s to use %s.' % (pkg,prog))
