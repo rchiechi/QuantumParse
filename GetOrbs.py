@@ -525,7 +525,7 @@ def doorcaprog(fn, opts):
         fh.write('* xyzfile %s %s %s\n' % (opts.charge,opts.spin,xyz))
         fh.write('%%base "%s-plot"\n' % BN)
         fh.write('%%MoInp "%s"\n' % gbw)
-        fh.write('%%scf\n')
+        fh.write('%scf\n')
         fh.write('SmearTemp %s\n' % opts.etemp)  # ‘‘temperature’’ in Kelvin
         fh.write('FracOcc true\n')
         fh.write('end\n')
