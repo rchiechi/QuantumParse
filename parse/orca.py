@@ -210,7 +210,7 @@ def norbs(fh):
                 lk.pop(0)
             else:
                 continue
-        if lk[1] == 'MOLECULAR ORBITALS' and not inorb:
+        if 'MOLECULAR ORBITALS' in lk[1] and not inorb:
             inorb = True
         elif _l[0] == '*' and inorb:
             break
