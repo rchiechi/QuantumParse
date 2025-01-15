@@ -214,6 +214,8 @@ def norbs(fh):
             inorb = True
         elif _l[0] == '*' and inorb:
             break
+        elif _l.strip() == '--------' and inorb:
+            break
         if inorb:
             lsf = _l.split()
             if not lsf:
