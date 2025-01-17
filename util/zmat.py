@@ -128,7 +128,14 @@ class ZMatrix(Atoms):
 
     def write(self,fh):
         for _a in self:
-            fh.write('%s\t%.8f\t%.8f\t%.8f\n' % (_a.symbol,_a.x,_a.y,_a.z))
+            fh.write(_a.symbol)
+            for pos in (_a.x,_a.y,_a.z):
+                if pos < 0:
+                    tab = '         '
+                else:
+                    tab = '          '
+                fh.write(f"{tab}{pos:.8f}")
+            fh.write("\n")
 
     def getAtomCounts(self):
         return Counter(self.get_chemical_symbols())
