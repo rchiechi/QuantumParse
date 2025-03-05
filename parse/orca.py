@@ -62,7 +62,10 @@ def overlap(fh):
     ovdict = OrderedDict()
     inoverlap = False
     lk = []
+    orb_idx = 0
     for _l in fh:
+        if not _l.strip():
+            continue
         lk.append(_l.strip())
         if not inoverlap:
             if len(lk) > 3:
@@ -74,6 +77,10 @@ def overlap(fh):
             continue
         elif _l[0] == '-' and inoverlap:
             break
+        elif _l.strip()[0] == '*' and inoverlap:
+            inoverlap = False
+            print(f"End: {_l.strip()}")
+            continue
         if inoverlap:
             lsf = _l.split()
             fl = []
@@ -82,11 +89,23 @@ def overlap(fh):
                     fl.append(float(n))
                 else:
                     fl.append(int(n))
-            if isinstance(fl[-1],float):
-                if fl[0] not in ovdict:
-                    ovdict[fl[0]] = fl[1:]
+            if fl[0] > orb_idx:
+                orb_idx = fl[0]
+            elif fl[0] < orb_idx:
+                if isinstance(fl[-1], float) and fl[0] == 0:
+                    orb_idx = 0
+                elif isinstance(fl[-1], int):
+                    continue
                 else:
-                    ovdict[fl[0]] += fl[1:]
+                    print(f"Ended at orb: {orb_idx}")
+                    print(f"End: {_l.strip()}")
+                    inoverlap = False
+                    continue                        
+            if isinstance(fl[-1], float):
+                if orb_idx not in ovdict:
+                    ovdict[orb_idx] = fl[1:]
+                else:
+                    ovdict[orb_idx] += fl[1:]
     print("%sOverlap Matrix " % Fore.YELLOW, end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,
                                                         Fore.GREEN,
@@ -199,7 +218,7 @@ def norbs(fh):
     inorb = False
     orbidx = []
     lk = []
-    rp = re.compile('^\d+\D+$')
+    rp = re.compile(r'^\d+\D+$')
     lidx = 0
     logger.info("Parsing molecular orbitals...")
     for _l in fh:
@@ -219,9 +238,11 @@ def norbs(fh):
         if inorb:
             lsf = _l.split()
             if not lsf:
-                continue
+                inorb = False
+                break
             elif re.match(rp,lsf[0]) is None:
                 continue
+            print(lsf)
             if lsf[0] in orbdict:
                 if lsf[1] in orbdict[lsf[0]]:
                     continue
