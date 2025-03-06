@@ -74,10 +74,10 @@ class Parser(xyz.Parser):
         
         with Path(self.fn).open() as fh:
             for line in fh:
-            parts = line.strip().split()
-            if not parts:
-                continue
-            orca_out.append(parts)
+                parts = line.strip().split()
+                if not parts:
+                    continue
+                orca_out.append(parts)
         self.ol = overlap(orca_out)
         self.fm = fock(orca_out)
         if self.opts.unrestricted:
@@ -85,9 +85,9 @@ class Parser(xyz.Parser):
             self.fm_beta = fock(orca_out, 1)
         else:
             self.fm_beta = None
-        self.orbs,self.orbidx = norbs(orca_out)
+        self.orbs = norbs(orca_out)
             
-        if 0 in (len(self.fm), len(self.orbs), len(self.orbidx), len(self.ol)):
+        if not all( [self.fm.any(), self.orbs, self.ol.any()] ):
             self.logger.error("Did not parse Orca matrix correctly.")
 
 
@@ -123,11 +123,9 @@ def overlap(orca_out):
     if 0 in om.shape or om.shape[0] != om.shape[1]:
         logger.error("Bad overlap matrix! Shape: %s", str(om.shape))
         sys.exit()
-    print("%Overlap matrix " % Fore.YELLOW,end='')
-    print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,Fore.GREEN,
-                                                        om.shape[0],Fore.YELLOW,
-                                                        Fore.GREEN,om.shape[1],
-                                                        Style.RESET_ALL))  
+    print(f"{Fore.YELLOW}Overlap matrix ", end='')
+    print(f"{Fore.GREEN}x-elements: {Fore.YELLOW}{om.shape[0]}{Fore.GREEN} "
+          f"y-elements: {Fore.YELLOW}{om.shape[1]}{Style.RESET_ALL}")  
     return  om
 
 def fock(orca_out, spin=0):
@@ -139,10 +137,10 @@ def fock(orca_out, spin=0):
     scfidx = 0
     nscf = -1
     print("Finding last Fock matrix...", end=' ', flush=True)
-    for idx, parts in enumeragte(orca_out):
+    for idx, parts in enumerate(orca_out):
         if "SCF CONVERGED" in " ".join(parts):
             for part in parts:
-                if part.isdigit:
+                if part.isdigit():
                     nscf = int(part)
         if "ERROR" in parts and not nscf:
             logger.warning(f"Error detected in Orca output: {" ".join(parts)}")
@@ -151,7 +149,7 @@ def fock(orca_out, spin=0):
     print(f"{Fore.GREEN}SCF Converted in {nscf} cycles{Style.RESET_ALL}")
     print("Parsing Fock matrix...", flush=True)
     infock.init()
-    for parts in orca_out[scfidx:]:
+    for parts in orca_out[scfidx+1:]:
         if not parts[0].isdigit():
             if not infock.sig():
                 break
@@ -167,62 +165,21 @@ def fock(orca_out, spin=0):
                 matrix_data.append(parts[1:])
             else:
                 matrix_data[fock_idx] += parts[1:]
-#         if infock.inmatrix:
-#             if _l == '<<< The NR Solver signals convergence >>>':
-#                 continue
-#             ditch = False
-#             lsf = _l.split()
-#             fl = []
-#             for n in lsf:
-#                 if '.' in n:
-#                     try:
-#                         n = float(n)
-#                         if n == 0:
-#                             n = abs(n)
-#                         fl.append(n)
-#                     except ValueError as msg:
-#                         logger.warning('Error parsing fock matrix: %s', str(msg))
-#                         ditch = True
-#                         continue
-#                 else:
-#                     n = int(n)
-#                     fl.append(n)
-# 
-#             if ditch:
-#                 continue
-#             if isinstance(fl[-1],float) and isinstance(fl[0],int):
-#                 norb.append(fl[0])
-#                 if 0 < norb[-1] <= norb[-2]:
-#                     logger.warning("Out-of-order orbital: %s <= %s" % (norb[-1],norb[-2]))
-#                     continue
-#                 i = fl[0]
-#                 if i not in fockdict:
-#                     fockdict[i] = fl[1:]
-#                 else:
-#                     fockdict[i] += fl[1:]
-#     fockmatrix = []
-#     for i in sorted(fockdict.keys()):
-#         if len(fockdict[i]) != len(fockdict):
-#             logger.error("Matrix alignment error: {%s} " % i, end='')
-#             return fockmatrix
-#         else:
-#             fockmatrix.append(fockdict[i])
+
     fm = np.array(matrix_data, float)
     if 0 in fm.shape or fm.shape[0] != fm.shape[1]:
         logger.error("Bad Fock matrix! Shape: %s", str(fm.shape))
         sys.exit()
-    print("%sFock matrix " % Fore.YELLOW,end='')
-    print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,Fore.GREEN,
-                                                        fm.shape[0],Fore.YELLOW,
-                                                        Fore.GREEN,fm.shape[1],
-                                                        Style.RESET_ALL))  
+    print(f"{Fore.YELLOW}Fock matrix "
+          f"{Fore.GREEN}x-elements: {Fore.YELLOW}{fm.shape[0]}{Fore.GREEN} "
+          f"y-elements: {Fore.YELLOW}{fm.shape[1]}{Style.RESET_ALL}")  
     return fm
 
 
 
 
-def norbs(ocra_out):
-    orbdict = OrderedDict()
+def norbs(orca_out):
+    orbdict = {}
     inorb = InMatrix(2,1)
     orbidx = []
     lk = []
@@ -231,26 +188,19 @@ def norbs(ocra_out):
     logger.info("Parsing molecular orbitals...")
     for parts in orca_out:
         if "MOLECULAR ORBITALS" in " ".join(parts):
-            inoverlap.init()
+            inorb.init()
             continue
-        elif not inoverlap.active:
+        elif not inorb.active:
             continue
         if len(parts) == 1 and parts[0][0] == '-':
-            inoverlap.sig()
+            inorb.sig()
             continue
         if parts[0][0] == '*':
-            if not inoverlap.sig():
+            if not inorb.sig():
                 break
             continue
         if re.match(rp, parts[0]) is None:
             continue
-        # if inorb:
-        # lsf = _l.split()
-        # if not lsf:
-        #     inorb = False
-        #     break
-        # elif re.match(rp,lsf[0]) is None:
-        #     continue
         if parts[0] in orbdict:
             if parts[1] in orbdict[parts[0]]:
                 continue
@@ -258,14 +208,13 @@ def norbs(ocra_out):
                 orbdict[parts[0]].append(parts[1])
         else:
             orbdict[parts[0]] = [parts[1]]
-            orbidx.append(parts[0])
     torbs = 0
-    for a in orbdict:
-        torbs += len(orbdict[a])
+    for orbs in orbdict.values():
+        torbs += len(orbs)
     if torbs == 0:
         logger.error("No orbitals found, caclulation probably did not converge!%s")
         sys.exit()
     else:
         print("%sAtoms: %s%s %sOrbitals: %s%s%s" % (Fore.YELLOW,Fore.CYAN,len(orbdict),
                                                     Fore.YELLOW,Fore.GREEN,torbs,Style.RESET_ALL))
-    return orbdict, orbidx
+    return orbdict

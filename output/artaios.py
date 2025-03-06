@@ -124,7 +124,7 @@ class Writer(xyz.Writer):
     def __countiorb(self,nb):
         norb = 0
         for a in self.parser.orbs:
-            norb+= len(self.parser.orbs[a])
+            norb += len(self.parser.orbs[a])
         print("Total iorbs: %s" % norb)
         if nb != norb:
             print("Error: mismatch in number of orbtials and fock matrix")
@@ -240,7 +240,7 @@ class Writer(xyz.Writer):
         with open(self.transport, 'tw') as fh:
             fh.write("#Here is a list of orbitals on each atom:\n")
             i=1
-            for a in self.parser.orbidx:
+            for a in list(self.parser.orbs.keys()):
                 ie = i+len(self.parser.orbs[a])-1
                 fh.write("#%s %s-%s\n" % (a, i, ie) )
                 _a = ''
