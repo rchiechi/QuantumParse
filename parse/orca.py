@@ -110,19 +110,16 @@ def overlap(fh):
                 orb_idx = 0
             else:
                 break
-            matrix_data.append(parts)
+            matrix_data += parts[1:]
     print("%sOverlap Matrix " % Fore.YELLOW, end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,
                                                         Fore.GREEN,
                                                         orb_idx,
                                                         Fore.YELLOW,
                                                         Fore.GREEN,
-                                                        len(matrix_data[0]),
+                                                        len(matrix_data),
                                                         Style.RESET_ALL))
-    return  np.array([
-            [float(val) for val in row[1:]] 
-            for row in matrix_data
-        ])
+    return  np.array(matrix_data, float)
 
 def fock(fh, spin=0):
     fh.seek(0)
