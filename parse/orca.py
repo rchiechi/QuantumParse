@@ -20,6 +20,8 @@ class InMatrix:
     
     def init(self):
         self.active = True
+        for i, _ in enumerate(self.insig):
+            self.insig[i] = False
         self.pos()
     
     def sig(self):
@@ -67,17 +69,23 @@ class Parser(xyz.Parser):
 
     def __dotransport(self):
         self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
-        orca_out = Path(self.fn)
+        orca_out = []
         # TODO: Deal with unrestricted calculations
-        with orca_out.open() as fh:
-            self.ol = overlap(fh)
-            self.fm = fock(fh)
-            if self.opts.unrestricted:
-                self.logger.debug("Parsing unrestricted calculation")
-                self.fm_beta = fock(fh, 1)
-            else:
-                self.fm_beta = None
-            self.orbs,self.orbidx = norbs(fh)
+        
+        with Path(self.fn).open() as fh:
+            for line in fh:
+            parts = line.strip().split()
+            if not parts:
+                continue
+            orca_out.append(parts)
+        self.ol = overlap(orca_out)
+        self.fm = fock(orca_out)
+        if self.opts.unrestricted:
+            self.logger.debug("Parsing unrestricted calculation")
+            self.fm_beta = fock(orca_out, 1)
+        else:
+            self.fm_beta = None
+        self.orbs,self.orbidx = norbs(orca_out)
             
         if 0 in (len(self.fm), len(self.orbs), len(self.orbidx), len(self.ol)):
             self.logger.error("Did not parse Orca matrix correctly.")
@@ -85,18 +93,13 @@ class Parser(xyz.Parser):
 
 logger = logging.getLogger('OrcaMatrix')
 
-def overlap(fh):
+def overlap(orca_out):
     print("Parsing overlap matrix...")
-    fh.seek(0)
     inoverlap = InMatrix(2,1)
     matrix_data = []
     orb_idx = -1
-    for _l in fh:
-        line = _l.strip()
-        parts = line.split()
-        if not line or not parts:
-            continue
-        if "OVERLAP MATRIX" in line:
+    for parts in orca_out:
+        if "OVERLAP MATRIX" in " ".join(parts):
             inoverlap.init()
             continue
         elif not inoverlap.active:
@@ -116,149 +119,146 @@ def overlap(fh):
                 matrix_data.append(parts[1:])
             else:
                 matrix_data[orb_idx] += parts[1:]
-    print("%sOverlap Matrix " % Fore.YELLOW, end='')
-    print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,
-                                                        Fore.GREEN,
-                                                        len(matrix_data),
-                                                        Fore.YELLOW,
-                                                        Fore.GREEN,
-                                                        len(matrix_data[0]),
-                                                        Style.RESET_ALL))
-    return  np.array(matrix_data, float)
+    om = np.array(matrix_data, float)
+    if 0 in om.shape or om.shape[0] != om.shape[1]:
+        logger.error("Bad overlap matrix! Shape: %s", str(om.shape))
+        sys.exit()
+    print("%Overlap matrix " % Fore.YELLOW,end='')
+    print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,Fore.GREEN,
+                                                        om.shape[0],Fore.YELLOW,
+                                                        Fore.GREEN,om.shape[1],
+                                                        Style.RESET_ALL))  
+    return  om
 
-def fock(fh, spin=0):
-    fh.seek(0)
-    key = 'Fock matrix for operator %s' % spin
-    endkey = 'Fock matrix for operator %s' % abs(spin-1)
-    fockdict = {}
-    norb = [0]
-    infock = False
+def fock(orca_out, spin=0):
+    key = f"Fock matrix for operator {spin}"
+    # endkey = f"Fock matrix for operator {abs(spin-1)}"
+    fock_idx = -1
+    matrix_data = []
+    infock = InMatrix(1,1)
     scfidx = 0
-    print("Finding last Fock matrix...",end=' ')
-    sys.stdout.flush()
-    for _l in fh:
-        _l = _l.strip()
-        if key in _l:
-            scfidx += 1
-    print(Fore.GREEN+str(scfidx)+Style.RESET_ALL)
-    fh.seek(0)
-    iscf = 0
-    print("Parsing Fock matrix...")
-    sys.stdout.flush()
-    converged = False
-    for _l in fh:
-        _l = _l.strip()
-        if not _l:
+    nscf = -1
+    print("Finding last Fock matrix...", end=' ', flush=True)
+    for idx, parts in enumeragte(orca_out):
+        if "SCF CONVERGED" in " ".join(parts):
+            for part in parts:
+                if part.isdigit:
+                    nscf = int(part)
+        if "ERROR" in parts and not nscf:
+            logger.warning(f"Error detected in Orca output: {" ".join(parts)}")
+        if " ".join(parts) == key:
+            scfidx  = idx
+    print(f"{Fore.GREEN}SCF Converted in {nscf} cycles{Style.RESET_ALL}")
+    print("Parsing Fock matrix...", flush=True)
+    infock.init()
+    for parts in orca_out[scfidx:]:
+        if not parts[0].isdigit():
+            if not infock.sig():
+                break
             continue
-        if 'SCF CONVERGED' in _l:
-            converged = True
-        if 'ERROR' in _l and not converged:
-            logger.warning('Error detected in Orca output!')
-        if key in _l:
-            iscf += 1
-        if key in _l and not infock:
-            infock = True
-            continue
-        elif key in _l and infock:
-            fockdict = {}
-            norb = [0]
-            continue
-        elif ('*' in _l or endkey in _l) and infock:
-            infock = False
-            continue
-        if iscf < scfidx:
-            continue
-        if infock:
-            if _l == '<<< The NR Solver signals convergence >>>':
-                continue
-            ditch = False
-            lsf = _l.split()
-            fl = []
-            for n in lsf:
-                if '.' in n:
-                    try:
-                        n = float(n)
-                        if n == 0:
-                            n = abs(n)
-                        fl.append(n)
-                    except ValueError as msg:
-                        logger.warning('Error parsing fock matrix: %s', str(msg))
-                        ditch = True
-                        continue
-                else:
-                    n = int(n)
-                    fl.append(n)
-
-            if ditch:
-                continue
-            if isinstance(fl[-1],float) and isinstance(fl[0],int):
-                norb.append(fl[0])
-                if 0 < norb[-1] <= norb[-2]:
-                    logger.warning("Out-of-order orbital: %s <= %s" % (norb[-1],norb[-2]))
-                    continue
-                i = fl[0]
-                if i not in fockdict:
-                    fockdict[i] = fl[1:]
-                else:
-                    fockdict[i] += fl[1:]
-    fockmatrix = []
-    for i in sorted(fockdict.keys()):
-        if len(fockdict[i]) != len(fockdict):
-            logger.error("Matrix alignment error: {%s} " % i, end='')
-            return fockmatrix
-        else:
-            fockmatrix.append(fockdict[i])
-    fm = np.array(fockmatrix, float)
-    if 0 in fm.shape:
-        logger.error("Empty Fock Matrix! Shape: %s", str(fm.shape))
+        if not all(val.isdigit() for val in parts):
+            if int(parts[0]) > fock_idx:
+                fock_idx = int(parts[0])
+            elif int(parts[0]) == 0:
+                fock_idx = 0
+            else:
+                break
+            if len(matrix_data) <= fock_idx:
+                matrix_data.append(parts[1:])
+            else:
+                matrix_data[fock_idx] += parts[1:]
+#         if infock.inmatrix:
+#             if _l == '<<< The NR Solver signals convergence >>>':
+#                 continue
+#             ditch = False
+#             lsf = _l.split()
+#             fl = []
+#             for n in lsf:
+#                 if '.' in n:
+#                     try:
+#                         n = float(n)
+#                         if n == 0:
+#                             n = abs(n)
+#                         fl.append(n)
+#                     except ValueError as msg:
+#                         logger.warning('Error parsing fock matrix: %s', str(msg))
+#                         ditch = True
+#                         continue
+#                 else:
+#                     n = int(n)
+#                     fl.append(n)
+# 
+#             if ditch:
+#                 continue
+#             if isinstance(fl[-1],float) and isinstance(fl[0],int):
+#                 norb.append(fl[0])
+#                 if 0 < norb[-1] <= norb[-2]:
+#                     logger.warning("Out-of-order orbital: %s <= %s" % (norb[-1],norb[-2]))
+#                     continue
+#                 i = fl[0]
+#                 if i not in fockdict:
+#                     fockdict[i] = fl[1:]
+#                 else:
+#                     fockdict[i] += fl[1:]
+#     fockmatrix = []
+#     for i in sorted(fockdict.keys()):
+#         if len(fockdict[i]) != len(fockdict):
+#             logger.error("Matrix alignment error: {%s} " % i, end='')
+#             return fockmatrix
+#         else:
+#             fockmatrix.append(fockdict[i])
+    fm = np.array(matrix_data, float)
+    if 0 in fm.shape or fm.shape[0] != fm.shape[1]:
+        logger.error("Bad Fock matrix! Shape: %s", str(fm.shape))
         sys.exit()
     print("%sFock matrix " % Fore.YELLOW,end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,Fore.GREEN,
                                                         fm.shape[0],Fore.YELLOW,
                                                         Fore.GREEN,fm.shape[1],
-                                                        Style.RESET_ALL))
-    if not converged:
-        logger.warning('Orca calculation may not have converged!')
+                                                        Style.RESET_ALL))  
     return fm
 
-def norbs(fh):
-    fh.seek(0)
+
+
+
+def norbs(ocra_out):
     orbdict = OrderedDict()
-    inorb = False
+    inorb = InMatrix(2,1)
     orbidx = []
     lk = []
-    rp = re.compile(r'^\d+\D+$')
+    rp = re.compile(r'^\d+\D{1,2}$')
     lidx = 0
     logger.info("Parsing molecular orbitals...")
-    for _l in fh:
-        lidx += 1
-        if not inorb:
-            lk.append(_l.strip())
-            if len(lk) > 3:
-                lk.pop(0)
-            else:
-                continue
-        if 'MOLECULAR ORBITALS' in lk[1] and not inorb:
-            inorb = True
-        elif _l[0] == '*' and inorb:
-            break
-        elif _l.strip() == '--------' and inorb:
-            break
-        if inorb:
-            lsf = _l.split()
-            if not lsf:
-                inorb = False
+    for parts in orca_out:
+        if "MOLECULAR ORBITALS" in " ".join(parts):
+            inoverlap.init()
+            continue
+        elif not inoverlap.active:
+            continue
+        if len(parts) == 1 and parts[0][0] == '-':
+            inoverlap.sig()
+            continue
+        if parts[0][0] == '*':
+            if not inoverlap.sig():
                 break
-            elif re.match(rp,lsf[0]) is None:
+            continue
+        if re.match(rp, parts[0]) is None:
+            continue
+        # if inorb:
+        # lsf = _l.split()
+        # if not lsf:
+        #     inorb = False
+        #     break
+        # elif re.match(rp,lsf[0]) is None:
+        #     continue
+        if parts[0] in orbdict:
+            if parts[1] in orbdict[parts[0]]:
                 continue
-            if lsf[0] in orbdict:
-                if lsf[1] in orbdict[lsf[0]]:
-                    continue
-                else:
-                    orbdict[lsf[0]].append(lsf[1])
             else:
-                orbdict[lsf[0]] = [lsf[1]]
-                orbidx.append(lsf[0])
+                orbdict[parts[0]].append(parts[1])
+        else:
+            orbdict[parts[0]] = [parts[1]]
+            orbidx.append(parts[0])
     torbs = 0
     for a in orbdict:
         torbs += len(orbdict[a])
