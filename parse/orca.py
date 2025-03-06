@@ -70,13 +70,15 @@ class Parser(xyz.Parser):
         orca_out = Path(self.fn)
         # TODO: Deal with unrestricted calculations
         with orca_out.open() as fh:
+            self.ol = overlap(fh)
+            self.fm = fock(fh)
             if self.opts.unrestricted:
                 self.logger.debug("Parsing unrestricted calculation")
                 self.fm_beta = fock(fh, 1)
             else:
                 self.fm_beta = None
             self.orbs,self.orbidx = norbs(fh)
-            self.ol = overlap(fh)
+            
         if 0 in (len(self.fm), len(self.orbs), len(self.orbidx), len(self.ol)):
             self.logger.error("Did not parse Orca matrix correctly.")
 
@@ -110,14 +112,17 @@ def overlap(fh):
                 orb_idx = 0
             else:
                 break
-            matrix_data += parts[1:]
+            if len(matrix_data) <= orb_idx:
+                matrix_data.append(parts[1:])
+            else:
+                matrix_data[orb_idx] += parts[1:]
     print("%sOverlap Matrix " % Fore.YELLOW, end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,
                                                         Fore.GREEN,
-                                                        orb_idx,
+                                                        len(matrix_data),
                                                         Fore.YELLOW,
                                                         Fore.GREEN,
-                                                        len(matrix_data),
+                                                        len(matrix_data[0]),
                                                         Style.RESET_ALL))
     return  np.array(matrix_data, float)
 
