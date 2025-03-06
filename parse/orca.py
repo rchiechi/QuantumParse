@@ -83,58 +83,6 @@ class Parser(xyz.Parser):
 
 logger = logging.getLogger('OrcaMatrix')
 
-# import numpy as np
-# 
-# def parse_matrix_from_file(filename):
-#     """
-#     Parse an n x n matrix from a text file with potentially mixed content.
-#     
-#     Args:
-#         filename (str): Path to the input text file
-#     
-#     Returns:
-#         numpy.ndarray: Parsed matrix
-#     """
-#     matrix_data = []
-#     in_matrix = False
-#     
-#     with open(filename, 'r') as file:
-#         for line in file:
-#             parts = line.strip().split()
-#             
-#             # Condition to start matrix parsing (you would customize this)
-#             if not in_matrix and some_start_condition(line):
-#                 in_matrix = True
-#                 continue
-#             
-#             # Condition to stop matrix parsing (you would customize this)
-#             if in_matrix and some_end_condition(line):
-#                 in_matrix = False
-#                 break
-#             
-#             # Parse matrix rows while in matrix
-#             if in_matrix:
-#                 # Skip lines that are just column headers (all digits)
-#                 if not all(val.isdigit() for val in parts):
-#                     # Ensure line has a row index and numeric values
-#                     if parts and parts[0].isdigit():
-#                         matrix_data.append(parts)
-#     
-#     # Convert to numpy array of floats, skipping first column (row index)
-#     matrix = np.array([
-#         [float(val) for val in row[1:]] 
-#         for row in matrix_data
-#     ])
-#     
-#     return matrix
-# 
-# # Example of potential start/end conditions (you would define these)
-# def some_start_condition(line):
-#     return "Matrix starts here" in line
-# 
-# def some_end_condition(line):
-#     return "Matrix ends here" in line
-
 def overlap(fh):
     print("Parsing overlap matrix...")
     fh.seek(0)
