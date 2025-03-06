@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from util import ZMatrix,elements
 from ase import Atom
 from cclib.io import ccread
@@ -22,7 +23,7 @@ class Parser:
     begin = ()
 
     def __init__(self,opts,fn):
-        self.fn = fn
+        self.fn = Path(fn)
         self.opts = opts
 
     def getLattice(self):
@@ -81,7 +82,7 @@ class Parser:
         self.logger.warn('Could not parse with cclib, falling back to internal parser')
         zmat = ZMatrix()
         in_zmat = False
-        if not self.begin or (self.fn[-4:].lower() in ('.com')):
+        if not self.begin or (self.fn.suffix in ('.com')):
             in_zmat = True
         with open(self.fn) as fh:
             for _l in fh:

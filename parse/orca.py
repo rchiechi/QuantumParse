@@ -2,7 +2,7 @@ import sys
 import re
 import numpy as np
 from collections import OrderedDict
-
+from pathlib import Path
 from parse import xyz
 import logging
 import warnings
@@ -10,6 +10,49 @@ import warnings
 from colorama import Fore, Style
 
 warnings.filterwarnings('ignore','.*None.*',FutureWarning)
+
+class InMatrix:
+    
+    def __init__(self, insig:int, outsig:int):
+        self.active = False
+        self.outsig = [False for i in range(outsig)]
+        self.insig = [False for i in range(insig)]
+    
+    def init(self):
+        self.active = True
+        self.pos()
+    
+    def sig(self):
+        if not self.inmatrix:
+            self.pos()
+        else:
+            self.neg()
+        return self.inmatrix
+    
+    def pos(self):
+        self._checksig(self.insig)
+        return self.inmatrix
+    
+    def neg(self):
+        self._checksig(self.outsig)
+        return self.inmatrix
+    
+    def _checksig(self, sig):
+        if not self.active:
+            return
+        if all(sig):
+            raise ValueError("Called in/out in wrong order or too many times.")
+        for i, s in enumerate(sig):
+            if not s:
+                sig[i] = True
+                return
+
+    @property
+    def inmatrix(self):
+        if not self.active:
+            raise ValueError("Called inmatrix on unititialized InMatrix.")
+        return all(self.insig) and not all(self.outsig)
+        
 
 class Parser(xyz.Parser):
 
@@ -21,31 +64,15 @@ class Parser(xyz.Parser):
     breaks = ('CARTESIAN COORDINATES (A.U.)')
     begin = ('CARTESIAN COORDINATES (ANGSTROEM)')
 
-    # def parseZmatrix(self):
-    #     self.logger.debug('Building zmatrix...')
-    #     if self.opts.nocclib or not self.__cclibparse():
-    #         self.__internalparse()
-    #     if self.opts.project:
-    #         self.zmat.toZaxis()
-    #     elif self.opts.sortaxis:
-    #         self.zmat.sort(self.opts.sortaxis)
-    #     if self.fn[-4:].lower() == '.out':
-    #         self.__dotransport()
-    #     else:
-    #         if self.opts.build:
-    #             self.zmat.buildElectrodes(self.opts.build,self.opts.size,
-    #                                       self.opts.distance,self.opts.binding,
-    #                                       self.opts.surface,self.opts.adatom,self.opts.SAM)
-    #     self.zmat.findElectrodes()
 
     def __dotransport(self):
         self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
-        with open(self.fn) as fh:
-            # TODO: Deal with unrestricted calculations
-            self.fm = fock(fh)
+        orca_out = Path(self.fn)
+        # TODO: Deal with unrestricted calculations
+        with orca_out.open() as fh:
             if self.opts.unrestricted:
                 self.logger.debug("Parsing unrestricted calculation")
-                self.fm_beta = fock(fh,1)
+                self.fm_beta = fock(fh, 1)
             else:
                 self.fm_beta = None
             self.orbs,self.orbidx = norbs(fh)
@@ -56,66 +83,98 @@ class Parser(xyz.Parser):
 
 logger = logging.getLogger('OrcaMatrix')
 
+# import numpy as np
+# 
+# def parse_matrix_from_file(filename):
+#     """
+#     Parse an n x n matrix from a text file with potentially mixed content.
+#     
+#     Args:
+#         filename (str): Path to the input text file
+#     
+#     Returns:
+#         numpy.ndarray: Parsed matrix
+#     """
+#     matrix_data = []
+#     in_matrix = False
+#     
+#     with open(filename, 'r') as file:
+#         for line in file:
+#             parts = line.strip().split()
+#             
+#             # Condition to start matrix parsing (you would customize this)
+#             if not in_matrix and some_start_condition(line):
+#                 in_matrix = True
+#                 continue
+#             
+#             # Condition to stop matrix parsing (you would customize this)
+#             if in_matrix and some_end_condition(line):
+#                 in_matrix = False
+#                 break
+#             
+#             # Parse matrix rows while in matrix
+#             if in_matrix:
+#                 # Skip lines that are just column headers (all digits)
+#                 if not all(val.isdigit() for val in parts):
+#                     # Ensure line has a row index and numeric values
+#                     if parts and parts[0].isdigit():
+#                         matrix_data.append(parts)
+#     
+#     # Convert to numpy array of floats, skipping first column (row index)
+#     matrix = np.array([
+#         [float(val) for val in row[1:]] 
+#         for row in matrix_data
+#     ])
+#     
+#     return matrix
+# 
+# # Example of potential start/end conditions (you would define these)
+# def some_start_condition(line):
+#     return "Matrix starts here" in line
+# 
+# def some_end_condition(line):
+#     return "Matrix ends here" in line
+
 def overlap(fh):
     print("Parsing overlap matrix...")
     fh.seek(0)
-    ovdict = OrderedDict()
-    inoverlap = False
-    lk = []
-    orb_idx = 0
+    inoverlap = InMatrix(2,1)
+    matrix_data = []
+    orb_idx = -1
     for _l in fh:
-        if not _l.strip():
+        line = _l.strip()
+        parts = line.split()
+        if not line or not parts:
             continue
-        lk.append(_l.strip())
-        if not inoverlap:
-            if len(lk) > 3:
-                lk.pop(0)
+        if "OVERLAP MATRIX" in line:
+            inoverlap.init()
+            continue
+        elif not inoverlap.active:
+            continue
+        if not parts[0].isdigit():
+            if not inoverlap.sig():
+                break
+            continue
+        if not all(val.isdigit() for val in parts):
+            if int(parts[0]) > orb_idx:
+                orb_idx = int(parts[0])
+            elif int(parts[0]) == 0:
+                orb_idx = 0
             else:
-                continue
-        if lk[1] == 'OVERLAP MATRIX' and not inoverlap:
-            inoverlap = True
-            continue
-        elif _l[0] == '-' and inoverlap:
-            break
-        elif _l.strip()[0] == '*' and inoverlap:
-            inoverlap = False
-            print(f"End: {_l.strip()}")
-            continue
-        if inoverlap:
-            lsf = _l.split()
-            fl = []
-            for n in lsf:
-                if '.' in n:
-                    fl.append(float(n))
-                else:
-                    fl.append(int(n))
-            if fl[0] > orb_idx:
-                orb_idx = fl[0]
-            elif fl[0] < orb_idx:
-                if isinstance(fl[-1], float) and fl[0] == 0:
-                    orb_idx = 0
-                elif isinstance(fl[-1], int):
-                    continue
-                else:
-                    print(f"Ended at orb: {orb_idx}")
-                    print(f"End: {_l.strip()}")
-                    inoverlap = False
-                    continue                        
-            if isinstance(fl[-1], float):
-                if orb_idx not in ovdict:
-                    ovdict[orb_idx] = fl[1:]
-                else:
-                    ovdict[orb_idx] += fl[1:]
+                break
+            matrix_data.append(parts)
     print("%sOverlap Matrix " % Fore.YELLOW, end='')
     print("%sx-elements: %s%s, %sy-elements: %s%s%s" % (Fore.YELLOW,
                                                         Fore.GREEN,
-                                                        len(ovdict),
+                                                        orb_idx,
                                                         Fore.YELLOW,
                                                         Fore.GREEN,
-                                                        len(ovdict[0]),
+                                                        len(matrix_data[0]),
                                                         Style.RESET_ALL))
-    return np.array(list(ovdict.values()), float)
-
+    return  np.array([
+            [float(val) for val in row[1:]] 
+            for row in matrix_data
+        ])
 
 def fock(fh, spin=0):
     fh.seek(0)
@@ -242,7 +301,6 @@ def norbs(fh):
                 break
             elif re.match(rp,lsf[0]) is None:
                 continue
-            print(lsf)
             if lsf[0] in orbdict:
                 if lsf[1] in orbdict[lsf[0]]:
                     continue
