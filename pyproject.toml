@@ -1,0 +1,37 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]  # Or "hatchling" for Hatch
+build-backend = "poetry.core.masonry.api" # Or "hatchling.build" for Hatch
+
+[tool.poetry] # For Poetry; use [tool.hatch] for Hatch
+name = "QuantumParse"
+version = "0.1.0"
+description = "A python script to convert between formats for quantum chemical calculations."
+authors = ["Ryan Chiechi <ryan@rcclab.com>"]
+license = "MIT" # Choose a license
+readme = "README.md" # or "README.rst"
+packages = [{include = "quantumparse"}] # Important: Specify your package directory
+
+[tool.poetry.dependencies]
+python = "^3.12" # Specify Python versions
+argcomplete = "^3.5.3"
+ase = "^3.24.0"
+cclib = "^1.8.1"
+colorama= "^0.4.6"
+matplotlib = "^3.9.0"
+numpy= "^1.26.4"
+pandas = "^2.2.2"
+periodictable = "^1.7.0"
+pillow= "^10.3.0"
+pytz = "^2024.1"
+scipy = "^1.13.1"
+jinja2 = "^3.1.6"
+
+[tool.poetry.dev-dependencies] # Development dependencies
+pytest = "^7.0"
+
+[tool.poetry.scripts] # Optional: For command-line scripts
+QuantumParse = "quantumparse.quantumparse:main"
+ArtaiosParallel = "quantumparse.artaiosparallel:main"
+GetOrbs = "quantumparse.getorbs:main"
+MakeSAM = "quantumparse.makesam:main"
+# For Hatch, equivalents exist under [tool.hatch]

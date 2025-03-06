@@ -1,14 +1,10 @@
-#!/usr/bin/env python3
-
 import sys,os
-from parse.orca import *
-from output import xyz
+from .xyz import Writer as BaseWriter
 import subprocess
 import numpy as np
-from util import *
-#import fortranformat as ff
+from quantumparse.util import *
 
-class Writer(xyz.Writer):
+class Writer(BaseWriter):
     #TODO Orca is a mess
 
     def write(self):

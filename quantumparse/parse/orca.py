@@ -1,13 +1,16 @@
 import sys
 import re
+import logging
 import numpy as np
 from collections import OrderedDict
 from pathlib import Path
-from parse import xyz
+from .xyz import Parser as BaseParser
 import logging
 import warnings
-# from util import elements
 from colorama import Fore, Style
+
+logger = logging.getLogger(__name__)
+
 
 warnings.filterwarnings('ignore','.*None.*',FutureWarning)
 
@@ -56,7 +59,7 @@ class InMatrix:
         return all(self.insig) and not all(self.outsig)
         
 
-class Parser(xyz.Parser):
+class Parser(BaseParser):
 
     # TODO: Orca parsing is a mess
     fm = None
@@ -68,7 +71,7 @@ class Parser(xyz.Parser):
 
 
     def __dotransport(self):
-        self.logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
+        logger.debug('Parsing overlap and fock matrix from %s' % self.fn)
         orca_out = []
         # TODO: Deal with unrestricted calculations
         
@@ -81,17 +84,16 @@ class Parser(xyz.Parser):
         self.ol = overlap(orca_out)
         self.fm = fock(orca_out)
         if self.opts.unrestricted:
-            self.logger.debug("Parsing unrestricted calculation")
+            logger.debug("Parsing unrestricted calculation")
             self.fm_beta = fock(orca_out, 1)
         else:
             self.fm_beta = None
         self.orbs = norbs(orca_out)
             
         if not all( [self.fm.any(), self.orbs, self.ol.any()] ):
-            self.logger.error("Did not parse Orca matrix correctly.")
+            logger.error("Did not parse Orca matrix correctly.")
 
 
-logger = logging.getLogger('OrcaMatrix')
 
 def overlap(orca_out):
     print("Parsing overlap matrix...")

@@ -1,15 +1,17 @@
-from parse import xyz
-#import logging
+import logging
+from .xyz import Parser as BaseParser
 import cclib
 import numpy as np
 
-class Parser(xyz.Parser):
+logger = logging.getLogger(__name__)
+
+class Parser(BaseParser):
     begin = ('Symbolic Z-matrix:','Normal termination of Gaussian')
     breaks = ('--link1--','natoms=','stoichiometry','Stoichiometry','Standard orientation:')
 
     def __dotransport(self):
         '''Returns overlap, hamiltonian'''
-        self.logger.info("Parsing Hamiltonian and Overlap")
+        logger.info("Parsing Hamiltonian and Overlap")
         fh = open(self.fn)
         if hasattr(self, 'ccparsed'):
             if not self.ccparsed:
@@ -19,7 +21,7 @@ class Parser(xyz.Parser):
         while infile:
             line = next(fh)
             if line[1:7] == "******" and (line[8:24] == "Core Hamiltonian" or line[11:27] == "Core Hamiltonian" ):
-                self.logger.debug(line.strip())
+                logger.debug(line.strip())
                 hamiltonian = np.zeros((self.ccparsed.nbasis, self.ccparsed.nbasis), "d")
                 base = 0
 #                colmNames = next(fh)
@@ -33,8 +35,8 @@ class Parser(xyz.Parser):
                                 hamiltonian[base+j, i+base] = k
                                 hamiltonian[i+base, base+j] = k
                             except IndexError as msg:
-                                self.logger.error("Error parsing Hamltonian: %s" % str(msg))
-                                self.logger.warn("If you are outputting for Artaios and have g09_2unform installed, everything should be ok.")
+                                logger.error("Error parsing Hamltonian: %s" % str(msg))
+                                logger.warn("If you are outputting for Artaios and have g09_2unform installed, everything should be ok.")
                     base += 5
 #                    colmNames = next(fh)
                 hamiltonian = np.array(hamiltonian, "d")

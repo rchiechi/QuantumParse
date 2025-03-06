@@ -1,24 +1,24 @@
 import os
-# import pandas as pd
 import logging
 import importlib
 from ase.io import write as ase_write
 
-__ALL__ = ['Writer']
 
 # TODO Files are written in CWD instead of input (at least for siesta)
+
+logger = logging.getLogger(__name__)
 
 class Writer:
 
     ext = '.xyz'
-    logger = logging.getLogger('Writer')
+    
 
     def __init__(self,parser):
         self.parser = parser
         self.opts = parser.opts
         if self.opts.jobname:
             self.jobname = self.opts.jobname
-            self.logger.debug('Setting jobname to %s' % self.jobname)
+            logger.debug('Setting jobname to %s' % self.jobname)
         else:
             # self.jobname = ''.join(self.parser.fn.split('.')[0:-1])
             self.jobname = ''.join(os.path.basename(self.parser.fn).split('.')[0:-1])
@@ -28,14 +28,14 @@ class Writer:
 
     def writeelectrodes(self):
         if not self.parser.haselectrodes():
-            self.logger.warn('Not writing non-existant electrodes.')
+            logger.warn('Not writing non-existant electrodes.')
             return
         # TODO Hackish way to avoid recursive loop
         opts = self.opts
         opts.writeelectrodes = False
         for e in ('L','R'):
             if self.opts.build and self.opts.size[2] > 2:
-                self.logger.debug('Removing two layers of atoms for Siesta leads')
+                logger.debug('Removing two layers of atoms for Siesta leads')
                 s = Writer.trimElectrodes(self.parser.zmat, e, self.opts.size)
                 # if e == 'L':
                 #    s = (self.parser.zmat.electrodes[e][0],
@@ -63,9 +63,9 @@ class Writer:
 
     def write(self):
         if os.path.exists(self.fn) and not self.opts.overwrite:
-            self.logger.error('Not overwriting %s' % self.fn)
+            logger.error('Not overwriting %s' % self.fn)
         else:
-            self.logger.info('Writing to: %s' % self.fn)
+            logger.info('Writing to: %s' % self.fn)
             with open(self.fn, 'w') as fh:
                 self._writehead(fh)
                 self._writezmat(fh)
@@ -73,16 +73,16 @@ class Writer:
             if self.opts.writeelectrodes:
                 self.writeelectrodes()
         if self.opts.png:
-            self.logger.info('Writing %s.png' % self.jobname)
+            logger.info('Writing %s.png' % self.jobname)
             try:
                 # pass
                 ase_write('%s.png' % self.jobname,self.parser.zmat,rotation='90y')
             except ValueError as msg:
-                self.logger.warn("Error writing png file: %s" % str(msg))
+                logger.warn("Error writing png file: %s" % str(msg))
             except TypeError as msg:
-                self.logger.warn("Error writing png file %s" % str(msg))
+                logger.warn("Error writing png file %s" % str(msg))
             except ImportError as msg:
-                self.logger.error("Error importing _png module %s", str(msg))
+                logger.error("Error importing _png module %s", str(msg))
 
     def _writehead(self,fh):
         fh.write('%s\n' % len(self.parser.zmat))

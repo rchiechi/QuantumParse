@@ -1,5 +1,5 @@
 import os
-from output import xyz
+from .xyz import Writer as BaseWriter
 
 def get_angular_momentum(elem):
     if elem in ('H', 'He', 'Li', 'Be'):
@@ -9,7 +9,7 @@ def get_angular_momentum(elem):
     else:
         return('d')
 
-class Writer(xyz.Writer):
+class Writer(BaseWriter):
     'Basic dftb_in.hsd file to do a geometry optimization'
 
     def _writetail(self, fh):

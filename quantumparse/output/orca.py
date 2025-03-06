@@ -1,13 +1,16 @@
-from output import xyz
+import logging
+from .xyz import Writer as BaseWriter
 
-class Writer(xyz.Writer):
+logger = logging.getLogger(__name__)
 
-    def _writetail(self,fh):
+class Writer(BaseWriter):
+
+    def _writetail(self, fh):
         bn = fh.name[:-4]
-        self.logger.debug('Base filname: %s', bn)
+        logger.debug('Base filname: %s', bn)
         inpfn = bn+'.inp'
-        self.logger.info('Writing to %s', inpfn)
-        mult = xyz.Writer.getMultiplicity(self.parser.zmat)
+        logger.info('Writing to %s', inpfn)
+        mult = Writer.getMultiplicity(self.parser.zmat)
         with open(inpfn,'wt') as inp:
             if self.opts.transport:
                 inp.write('! DFT wB97M-D4 Def2-TZVP SlowConv TightSCF\n')

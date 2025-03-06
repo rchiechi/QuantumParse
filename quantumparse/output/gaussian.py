@@ -1,6 +1,6 @@
-from output import xyz
+from .xyz import Writer as BaseWriter
 
-class Writer(xyz.Writer):
+class Writer(BaseWriter):
 
     ext = '.com'
 

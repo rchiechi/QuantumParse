@@ -10,9 +10,11 @@ from .constants import EATOMS,TAGS
 
 __ALL__ = ['ZMatrix']
 
+logger = logging.getLogger(__name__)
+
 class ZMatrix(Atoms):
 
-    logger = logging.getLogger('Z-Matrix')
+    
     electrodes = {'L':(0,0),'M':(0,0),'R':(0,0),'atom':None}
     optimized = None
 
@@ -21,10 +23,10 @@ class ZMatrix(Atoms):
         for e in EATOMS:
             if e in self.get_chemical_symbols():
                 break
-        self.logger.debug('Searching for %s electrodes.', e)
+        logger.debug('Searching for %s electrodes.', e)
         _l,_m,_r = [],[],[]
         for _a in self:
-            self.logger.debug(str(_a))
+            logger.debug(str(_a))
             if _a.symbol == e:
                 if not _m:
                     _l.append(_a.index)
@@ -37,17 +39,17 @@ class ZMatrix(Atoms):
                 self[_a.index].tag = TAGS['molecule']
         if not _m:
             if _l or _r:
-                self.logger.debug('This zmatrix looks like an electrode.')
-                self.logger.debug(_l)
-                self.logger.debug(_r)
+                logger.debug('This zmatrix looks like an electrode.')
+                logger.debug(_l)
+                logger.debug(_r)
             else:
-                self.logger.debug('No electrodes found.')
+                logger.debug('No electrodes found.')
             return None
         if not _l or not _r:
-            self.logger.debug('No electrodes found.')
+            logger.debug('No electrodes found.')
             return False
         self.electrodes = {'L':(_l[0],_l[-1]),'M':(_m[0],_m[-1]),'R':(_r[0],_r[-1]),'atom':e}
-        self.logger.debug(self.electrodes)
+        logger.debug(self.electrodes)
         return True
 
     def buildElectrodes(self,atom,size,distance,position,surface,**kwargs):
@@ -58,7 +60,7 @@ class ZMatrix(Atoms):
             kwargs['anchor'] = 'S'
 
         if 'z' not in self.toZaxis(kwargs.get('reverse', False)):
-            self.logger.warning('Molecule is not projected along Z-axis!')
+            logger.warning('Molecule is not projected along Z-axis!')
         anchorpos = 0
         toppos = -1
         if self[0].symbol == kwargs['anchor']:
@@ -68,17 +70,17 @@ class ZMatrix(Atoms):
             anchorpos = -1
             toppos = 0
         else:
-            self.logger.warning('Anchoring to terminal %s instead of %s!', self[0].symbol, kwargs['anchor'])
-        self.logger.info('Building first %s electrode.', atom)
+            logger.warning('Anchoring to terminal %s instead of %s!', self[0].symbol, kwargs['anchor'])
+        logger.info('Building first %s electrode.', atom)
         b = getattr(ase.build,surface)(atom,size=size)
         c = getattr(ase.build,surface)(atom,size=size)
         if kwargs.get('adatom', False):
-            self.logger.debug('Adding %s adatom', atom)
+            logger.debug('Adding %s adatom', atom)
             Spos = self[anchorpos].position
             self += Atom(atom, position=[Spos[0],Spos[1],Spos[2]+2.5])
         if kwargs.get('SAM', False):
             offset = 0
-            self.logger.debug('Building an n x n SAM (%s)', str(size[0]/2))
+            logger.debug('Building an n x n SAM (%s)', str(size[0]/2))
             for i in range(0, size[0], kwargs.get('spacing', 2)):
                 ase.build.add_adsorbate(b, self, distance, position, offset=[0,i], mol_index=anchorpos)
                 for j in range(kwargs.get('spacing', 2), size[0], kwargs.get('spacing', 2)):
@@ -86,7 +88,7 @@ class ZMatrix(Atoms):
         else:
             offset = (ceil(size[0]/2-1), ceil(size[1]/2-1))
             ase.build.add_adsorbate(b, self, distance, position, offset=offset)
-        self.logger.debug('Electrode size: %s offset: %s distance:%s',
+        logger.debug('Electrode size: %s offset: %s distance:%s',
                           str(size),str(offset),str(distance))
         # b.rotate('x',pi)
         b.rotate(180,'x')
@@ -94,10 +96,10 @@ class ZMatrix(Atoms):
         # b.rotate('z',(4/3)*pi)
         b.rotate(240,'z')
         if kwargs.get('onlybottom', False):
-            self.logger.info("Built one electrode")
+            logger.info("Built one electrode")
             self.__init__(b)
         else:
-            self.logger.info("Building second electrode")
+            logger.info("Building second electrode")
             ase.build.add_adsorbate(c, b, distance, position, offset=offset, mol_index=toppos)
             self.__init__(c)
         self.sort()
@@ -120,11 +122,11 @@ class ZMatrix(Atoms):
 
     def sort(self,axis='z'):
         '''Sort zmatrix along given axis.'''
-        self.logger.info('Sorting along %s-axis', axis)
+        logger.info('Sorting along %s-axis', axis)
         am = {'x':0,'y':1,'z':2}
         self.__init__(sorted(self, key=lambda self: self.position[am[axis]]))
         for _a in self:
-            self.logger.debug(str(_a))
+            logger.debug(str(_a))
 
     def write(self,fh):
         for _a in self:
@@ -174,7 +176,7 @@ class ZMatrix(Atoms):
             else:
                 return '-z'
         else:
-            self.logger.debug('Error determining projection axis.')
+            logger.debug('Error determining projection axis.')
             return None
 
     def toZaxis(self, reverse=False):
@@ -186,9 +188,9 @@ class ZMatrix(Atoms):
     def toAxis(self, target_axis):
         axis = self.onAxis()
         if axis == target_axis:
-            self.logger.debug('Already on %s-axis, skipping rotation.', target_axis)
+            logger.debug('Already on %s-axis, skipping rotation.', target_axis)
             return axis
-        self.logger.debug('Rotating from %s-axis to %s-axis.', axis, target_axis)
+        logger.debug('Rotating from %s-axis to %s-axis.', axis, target_axis)
         self.rotate(axis, target_axis)
         # if axis == 'x':
         #    self.rotate('x','z')
@@ -209,6 +211,6 @@ class ZMatrix(Atoms):
     def rotateAboutAxis(self,axis,degree):
         '''Project molecule along Z-axis and rotate around another axis'''
         self.toZaxis()
-        self.logger.debug('Rotating around %s by %s°.' % (axis,degree))
+        logger.debug('Rotating around %s by %s°.' % (axis,degree))
         self.rotate(float(degree),axis)
         self.__moveAfterRotate()

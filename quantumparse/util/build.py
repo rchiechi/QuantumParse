@@ -7,7 +7,7 @@ import numpy as np
 
 __all__ = ['zmatToAtoms','atomsToZmat','sortZmat','findDistances','onAxis','toZaxis']
 
-logger = logging.getLogger('Builder')
+logger = logging.getLogger(__name__)
 
 #def buildElectrodes(atoms,atom='Au',size=[4,4,2],position='hcp',distance=1.5,offset=1,SAM=False):
 #    logger.info('Building %s electrodes.' % atom)

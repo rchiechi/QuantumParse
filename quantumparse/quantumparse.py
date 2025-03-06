@@ -1,35 +1,22 @@
-#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
 import os
 import sys
 import subprocess
 import argparse
+import argcomplete
 import logging
 import importlib
+from colorama import init,Fore,Style
+import quantumparse.parse
+import quantumparse.output
 
-reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
-installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
-
-# Need to make this check because ase does not check for dependencies like matplotlib at import
-# installed = [package.project_name for package in pip.get_installed_distributions()]
-# Don't check for ase because we have it locally
-
-required = ['colorama','matplotlib','cclib', 'ase', 'pandas']
-for pkg in required:
-    if pkg not in installed_packages:
-        print('You need to install %s to use %s.' % (pkg,prog))
-        print('e.g., python3 -m pip install --upgrade %s' % pkg)
-        sys.exit(1)
-
-try:
-    from colorama import init,Fore,Style
-except ModuleNotFoundError:
-    print("Plese install colorama (e.g., pip install colorama)")
-    sys.exit()
-
 
 # Setup colors
 init(autoreset=True)
+
+
 
 # Parse args
 desc = 'Convert between quantum chemistry software file formats.'
@@ -108,73 +95,79 @@ parser.add_argument('--png', action='store_true', default=False,
 parser.add_argument('-O', '--optimize', action='store_true', default=False,
                     help="Perform a quick-and-dirty geometry optimization.")
 
+argcomplete.autocomplete(parser)
 opts = parser.parse_args()
-
-rootlogger = logging.getLogger()
+logging.getLogger().setLevel(logging.CRITICAL)
+logging.getLogger().propagate = False
+logger = logging.getLogger('quantumparse')
 loghandler = logging.StreamHandler()
 loghandler.setFormatter(logging.Formatter(
     fmt=Fore.GREEN+'%(name)s'+Fore.CYAN+' %(levelname)s '+Fore.YELLOW+'%(message)s'+Style.RESET_ALL))
-rootlogger.addHandler(loghandler)
-rootlogger.setLevel(getattr(logging,opts.loglevel.upper()))
-logger = logging.getLogger(prog)
+logger.addHandler(loghandler)
+logger.setLevel(getattr(logging,opts.loglevel.upper()))
+cclib_logger = logging.getLogger("cclib")
+cclib_logger.setLevel(logging.CRITICAL)
+cclib_logger.propagate = False
 
-if not len(opts.infiles):
-    logger.error("No input files!")
-    sys.exit()
+def main():
 
-try:
-    opts.size = tuple(map(int,opts.size.split(',')))
-    if len(opts.size) != 3:
-        raise ValueError
-except ValueError:
-    logger.error('%s is not a valid size.' % str(opts.size))
-    sys.exit()
-
-if opts.informat == 'guess':
-    logger.debug('Guessing input file format')
-    ext = opts.infiles[0].split('.')[-1].lower()
-    if ext in ('com','log'):
-        opts.informat = 'gaussian'
-    elif ext in ('inp','out'):
-        opts.informat = 'orca'
-    elif ext in ('xyz'):
-        opts.informat = 'xyz'
-    elif ext in ('fdf'):
-        opts.informat = 'siesta'
-    elif ext in ('adf'):
-        opts.informat = 'adf'
-    else:
-        logger.error("Could not determine input file format")
+    if not len(opts.infiles):
+        logger.error("No input files!")
         sys.exit()
-
-if opts.transport:
-    if opts.outformat == 'siesta':
-        logger.debug('Setting electrodes to true for transiesta.')
-        opts.writeelectrodes = True
-
-logger.info("Input format: %s, Output format: %s" % (opts.informat,opts.outformat))
-if opts.informat == opts.outformat and not opts.jobname:
-    logger.error("You need to set a jobname if input and output formats are the same.")
-    sys.exit()
-if opts.informat not in ('gaussian','orca') and opts.outformat == 'artaios':
-    logger.error("Only gaussian and orca inputs can generate artaios outputs.")
-    sys.exit()
-if opts.outformat in ('artaios') and opts.sortaxis:
-    logger.warn('Sorting the z-matrix and outputting to artaios is a bad idea.')
-if opts.outformat == 'artaios':
-    logger.debug('Artaios output forces transport flag')
-    opts.transport = True
-
-parsers = []
-for fn in opts.infiles:
-    if opts.outformat == 'dftbplus':
-        if '.xyz' not in fn.lower() or '.gen' in fn.lower():
-            logger.error('dftbplus requires an xyz or gen file.')
+    
+    try:
+        opts.size = tuple(map(int,opts.size.split(',')))
+        if len(opts.size) != 3:
+            raise ValueError
+    except ValueError:
+        logger.error('%s is not a valid size.' % str(opts.size))
+        sys.exit()
+    
+    if opts.informat == 'guess':
+        logger.debug('Guessing input file format')
+        ext = opts.infiles[0].split('.')[-1].lower()
+        if ext in ('com','log'):
+            opts.informat = 'gaussian'
+        elif ext in ('inp','out'):
+            opts.informat = 'orca'
+        elif ext in ('xyz'):
+            opts.informat = 'xyz'
+        elif ext in ('fdf'):
+            opts.informat = 'siesta'
+        elif ext in ('adf'):
+            opts.informat = 'adf'
+        else:
+            logger.error("Could not determine input file format")
             sys.exit()
-    parsers.append(importlib.import_module('parse.%s' % opts.informat).Parser(opts,fn))
-
-for p in parsers:
-    p.parseZmatrix()
-for p in parsers:
-    output = (importlib.import_module('output.%s' % opts.outformat).Writer(p))
-    output.write()
+    
+    if opts.transport:
+        if opts.outformat == 'siesta':
+            logger.debug('Setting electrodes to true for transiesta.')
+            opts.writeelectrodes = True
+    
+    logger.info("Input format: %s, Output format: %s" % (opts.informat,opts.outformat))
+    if opts.informat == opts.outformat and not opts.jobname:
+        logger.error("You need to set a jobname if input and output formats are the same.")
+        sys.exit()
+    if opts.informat not in ('gaussian','orca') and opts.outformat == 'artaios':
+        logger.error("Only gaussian and orca inputs can generate artaios outputs.")
+        sys.exit()
+    if opts.outformat in ('artaios') and opts.sortaxis:
+        logger.warn('Sorting the z-matrix and outputting to artaios is a bad idea.')
+    if opts.outformat == 'artaios':
+        logger.debug('Artaios output forces transport flag')
+        opts.transport = True
+    
+    parsers = []
+    for fn in opts.infiles:
+        if opts.outformat == 'dftbplus':
+            if '.xyz' not in fn.lower() or '.gen' in fn.lower():
+                logger.error('dftbplus requires an xyz or gen file.')
+                sys.exit()
+        parsers.append(getattr(quantumparse.parse, opts.informat).Parser(opts, fn))
+    
+    for parser in parsers:
+        parser.parseZmatrix()
+    for parser in parsers:
+        output = getattr(quantumparse.output, opts.informat).Writer(parser)
+        output.write()

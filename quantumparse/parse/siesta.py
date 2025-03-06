@@ -1,7 +1,10 @@
-from parse import xyz
-from util import *
+import logging
+from .xyz import Parser as BaseParser
+from quantumparse.util import *
 
-class Parser(xyz.Parser):
+logger = logging.getLogger(__name__)
+
+class Parser(BaseParser):
 
     def hasLattice(self):
         if self.lattice['constant'] == None or not self.lattice['vectors']:
@@ -29,8 +32,8 @@ class Parser(xyz.Parser):
                         pos.append([x,y,z])
                         f.append(atom)
                     except ValueError as msg:
-                        self.logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
-                        self.logger.debug(' '.join(row))
+                        logger.debug("Error parsing line in Z-matrix in %s" % self.fn)
+                        logger.debug(' '.join(row))
             self.zmat = ZMatrix(f, positions=pos)
             self.parseLattice(fh)
 
@@ -62,6 +65,6 @@ class Parser(xyz.Parser):
             if inblock:
                 i,n,atom = l.split()[:3]
                 atomlabels[int(i)] = atom
-                self.logger.debug('Found atom %s' % atom)
+                logger.debug('Found atom %s' % atom)
         fh.seek(0)
         return atomlabels

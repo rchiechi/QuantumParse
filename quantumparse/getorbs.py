@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Version: 1.0
-Copyright (C) 2022 Ryan Chiechi <ryan.chiechi@ncsu.edu>
+Copyright (C) 2025 Ryan Chiechi <ryan.chiechi@ncsu.edu>
 Description:
         This program parses the outputs of quantum chemistry programs
         and renders isoplots as cube files using VMD. It is mostly useful
@@ -33,22 +33,15 @@ import subprocess
 import configparser
 from collections import OrderedDict
 from jinja2 import Environment, PackageLoader, select_autoescape
+import numpy as np
+from colorama import init,Fore,Back,Style
 
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0].lower()for r in reqs.split()]
 prog = os.path.basename(sys.argv[0]).replace('.py','')
 
-required = ['numpy','colorama', 'jinja2']
-for pkg in required:
-    if pkg not in installed_packages:
-        print('You need to install %s to use %s.' % (pkg,prog))
-        print('e.g., sudo -H pip3 install --upgrade %s' % pkg)
-        sys.exit(1)
-
 try:
-    # from psutil import cpu_count
-    import numpy as np
-    from colorama import init,Fore,Back,Style
+
 except ModuleNotFoundError as msg:
     print('You need to install additional pacakges, e.g., sudo -H pip3 install --upgrade <package>')
     print(msg)
@@ -673,58 +666,59 @@ _env = json.loads(opts.env)
 print(f'{Fore.YELLOW}Loaded environment: {_env}')
 ENV.update(_env)
 
-# Check that options were parsed correctly
-if not opts.infiles:
-    print(Fore.RED+"No input file.")
-    sys.exit()
-
-if len(opts.colors) != 2:
-    print(Fore.RED+"Too many colors: %s" % str(opts.colors))
-    sys.exit()
-
-for orb in opts.orbs:
-    if (',' in orb) or (' ' in orb):
-        print(Fore.RED+"Something is wrong with the orbital specfication: %s" % str(opts.orbs))
-        print(Fore.YELLOW+"Orbitals are specified like this: --orbs HOMO LUMO LUMO+1")
+def main():
+    # Check that options were parsed correctly
+    if not opts.infiles:
+        print(Fore.RED+"No input file.")
         sys.exit()
-
-for c in opts.colors:
-    if c not in VMDCOLORS.keys():
-        print(Fore.RED+"Invalid color selection: %s" % str(opts.colors))
+    
+    if len(opts.colors) != 2:
+        print(Fore.RED+"Too many colors: %s" % str(opts.colors))
         sys.exit()
-if opts.material not in VMDMATERIALS:
-    print(Fore.RED+"Invalid material: %s" % str(opts.material))
-    sys.exit()
-if opts.molmethod not in VMDMETHODS:
-    print(Fore.RED+"Invalid molmethod: %s" % str(opts.molmethod))
-    sys.exit()
-if opts.electrodemethod not in VMDMETHODS:
-    print(Fore.RED+"Invalid electrodemethod: %s" % str(opts.electrodemethod))
-    sys.exit()
-
-# Loop through input files and process
-for fn in opts.infiles:
-    ORBS = OrderedDict()
-    PROG = getprog(fn)
-    if PROG is None:
-        print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
-        continue
-    print(Back.BLUE+Fore.WHITE+"# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
-    BN = os.path.basename(fn)[:-4]
-    if PROG == 'xyz':
-        tclfn = fn[:-4]+'_vmd.tcl'
-        writeSimpleVMD(tclfn, os.path.basename(fn))
-        if opts.render and opts.VMDpath:
-            print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
-            subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
-
-    elif PROG == 'cube':
-        tclfn = fn[:-5]+'_vmd.tcl'
-        writeCubeVMD(tclfn, os.path.basename(fn))
-
-        if opts.render and opts.VMDpath:
-            subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
-
-    elif PROG == 'orca':
-        doorcaprog(fn, opts)
-    writePymol(fn[:-4])
+    
+    for orb in opts.orbs:
+        if (',' in orb) or (' ' in orb):
+            print(Fore.RED+"Something is wrong with the orbital specfication: %s" % str(opts.orbs))
+            print(Fore.YELLOW+"Orbitals are specified like this: --orbs HOMO LUMO LUMO+1")
+            sys.exit()
+    
+    for c in opts.colors:
+        if c not in VMDCOLORS.keys():
+            print(Fore.RED+"Invalid color selection: %s" % str(opts.colors))
+            sys.exit()
+    if opts.material not in VMDMATERIALS:
+        print(Fore.RED+"Invalid material: %s" % str(opts.material))
+        sys.exit()
+    if opts.molmethod not in VMDMETHODS:
+        print(Fore.RED+"Invalid molmethod: %s" % str(opts.molmethod))
+        sys.exit()
+    if opts.electrodemethod not in VMDMETHODS:
+        print(Fore.RED+"Invalid electrodemethod: %s" % str(opts.electrodemethod))
+        sys.exit()
+    
+    # Loop through input files and process
+    for fn in opts.infiles:
+        ORBS = OrderedDict()
+        PROG = getprog(fn)
+        if PROG is None:
+            print(Fore.RED+Style.BRIGHT+"I don't know what kind of file this is.")
+            continue
+        print(Back.BLUE+Fore.WHITE+"# # # # # # # # %s (%s) # # # # # # # #" % (fn,PROG))
+        BN = os.path.basename(fn)[:-4]
+        if PROG == 'xyz':
+            tclfn = fn[:-4]+'_vmd.tcl'
+            writeSimpleVMD(tclfn, os.path.basename(fn))
+            if opts.render and opts.VMDpath:
+                print(Fore.BLUE+Back.WHITE+'# # # # # # # # Render  # # # # # # # # # # # #')
+                subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
+    
+        elif PROG == 'cube':
+            tclfn = fn[:-5]+'_vmd.tcl'
+            writeCubeVMD(tclfn, os.path.basename(fn))
+    
+            if opts.render and opts.VMDpath:
+                subprocess.run([opts.VMDpath, '-e', tclfn], env=ENV)
+    
+        elif PROG == 'orca':
+            doorcaprog(fn, opts)
+        writePymol(fn[:-4])
