@@ -39,6 +39,90 @@ def parse_arguments():
     return args
 
 
+
+    # $partitioning
+    #    totnbas  406
+    #    leftbas 1-191 #CHECK THIS!
+    #    centralbas 192-357 #CHECK THIS!
+    #    rightbas 358-406 #CHECK THIS!
+    # $end
+    # $energy_range
+    #   start  -8.0
+    #    end     8.0
+    #    steps 800
+    # $end
+    # $system
+    #    nspin  1
+    # $end
+    # $electrodes
+    #    self_energy wbl
+    #    dos_s 0.036
+    #    fermi_level -5.0
+    # $end
+    # $general
+    #   do_transport
+    #   unit   eV
+    #   modelham
+    #   loewdin_central
+    #   qcprog gen
+    # #  conductance
+    # $end
+    # #Uncomment below to enable local bondflux. Check fluxdir!
+    # #$local_transmission
+    # #  bondflux
+    # #  fluxdir Z
+    # #  fluxsurf -5.0 5.0
+    # #  fluxthres 0.3
+    # #  bc_scale_area
+    # #  atomgroup 1-1
+    # #  #read_green
+    # #  #print_green
+    # #$end
+    # 
+    # $subsystem
+    #   print_molden T
+    #   print_diag_central T
+    #   do_diag_central T
+    #   moldeninfile C6.molden.input
+    # $end
+    
+    
+
+
+# import asyncio
+# 
+# async def run_command(command):
+#     process = await asyncio.create_subprocess_exec(
+#         *command,
+#         stdout=asyncio.subprocess.PIPE,
+#         stderr=asyncio.subprocess.PIPE,
+#     )
+#     stdout, stderr = await process.communicate()
+#     returncode = process.returncode
+#     return stdout, stderr, returncode
+# 
+# async def main():
+#     commands = [
+#         ["echo", "Hello, world!"],
+#         ["ls", "-l"],
+#         ["python3", "-c", "print('Python output')"],
+#     ]
+# 
+#     async with asyncio.TaskGroup() as tg:
+#         tasks = [tg.create_task(run_command(command)) for command in commands]
+# 
+#     for task in tasks:
+#         stdout, stderr, returncode = task.result()
+#         print(f"Return Code: {returncode}")
+#         if stdout:
+#             print(f"Stdout: {stdout.decode()}")
+#         if stderr:
+#             print(f"Stderr: {stderr.decode()}")
+# 
+# if __name__ == "__main__":
+#     asyncio.run(main())
+
+
 ######### Main () ############################
 
 async def main():
@@ -48,30 +132,30 @@ async def main():
     IN = Path(args.input_file)
     
     # Optional: override NCPU if specified
-    if args.ncpu:
-        NCPU = args.ncpu
-    else:
-        try:
-            from psutil import cpu_count
-            NCPU=cpu_count()
-        except ImportError:
-            print('You need to install psutil.')
-            print('e.g., sudo -H pip3 install --upgrade psutil')
-            sys.exit(1)
-    
-    if shutil.which('parallel') is None:
-        print("Error: GNU Parallel is not installed.")
-        print("Please install it using one of these methods:")
-        print("  - On Ubuntu/Debian: sudo apt-get install parallel")
-        print("  - On Fedora: sudo dnf install parallel")
-        print("  - On macOS with Homebrew: brew install parallel")
-        print("  - On macOS with MacPorts: sudo port install parallel")
-        print("  - With pip: pip install GNU-parallel")
-        sys.exit(1)
-    
+    # if args.ncpu:
+    #     NCPU = args.ncpu
+    # else:
+    #     try:
+    #         from psutil import cpu_count
+    #         NCPU=cpu_count()
+    #     except ImportError:
+    #         print('You need to install psutil.')
+    #         print('e.g., sudo -H pip3 install --upgrade psutil')
+    #         sys.exit(1)
+    # 
+    # if shutil.which('parallel') is None:
+    #     print("Error: GNU Parallel is not installed.")
+    #     print("Please install it using one of these methods:")
+    #     print("  - On Ubuntu/Debian: sudo apt-get install parallel")
+    #     print("  - On Fedora: sudo dnf install parallel")
+    #     print("  - On macOS with Homebrew: brew install parallel")
+    #     print("  - On macOS with MacPorts: sudo port install parallel")
+    #     print("  - With pip: pip install GNU-parallel")
+    #     sys.exit(1)
+    # 
     TDIR = Path('artaios_parallel')
     INPUTS= ('hamiltonian.1', 'overlap')
-    BFILE = Path('artaios_parallel.sh')
+    # BFILE = Path('artaios_parallel.sh')
     
     while not IN.exists():
         for fn in os.listdir():
