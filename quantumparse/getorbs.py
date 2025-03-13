@@ -36,16 +36,8 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import numpy as np
 from colorama import init,Fore,Back,Style
 
-reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
-installed_packages = [r.decode().split('==')[0].lower()for r in reqs.split()]
+
 prog = os.path.basename(sys.argv[0]).replace('.py','')
-
-try:
-
-except ModuleNotFoundError as msg:
-    print('You need to install additional pacakges, e.g., sudo -H pip3 install --upgrade <package>')
-    print(msg)
-    sys.exit(1)
 
 absdir = os.path.dirname(os.path.realpath(__file__))
 
@@ -54,7 +46,7 @@ init(autoreset=True)
 
 # Setup jina2
 jenv = Environment(
-    loader=PackageLoader("GetOrbs"),
+    loader=PackageLoader("quantumparse.getorbs"),
     autoescape=select_autoescape()
 )
 
@@ -577,27 +569,29 @@ VMDMETHODS = ('Lines','Bonds','DynamicBonds','HBonds',
               'Orbital','Beads','Dotted','Solvent')
 # Parse config file
 rcconfig = configparser.ConfigParser()
-if not rcconfig.read(RCFILE):
-    orcabin, vpotbin, vmdbin, xtbbin = FindBins()
-    rcconfig['GENERAL'] = {'ORCApath':orcabin,
-                           'ORCAvpot': vpotbin,
-                           'VMDpath':vmdbin,
-                           'xtb': xtbbin,
-                           'ENV':'{}',
-                           'pal':'1',
-                           'render':'no',
-                           'orbs':'HOMO, LUMO'}
-    rcconfig['VMD'] = {'colors':'blue, red',
-                       'material':'Translucent',
-                       'molmethod':'Licorice',
-                       'electrodemethod':'VDW',
-                       'isovalue':0.005,
-                       'electrode':'Au'}
-    with open(RCFILE,'w') as fh:
-        rcconfig.write(fh)
-    print(Fore.YELLOW+Style.BRIGHT+'I wrote default values to %s. Edit that file to change them.' % RCFILE)
-else:
+orcabin, vpotbin, vmdbin, xtbbin = FindBins()
+rc_general = {'ORCApath':orcabin,
+                       'ORCAvpot': vpotbin,
+                       'VMDpath':vmdbin,
+                       'xtb': xtbbin,
+                       'ENV':'{}',
+                       'pal':'1',
+                       'render':'no',
+                       'orbs':'HOMO, LUMO'}
+rc_vmd = {'colors':'blue, red',
+                   'material':'Translucent',
+                   'molmethod':'Licorice',
+                   'electrodemethod':'VDW',
+                   'isovalue':0.005,
+                   'electrode':'Au'}
+if rcconfig.read(RCFILE):
     print(Fore.GREEN+'Read defaults from %s' % RCFILE)
+
+rcconfig['GENERAL'].update({k: str(v) for k, v in rc_general.items() if k not in rcconfig['GENERAL']})
+rcconfig['VMD'].update({k: str(v) for k, v in rc_vmd.items() if k not in rcconfig['VMD']})
+
+with open(RCFILE,'w') as fh:
+    rcconfig.write(fh)
 
 # Convert binary strings to paths
 for path in ('VMDpath','ORCAvpot','ORCApath'):

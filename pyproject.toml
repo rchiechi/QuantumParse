@@ -31,7 +31,7 @@ pytest = "^7.0"
 
 [tool.poetry.scripts] # Optional: For command-line scripts
 QuantumParse = "quantumparse.quantumparse:main"
-ArtaiosParallel = "quantumparse.artaiosparallel:main"
+# ArtaiosParallel = "quantumparse.artaiosparallel:main"
 GetOrbs = "quantumparse.getorbs:main"
 MakeSAM = "quantumparse.makesam:main"
 # For Hatch, equivalents exist under [tool.hatch]
